@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'ffi.dart';
 
 void main() {
@@ -54,6 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late Future<Platform> platform;
   late Future<bool> isRelease;
 
+  int _outputNumber = 0;
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +72,9 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
+    final textCtrl1 = TextEditingController();
+    final textCtrl2 = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -128,21 +134,69 @@ class _MyHomePageState extends State<MyHomePage> {
                 // to the FutureBuilder.future.
                 final Platform platform = data[0];
                 final release = data[1] ? 'Release' : 'Debug';
-                final text = const {
-                      Platform.Android: 'Android',
-                      Platform.Ios: 'iOS',
-                      Platform.MacApple: 'MacOS with Apple Silicon',
-                      Platform.MacIntel: 'MacOS',
-                      Platform.Windows: 'Windows',
-                      Platform.Unix: 'Unix',
-                      Platform.Wasm: 'the Web',
-                    }[platform] ??
-                    'Unknown OS';
+                // final text = const {
+                //       Platform.Android: 'Android',
+                //       Platform.Ios: 'iOS',
+                //       Platform.MacApple: 'MacOS with Apple Silicon',
+                //       Platform.MacIntel: 'MacOS',
+                //       Platform.Windows: 'Windows',
+                //       Platform.Unix: 'Unix',
+                //       Platform.Wasm: 'the Web',
+                //     }[platform] ??
+                //     'Unknown OS';
+                final text = platform.when(
+                  //error here,'when' cannot be recognized
+                  // final text = snap.data!.when(//error here,'when' cannot be recognized
+                  ios: () => 'iOS',
+                  windows: () => 'Windows',
+                  android: () => 'Android',
+                  unix: () => 'Unix',
+                  macOs: (arch) => 'MacOS on $arch',
+                  wasm: () => 'the Web',
+                  unknown: () => 'Unknown OS',
+                );
                 return Text('$text ($release)', style: style);
               },
+            ),
+            _getCalcWidget("input number1", textCtrl1),
+            const Icon(Icons.add_circle_sharp),
+            _getCalcWidget("input number2", textCtrl2),
+            // const Icon(Icons.),
+            Row(
+              children: [
+                IconButton(
+                    onPressed: () async {
+                      final v1 = int.parse(textCtrl1.text);
+                      final v2 = int.parse(textCtrl2.text);
+
+                      _outputNumber =
+                          await api.add2UnsignedValue(v1: v1, v2: v2);
+                      setState(() {});
+                    },
+                    icon: const Icon(Icons.outbond)),
+                Text("$_outputNumber"),
+              ],
             )
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _getCalcWidget(String? hintStr, TextEditingController textCtrl) {
+    return Center(
+      child: TextField(
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          hintText: hintStr,
+        ),
+        keyboardType:
+            const TextInputType.numberWithOptions(signed: true, decimal: true),
+        // keyboardType: TextInputType.number,
+        // inputFormatters: <TextInputFormatter>[
+        //   FilteringTextInputFormatter.digitsOnly
+        // ],
+        controller: textCtrl,
       ),
     );
   }

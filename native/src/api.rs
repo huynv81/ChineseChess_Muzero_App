@@ -11,8 +11,9 @@ pub enum Platform {
     Ios,
     Windows,
     Unix,
-    MacIntel,
-    MacApple,
+    // MacIntel,
+    // MacApple,
+    MacOs(String),
     Wasm,
 }
 
@@ -40,9 +41,11 @@ pub fn platform() -> Platform {
     } else if cfg!(target_os = "ios") {
         Platform::Ios
     } else if cfg!(target_arch = "aarch64-apple-darwin") {
-        Platform::MacApple
+        // Platform::MacApple
+        Platform::MacOs("Apple Silicon".into())
     } else if cfg!(target_os = "macos") {
-        Platform::MacIntel
+        // Platform::MacIntel
+        Platform::MacOs("Intel".into())
     } else if cfg!(target_family = "wasm") {
         Platform::Wasm
     } else if cfg!(unix) {
@@ -56,4 +59,9 @@ pub fn platform() -> Platform {
 // and they are automatically converted to camelCase on the Dart side.
 pub fn rust_release_mode() -> bool {
     cfg!(not(debug_assertions))
+}
+
+// used to test value from dart side
+pub fn add_2_unsigned_value(v1: u32, v2: u32) -> u32 {
+    v1 + v2
 }
