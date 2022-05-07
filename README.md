@@ -19,6 +19,6 @@ echo "ANDROID_NDK=.." >> ~/.gradle/gradle.properties
 
 - Web is not supported yet.
 
-Then go ahead and run `flutter run`! When you're ready, refer to our documentation
+Then go ahead and run `just` and `flutter run`! When you're ready, refer to our documentation
 [here](https://fzyzcjy.github.io/flutter_rust_bridge/index.html)
 to learn how to write and use binding code.

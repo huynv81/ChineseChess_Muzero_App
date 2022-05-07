@@ -102,19 +102,19 @@ class _$PlatformCopyWithImpl<$Res> implements $PlatformCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class $UnknownCopyWith<$Res> {
-  factory $UnknownCopyWith(Unknown value, $Res Function(Unknown) then) =
-      _$UnknownCopyWithImpl<$Res>;
+abstract class _$$UnknownCopyWith<$Res> {
+  factory _$$UnknownCopyWith(_$Unknown value, $Res Function(_$Unknown) then) =
+      __$$UnknownCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$UnknownCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
-    implements $UnknownCopyWith<$Res> {
-  _$UnknownCopyWithImpl(Unknown _value, $Res Function(Unknown) _then)
-      : super(_value, (v) => _then(v as Unknown));
+class __$$UnknownCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
+    implements _$$UnknownCopyWith<$Res> {
+  __$$UnknownCopyWithImpl(_$Unknown _value, $Res Function(_$Unknown) _then)
+      : super(_value, (v) => _then(v as _$Unknown));
 
   @override
-  Unknown get _value => super._value as Unknown;
+  _$Unknown get _value => super._value as _$Unknown;
 }
 
 /// @nodoc
@@ -130,7 +130,7 @@ class _$Unknown implements Unknown {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is Unknown);
+        (other.runtimeType == runtimeType && other is _$Unknown);
   }
 
   @override
@@ -234,19 +234,19 @@ abstract class Unknown implements Platform {
 }
 
 /// @nodoc
-abstract class $AndroidCopyWith<$Res> {
-  factory $AndroidCopyWith(Android value, $Res Function(Android) then) =
-      _$AndroidCopyWithImpl<$Res>;
+abstract class _$$AndroidCopyWith<$Res> {
+  factory _$$AndroidCopyWith(_$Android value, $Res Function(_$Android) then) =
+      __$$AndroidCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$AndroidCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
-    implements $AndroidCopyWith<$Res> {
-  _$AndroidCopyWithImpl(Android _value, $Res Function(Android) _then)
-      : super(_value, (v) => _then(v as Android));
+class __$$AndroidCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
+    implements _$$AndroidCopyWith<$Res> {
+  __$$AndroidCopyWithImpl(_$Android _value, $Res Function(_$Android) _then)
+      : super(_value, (v) => _then(v as _$Android));
 
   @override
-  Android get _value => super._value as Android;
+  _$Android get _value => super._value as _$Android;
 }
 
 /// @nodoc
@@ -262,7 +262,7 @@ class _$Android implements Android {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is Android);
+        (other.runtimeType == runtimeType && other is _$Android);
   }
 
   @override
@@ -366,19 +366,19 @@ abstract class Android implements Platform {
 }
 
 /// @nodoc
-abstract class $IosCopyWith<$Res> {
-  factory $IosCopyWith(Ios value, $Res Function(Ios) then) =
-      _$IosCopyWithImpl<$Res>;
+abstract class _$$IosCopyWith<$Res> {
+  factory _$$IosCopyWith(_$Ios value, $Res Function(_$Ios) then) =
+      __$$IosCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$IosCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
-    implements $IosCopyWith<$Res> {
-  _$IosCopyWithImpl(Ios _value, $Res Function(Ios) _then)
-      : super(_value, (v) => _then(v as Ios));
+class __$$IosCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
+    implements _$$IosCopyWith<$Res> {
+  __$$IosCopyWithImpl(_$Ios _value, $Res Function(_$Ios) _then)
+      : super(_value, (v) => _then(v as _$Ios));
 
   @override
-  Ios get _value => super._value as Ios;
+  _$Ios get _value => super._value as _$Ios;
 }
 
 /// @nodoc
@@ -394,7 +394,7 @@ class _$Ios implements Ios {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is Ios);
+        (other.runtimeType == runtimeType && other is _$Ios);
   }
 
   @override
@@ -498,19 +498,19 @@ abstract class Ios implements Platform {
 }
 
 /// @nodoc
-abstract class $WindowsCopyWith<$Res> {
-  factory $WindowsCopyWith(Windows value, $Res Function(Windows) then) =
-      _$WindowsCopyWithImpl<$Res>;
+abstract class _$$WindowsCopyWith<$Res> {
+  factory _$$WindowsCopyWith(_$Windows value, $Res Function(_$Windows) then) =
+      __$$WindowsCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$WindowsCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
-    implements $WindowsCopyWith<$Res> {
-  _$WindowsCopyWithImpl(Windows _value, $Res Function(Windows) _then)
-      : super(_value, (v) => _then(v as Windows));
+class __$$WindowsCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
+    implements _$$WindowsCopyWith<$Res> {
+  __$$WindowsCopyWithImpl(_$Windows _value, $Res Function(_$Windows) _then)
+      : super(_value, (v) => _then(v as _$Windows));
 
   @override
-  Windows get _value => super._value as Windows;
+  _$Windows get _value => super._value as _$Windows;
 }
 
 /// @nodoc
@@ -526,7 +526,7 @@ class _$Windows implements Windows {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is Windows);
+        (other.runtimeType == runtimeType && other is _$Windows);
   }
 
   @override
@@ -630,19 +630,19 @@ abstract class Windows implements Platform {
 }
 
 /// @nodoc
-abstract class $UnixCopyWith<$Res> {
-  factory $UnixCopyWith(Unix value, $Res Function(Unix) then) =
-      _$UnixCopyWithImpl<$Res>;
+abstract class _$$UnixCopyWith<$Res> {
+  factory _$$UnixCopyWith(_$Unix value, $Res Function(_$Unix) then) =
+      __$$UnixCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$UnixCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
-    implements $UnixCopyWith<$Res> {
-  _$UnixCopyWithImpl(Unix _value, $Res Function(Unix) _then)
-      : super(_value, (v) => _then(v as Unix));
+class __$$UnixCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
+    implements _$$UnixCopyWith<$Res> {
+  __$$UnixCopyWithImpl(_$Unix _value, $Res Function(_$Unix) _then)
+      : super(_value, (v) => _then(v as _$Unix));
 
   @override
-  Unix get _value => super._value as Unix;
+  _$Unix get _value => super._value as _$Unix;
 }
 
 /// @nodoc
@@ -658,7 +658,7 @@ class _$Unix implements Unix {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is Unix);
+        (other.runtimeType == runtimeType && other is _$Unix);
   }
 
   @override
@@ -762,26 +762,26 @@ abstract class Unix implements Platform {
 }
 
 /// @nodoc
-abstract class $MacOsCopyWith<$Res> {
-  factory $MacOsCopyWith(MacOs value, $Res Function(MacOs) then) =
-      _$MacOsCopyWithImpl<$Res>;
+abstract class _$$MacOsCopyWith<$Res> {
+  factory _$$MacOsCopyWith(_$MacOs value, $Res Function(_$MacOs) then) =
+      __$$MacOsCopyWithImpl<$Res>;
   $Res call({String field0});
 }
 
 /// @nodoc
-class _$MacOsCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
-    implements $MacOsCopyWith<$Res> {
-  _$MacOsCopyWithImpl(MacOs _value, $Res Function(MacOs) _then)
-      : super(_value, (v) => _then(v as MacOs));
+class __$$MacOsCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
+    implements _$$MacOsCopyWith<$Res> {
+  __$$MacOsCopyWithImpl(_$MacOs _value, $Res Function(_$MacOs) _then)
+      : super(_value, (v) => _then(v as _$MacOs));
 
   @override
-  MacOs get _value => super._value as MacOs;
+  _$MacOs get _value => super._value as _$MacOs;
 
   @override
   $Res call({
     Object? field0 = freezed,
   }) {
-    return _then(MacOs(
+    return _then(_$MacOs(
       field0 == freezed
           ? _value.field0
           : field0 // ignore: cast_nullable_to_non_nullable
@@ -807,7 +807,7 @@ class _$MacOs implements MacOs {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is MacOs &&
+            other is _$MacOs &&
             const DeepCollectionEquality().equals(other.field0, field0));
   }
 
@@ -817,8 +817,8 @@ class _$MacOs implements MacOs {
 
   @JsonKey(ignore: true)
   @override
-  $MacOsCopyWith<MacOs> get copyWith =>
-      _$MacOsCopyWithImpl<MacOs>(this, _$identity);
+  _$$MacOsCopyWith<_$MacOs> get copyWith =>
+      __$$MacOsCopyWithImpl<_$MacOs>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -918,23 +918,23 @@ abstract class MacOs implements Platform {
 
   String get field0 => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $MacOsCopyWith<MacOs> get copyWith => throw _privateConstructorUsedError;
+  _$$MacOsCopyWith<_$MacOs> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $WasmCopyWith<$Res> {
-  factory $WasmCopyWith(Wasm value, $Res Function(Wasm) then) =
-      _$WasmCopyWithImpl<$Res>;
+abstract class _$$WasmCopyWith<$Res> {
+  factory _$$WasmCopyWith(_$Wasm value, $Res Function(_$Wasm) then) =
+      __$$WasmCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$WasmCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
-    implements $WasmCopyWith<$Res> {
-  _$WasmCopyWithImpl(Wasm _value, $Res Function(Wasm) _then)
-      : super(_value, (v) => _then(v as Wasm));
+class __$$WasmCopyWithImpl<$Res> extends _$PlatformCopyWithImpl<$Res>
+    implements _$$WasmCopyWith<$Res> {
+  __$$WasmCopyWithImpl(_$Wasm _value, $Res Function(_$Wasm) _then)
+      : super(_value, (v) => _then(v as _$Wasm));
 
   @override
-  Wasm get _value => super._value as Wasm;
+  _$Wasm get _value => super._value as _$Wasm;
 }
 
 /// @nodoc
@@ -950,7 +950,7 @@ class _$Wasm implements Wasm {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is Wasm);
+        (other.runtimeType == runtimeType && other is _$Wasm);
   }
 
   @override
