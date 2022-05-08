@@ -1,7 +1,6 @@
 ## 项目说明
-  一款基于强化学习算法Muzero的中国象棋ui程序。
-  由于时基于跨平台的flutter/dart+rust开发，所以理论上可用于任意平台，但由于测试平台在win10，所以其他
-  平台的ui不保证兼容。
+  一款基于强化学习算法Muzero的中国象棋ui程序，取名《梦入零式》。
+  因基于跨平台的flutter/dart（界面）+rust（算法后端）开发，所以理论上可用于任意平台，但由于测试平台在win10，且多数ucci引擎只有windows版本，所以目前适配最好的平台只有windows。
 
 ## 功能
   - 可加载基于ucci协议的中国象棋引擎
@@ -18,8 +17,7 @@
 可否内置divider\垂直按钮、tooltip\选中话框\下拉菜单会空？
 
 ## 编译说明
-以下摘自[flutter_rust_bridge_template](https://github.com/Desdaemon/flutter_rust_bridge_template)的说明。just用以生成rust侧的接口代码，而flutter run则用以生成
-dart侧的接口代码及最终app。
+为了通过FFI衔接dart+rust，使用了[flutter_rust_bridge_template](https://github.com/Desdaemon/flutter_rust_bridge_template)模板。以下为该模板中的部分配置说明（just用以生成rust侧的接口代码，而flutter run则用以生成dart侧的接口代码及最终app）。
 
 To begin, ensure that you have a working installation of the following items:
 - [Flutter SDK](https://docs.flutter.dev/get-started/install)
@@ -38,3 +36,5 @@ echo "ANDROID_NDK=.." >> ~/.gradle/gradle.properties
 Then go ahead and run `just` and `flutter run`! When you're ready, refer to our documentation
 [here](https://fzyzcjy.github.io/flutter_rust_bridge/index.html)
 to learn how to write and use binding code.
+
+## 参考资料
