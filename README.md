@@ -64,4 +64,4 @@ error: Recipe `clean` could not be run because just could not find the shell: pr
 若仅更改了dart代码，则直接`flutter run`
 若还更改了rust代码，则`just && flutter run`
 ### **是否支持中文文件夹？**
-经测试，不支持。否则编译app时会发生各种奇怪的错误。
+经测试，不支持。否则编译app时会发生各种奇怪的错误（最好也不要有“中划线”）。

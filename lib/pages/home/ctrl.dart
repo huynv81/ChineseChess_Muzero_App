@@ -13,7 +13,7 @@ import '../../common/global.dart';
 class HomeController extends GetxController {
   final _logs = <DataRow>[].obs;
   get logs => _logs;
-  
+
   set logs(value) => _logs.value = value;
   //
   final _animatedContainerHeight = toobarHeight.obs;
