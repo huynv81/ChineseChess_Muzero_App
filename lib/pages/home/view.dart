@@ -5,9 +5,11 @@
  * @LastEditTime : 2022-05-08 16:31:08
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
+import 'dart:io';
 
 import 'package:docking/docking.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -17,10 +19,29 @@ import 'widgets/command_bar.dart';
 import 'widgets/log_table.dart';
 
 class HomeView extends GetView<HomeController> {
-  const HomeView({Key? key}) : super(key: key);
+  HomeView({Key? key}) : super(key: key);
 
-  @override
+  // final boardLeftTopDown2edPos = const Offset( 497,302);//左上角向下第二点
+  late Offset _leftTopOffSet; //左上角位置距离棋盘左上角的offset
+  late double _piecePosOffSet; //相邻2个棋子位置的间距，x、y轴都一样
+  late double _pieceSize; //这个是调整过的棋子尺寸，宽高一致
+  late double sizeRatio;
   Widget build(BuildContext context) {
+    var actual_width = MediaQuery.of(context).size.width;
+    var actual_height = MediaQuery.of(context).size.height;
+    sizeRatio = actual_width / winWidth;
+    // final heightRatio = actual_height / winHeight;
+    // size
+    _pieceSize = pieceSize * sizeRatio;
+    _leftTopOffSet = Offset(
+        sizeRatio * (leftTop1stPos.dx - boardLeftTopCornerPos.dx),
+        sizeRatio * (leftTop1stPos.dy - boardLeftTopCornerPos.dy));
+    _piecePosOffSet =
+        sizeRatio * (leftTop2edPos.dx - leftTop1stPos.dx); //x、y轴都一样
+
+    // await getChessImageSize();
+
+    // ui
     final mainContent = Stack(
       alignment: AlignmentDirectional.centerEnd,
       children: [
@@ -104,8 +125,34 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _getBoardWidget() {
+    final boardImage =
+        SvgPicture.asset(boardPath, width: boardWidth, height: boardHeight);
+    // final boardImage = Image.asset(
+    //   boardPath,
+    // );
+
     return Expanded(
-      child: Image.asset("./assets/skins/woods/board.jpg"),
+      child: Stack(
+        children: [boardImage, ..._getPieceWidgets()],
+      ),
     );
+  }
+
+  _getPieceWidgets() {
+    var pieces = [];
+    final offsetX = _leftTopOffSet.dx - (_pieceSize / 2);
+    final offsetY = _leftTopOffSet.dy - (_pieceSize / 2);
+    for (var col = 0; col < 9; col++) {
+      for (var row = 0; row < 10; row++) {
+        final newPiece = Positioned(
+          left: offsetX + col * (_piecePosOffSet),
+          top: offsetY + row * (_piecePosOffSet),
+          child: SvgPicture.asset(samplePiecePath,
+              width: _pieceSize, height: _pieceSize),
+        );
+        pieces.add(newPiece);
+      }
+    }
+    return pieces;
   }
 }

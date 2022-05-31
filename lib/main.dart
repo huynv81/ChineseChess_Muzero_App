@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'common/global.dart';
 import 'common/route/route.dart';
 
 void main() async {
@@ -16,8 +17,7 @@ void main() async {
         TitleBarStyle.hidden,
         windowButtonVisibility: false,
       );
-      await windowManager.setSize(const Size(755, 545));
-      // await windowManager.setMinimumSize(const Size(755-100, 545));
+      await windowManager.setSize(Size(appWidth, appHeight));
       await windowManager.setPreventClose(true);
       await windowManager.setSkipTaskbar(false);
       await windowManager.setResizable(false);

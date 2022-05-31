@@ -22,7 +22,7 @@ abstract class AppPages {
     // 主页
     GetPage(
       name: Routes.home,
-      page: () => const HomeView(),
+      page: () => HomeView(),
       binding: BindingsBuilder(
         () {
           // Get.put<Service>(() => Api());

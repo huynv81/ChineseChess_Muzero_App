@@ -5,35 +5,27 @@
 
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
-part 'bridge_generated.freezed.dart';
-
 abstract class Native {
   Future<Platform> platform({dynamic hint});
 
   Future<bool> rustReleaseMode({dynamic hint});
-
-  Future<int> add2UnsignedValue(
-      {required int v1, required int v2, dynamic hint});
 }
 
-@freezed
-class Platform with _$Platform {
-  const factory Platform.unknown() = Unknown;
-  const factory Platform.android() = Android;
-  const factory Platform.ios() = Ios;
-  const factory Platform.windows() = Windows;
-  const factory Platform.unix() = Unix;
-  const factory Platform.macOs(
-    String field0,
-  ) = MacOs;
-  const factory Platform.wasm() = Wasm;
+enum Platform {
+  Unknown,
+  Android,
+  Ios,
+  Windows,
+  Unix,
+  MacIntel,
+  MacApple,
+  Wasm,
 }
 
 class NativeImpl extends FlutterRustBridgeBase<NativeWire> implements Native {
@@ -66,71 +58,19 @@ class NativeImpl extends FlutterRustBridgeBase<NativeWire> implements Native {
         hint: hint,
       ));
 
-  Future<int> add2UnsignedValue(
-          {required int v1, required int v2, dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_add_2_unsigned_value(
-            port_, _api2wire_u32(v1), _api2wire_u32(v2)),
-        parseSuccessData: _wire2api_u32,
-        constMeta: const FlutterRustBridgeTaskConstMeta(
-          debugName: "add_2_unsigned_value",
-          argNames: ["v1", "v2"],
-        ),
-        argValues: [v1, v2],
-        hint: hint,
-      ));
-
   // Section: api2wire
-  int _api2wire_u32(int raw) {
-    return raw;
-  }
 
   // Section: api_fill_to_wire
 
 }
 
 // Section: wire2api
-String _wire2api_String(dynamic raw) {
-  return raw as String;
-}
-
 bool _wire2api_bool(dynamic raw) {
   return raw as bool;
 }
 
 Platform _wire2api_platform(dynamic raw) {
-  switch (raw[0]) {
-    case 0:
-      return Unknown();
-    case 1:
-      return Android();
-    case 2:
-      return Ios();
-    case 3:
-      return Windows();
-    case 4:
-      return Unix();
-    case 5:
-      return MacOs(
-        _wire2api_String(raw[1]),
-      );
-    case 6:
-      return Wasm();
-    default:
-      throw Exception("unreachable");
-  }
-}
-
-int _wire2api_u32(dynamic raw) {
-  return raw as int;
-}
-
-int _wire2api_u8(dynamic raw) {
-  return raw as int;
-}
-
-Uint8List _wire2api_uint_8_list(dynamic raw) {
-  return raw as Uint8List;
+  return Platform.values[raw];
 }
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
@@ -183,25 +123,6 @@ class NativeWire implements FlutterRustBridgeWireBase {
   late final _wire_rust_release_mode =
       _wire_rust_release_modePtr.asFunction<void Function(int)>();
 
-  void wire_add_2_unsigned_value(
-    int port_,
-    int v1,
-    int v2,
-  ) {
-    return _wire_add_2_unsigned_value(
-      port_,
-      v1,
-      v2,
-    );
-  }
-
-  late final _wire_add_2_unsigned_valuePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int64, ffi.Uint32, ffi.Uint32)>>('wire_add_2_unsigned_value');
-  late final _wire_add_2_unsigned_value =
-      _wire_add_2_unsigned_valuePtr.asFunction<void Function(int, int, int)>();
-
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,
   ) {
@@ -232,5 +153,5 @@ class NativeWire implements FlutterRustBridgeWireBase {
 }
 
 typedef DartPostCObjectFnType = ffi.Pointer<
-    ffi.NativeFunction<ffi.Uint8 Function(DartPort, ffi.Pointer<ffi.Void>)>>;
+    ffi.NativeFunction<ffi.Bool Function(DartPort, ffi.Pointer<ffi.Void>)>>;
 typedef DartPort = ffi.Int64;

@@ -49,3 +49,4 @@ jniLibs
 
 Cargo.lock
 pubspec.lock
+README.md

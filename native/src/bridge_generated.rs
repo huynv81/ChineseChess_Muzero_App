@@ -41,22 +41,6 @@ pub extern "C" fn wire_rust_release_mode(port_: i64) {
     )
 }
 
-#[no_mangle]
-pub extern "C" fn wire_add_2_unsigned_value(port_: i64, v1: u32, v2: u32) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "add_2_unsigned_value",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_v1 = v1.wire2api();
-            let api_v2 = v2.wire2api();
-            move |task_callback| Ok(add_2_unsigned_value(api_v1, api_v2))
-        },
-    )
-}
-
 // Section: wire structs
 
 // Section: wrapper structs
@@ -84,12 +68,6 @@ where
     }
 }
 
-impl Wire2Api<u32> for u32 {
-    fn wire2api(self) -> u32 {
-        self
-    }
-}
-
 // Section: impl NewWithNullPtr
 
 pub trait NewWithNullPtr {
@@ -107,18 +85,18 @@ impl<T> NewWithNullPtr for *mut T {
 impl support::IntoDart for Platform {
     fn into_dart(self) -> support::DartCObject {
         match self {
-            Self::Unknown => vec![0.into_dart()],
-            Self::Android => vec![1.into_dart()],
-            Self::Ios => vec![2.into_dart()],
-            Self::Windows => vec![3.into_dart()],
-            Self::Unix => vec![4.into_dart()],
-            Self::MacOs(field0) => vec![5.into_dart(), field0.into_dart()],
-            Self::Wasm => vec![6.into_dart()],
+            Self::Unknown => 0,
+            Self::Android => 1,
+            Self::Ios => 2,
+            Self::Windows => 3,
+            Self::Unix => 4,
+            Self::MacIntel => 5,
+            Self::MacApple => 6,
+            Self::Wasm => 7,
         }
         .into_dart()
     }
 }
-impl support::IntoDartExceptPrimitive for Platform {}
 
 // Section: executor
 

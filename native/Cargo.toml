@@ -3,13 +3,10 @@ name = "native"
 version = "0.1.0"
 edition = "2021"
 
-[profile.release]
-lto = true
-codegen-units = 1
-strip = "debuginfo"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-crate-type = ["lib", "cdylib", "staticlib"]
+crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 anyhow = "1"
