@@ -11,9 +11,9 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
 // 一些默认参数
-const boardPath = "./assets/skins/woods/board.svg";
-const samplePiecePath = "./assets/skins/woods/bb.svg";
-// const samplePiecePath = "./assets/skins/woods/ba.svg";
+const skinPath = "./assets/skins/";
+const boardPath = "./assets/skins/board.svg";
+const samplePiecePath = "./assets/skins/bb.svg";
 
 const backgroundStartColor = Color(0xffffd500);
 const backgroundEndColor = Color(0xfff6a00c);
@@ -72,3 +72,80 @@ String getCurrentTimeString() {
 //   // _pieceWidth = decodedImage2.width;
 //   // _pieceHeight = decodedImage2.height;
 // }
+
+// chess相关
+enum SidePieceType {
+  // None = 0,
+  redKing,
+  redAdvisor,
+  redBishop,
+  redKnight,
+  redRook,
+  redCannon,
+  redPawn,
+
+  blackKing,
+  blackAdvisor,
+  blackBishop,
+  blackKnight,
+  blackRook,
+  blackCannon,
+  blackPawn,
+}
+
+class Piece {
+  SidePieceType type;
+  int row;
+  int col;
+
+  Piece(this.type, this.row, this.col);
+}
+
+
+const ORIG_BOARD_ARRAY = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 20, 19, 18, 17, 16, 17, 18, 19, 20, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 0, 0, 0, 21, 0,
+    0, 0, 0, 0, 0, 0, 0, 22, 0, 22, 0, 22, 0, 22, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 14, 0, 14, 0,
+    14, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 11, 10, 9, 8, 9, 10, 11, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+
+    // RedKing = 8,
+    // RedAdvisor = 9,
+    // RedBishop = 10,
+    // RedKnight = 11,
+    // RedRook = 12,
+    // RedCannon = 13,
+    // RedPawn = 14,
+
+    // BlackKing = 16,
+    // BlackAdvisor = 17,
+    // BlackBishop = 18,
+    // BlackKnight = 19,
+    // BlackRook = 20,
+    // BlackCannon = 21,
+    // BlackPawn = 22,
+const pieceMap = {
+  8:SidePieceType.redKing,
+  9:SidePieceType.redAdvisor,
+  10:SidePieceType.redBishop,
+  11:SidePieceType.redKnight,
+  12:SidePieceType.redRook,
+  13:SidePieceType.redCannon,
+  14:SidePieceType.redPawn,
+
+  16:SidePieceType.blackKing,
+  17:SidePieceType.blackAdvisor,
+  18:SidePieceType.blackBishop,
+  19:SidePieceType.blackKnight,
+  20:SidePieceType.blackRook,
+  21:SidePieceType.blackCannon,
+  22:SidePieceType.blackPawn,
+};

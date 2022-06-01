@@ -14,6 +14,10 @@ class HomeController extends GetxController {
   final _logs = <DataRow>[].obs;
   get logs => _logs;
 
+  final _pieces = <Piece>[].obs;
+  get pieces => _pieces;
+  // set pieces(value) => _pieces.value = value;
+
   set logs(value) => _logs.value = value;
   //
   final _animatedContainerHeight = toobarHeight.obs;
@@ -24,14 +28,30 @@ class HomeController extends GetxController {
     Get.snackbar("test", "");
   }
 
-  void onToolButtonPressed(String content) {
+  void onToolButtonPressed(String logContent) {
     _logs.add(
       DataRow(
         cells: [
           DataCell(Text(getCurrentTimeString())),
-          DataCell(Text(content)),
+          DataCell(Text(logContent)),
         ],
       ),
     );
+
+    //
+    _pieces.clear();
+    for (int i = 0; i < ORIG_BOARD_ARRAY.length; i++) {
+      final pieceNum = ORIG_BOARD_ARRAY[i];
+      var pieceType = pieceMap[pieceNum];
+      if (pieceType != null) {
+        final origRow = (i + 1) ~/ 16;
+        final yu = (i + 1) % 16;
+        if (yu == 0) {
+          _pieces.add(Piece(pieceType, origRow - 3, 16 - 3));
+        } else {
+          _pieces.add(Piece(pieceType, origRow + 1 - 3, yu - 3));
+        }
+      }
+    }
   }
 }

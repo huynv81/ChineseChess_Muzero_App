@@ -70,7 +70,7 @@ class HomeView extends GetView<HomeController> {
       children: [
         Row(
           children: [
-            _getChessWidget(),
+            Obx(() => _getChessWidget()),
             _getStateWidget(),
           ],
         ),
@@ -159,17 +159,52 @@ class HomeView extends GetView<HomeController> {
     var pieces = [];
     final offsetX = _leftTopOffSet.dx - (_pieceSize / 2);
     final offsetY = _leftTopOffSet.dy - (_pieceSize / 2);
-    for (var col = 0; col < 9; col++) {
-      for (var row = 0; row < 10; row++) {
-        final newPiece = Positioned(
-          left: offsetX + col * (_piecePosOffSet),
-          top: offsetY + row * (_piecePosOffSet),
-          child: SvgPicture.asset(samplePiecePath,
-              width: _pieceSize, height: _pieceSize),
-        );
-        pieces.add(newPiece);
-      }
+
+    for (var eachPiece in controller.pieces) {
+      final newPiece = Positioned(
+        left: offsetX + (eachPiece.col - 1) * (_piecePosOffSet),
+        top: offsetY + (eachPiece.row - 1) * (_piecePosOffSet),
+        child: SvgPicture.asset(getPieceImagePath(eachPiece.type),
+            width: _pieceSize, height: _pieceSize),
+      );
+      pieces.add(newPiece);
     }
     return pieces;
+  }
+}
+
+String getPieceImagePath(SidePieceType sidePieceType) {
+  switch (sidePieceType) {
+    case SidePieceType.redKing:
+      return "${skinPath}rk.svg";
+    case SidePieceType.redAdvisor:
+      return "${skinPath}ra.svg";
+    case SidePieceType.redBishop:
+      return "${skinPath}rb.svg";
+    case SidePieceType.redKnight:
+      return "${skinPath}rn.svg";
+    case SidePieceType.redRook:
+      return "${skinPath}rr.svg";
+    case SidePieceType.redCannon:
+      return "${skinPath}rc.svg";
+    case SidePieceType.redPawn:
+      return "${skinPath}rp.svg";
+    // black
+    case SidePieceType.blackKing:
+      return "${skinPath}bk.svg";
+    case SidePieceType.blackAdvisor:
+      return "${skinPath}ba.svg";
+    case SidePieceType.blackBishop:
+      return "${skinPath}bb.svg";
+    case SidePieceType.blackKnight:
+      return "${skinPath}bn.svg";
+    case SidePieceType.blackRook:
+      return "${skinPath}br.svg";
+    case SidePieceType.blackCannon:
+      return "${skinPath}bc.svg";
+    case SidePieceType.blackPawn:
+      return "${skinPath}bp.svg";
+    default:
+      throw '错误：未知棋子类型';
   }
 }
