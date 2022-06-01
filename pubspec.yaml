@@ -1,5 +1,5 @@
 name: chinese_chess_alpha_zero
-description: 基于alpha_zero/muzero/efficientZero的中国象棋AI下棋程序。
+description: 基于alpha_zero/muzero/efficientZero的中国象棋AI下棋程序，取名为《梦入零式》，意为从零开始在梦境中学习进化的中国象棋AI。
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -37,7 +37,7 @@ dependencies:
 
   flutter_rust_bridge: ^1.32.0
   freezed_annotation: ^2.0.1
-  window_manager: ^0.2.2
+  window_manager: ^0.2.3
   get: ^4.6.5
   intl: ^0.17.0
   docking: ^1.2.0+1
@@ -52,7 +52,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^1.0.0
+  flutter_lints: ^2.0.1
   build_runner: ^2.1.10
   freezed: ^2.0.2
 

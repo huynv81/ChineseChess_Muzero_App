@@ -18,36 +18,68 @@ import 'ctrl.dart';
 import 'widgets/command_bar.dart';
 import 'widgets/log_table.dart';
 
+double calc_win_size_by_real_size(double realSize, double winRealSizeRatio) {
+  final winSize = winRealSizeRatio * realSize;
+  return winSize;
+  // return (winSize + 16.5) / devicePixelRatio;
+}
+
+double calc_real_size_by_app_size(double appSize, double winRealSizeRatio) {
+  final winSize = appSize * devicePixelRatio - 16.5;
+  return winSize;
+  // return winSize * (1 / winRealSizeRatio);
+}
+
 class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
 
   // final boardLeftTopDown2edPos = const Offset( 497,302);//左上角向下第二点
   late Offset _leftTopOffSet; //左上角位置距离棋盘左上角的offset
   late double _piecePosOffSet; //相邻2个棋子位置的间距，x、y轴都一样
+
+  late double _real_app_width;
+  late double _real_app_height;
+  late double _chessUiWidth;
+  late double _boardWidth; //这个是调整过的棋盘宽度
+  late double _boardHeight; //这个是调整过的棋盘高度
   late double _pieceSize; //这个是调整过的棋子尺寸，宽高一致
-  late double sizeRatio;
+  late double winRealRatio;
+  late double sizeRatio2;
+
+  @override
   Widget build(BuildContext context) {
-    var actual_width = MediaQuery.of(context).size.width;
-    var actual_height = MediaQuery.of(context).size.height;
-    sizeRatio = actual_width / winWidth;
-    // final heightRatio = actual_height / winHeight;
+    _real_app_width = MediaQuery.of(context).size.width;
+    _real_app_height = MediaQuery.of(context).size.height;
+    // print('real w: ${_real_app_width}');
+    // print('real h: ${_real_app_height}');
+    winRealRatio = _real_app_width / winWidth;
+
     // size
-    _pieceSize = pieceSize * sizeRatio;
+    _chessUiWidth = _real_app_width * chessUiWidthRatio;
+    _boardWidth = boardWidth * winRealRatio;
+    _boardHeight = boardHeight * winRealRatio;
+    _pieceSize = pieceSize * winRealRatio;
     _leftTopOffSet = Offset(
-        sizeRatio * (leftTop1stPos.dx - boardLeftTopCornerPos.dx),
-        sizeRatio * (leftTop1stPos.dy - boardLeftTopCornerPos.dy));
+        winRealRatio * (leftTop1stPos.dx - boardLeftTopCornerPos.dx),
+        winRealRatio * (leftTop1stPos.dy - boardLeftTopCornerPos.dy));
     _piecePosOffSet =
-        sizeRatio * (leftTop2edPos.dx - leftTop1stPos.dx); //x、y轴都一样
+        winRealRatio * (leftTop2edPos.dx - leftTop1stPos.dx); //x、y轴都一样
 
     // await getChessImageSize();
 
     // ui
-    final mainContent = Stack(
+    final mainUi = Row(
+      children: [
+        _getChessWidget(),
+        _getStateWidget(),
+      ],
+    );
+    /* Stack(
       alignment: AlignmentDirectional.centerEnd,
       children: [
         Row(
           children: [
-            _getBoardWidget(),
+            _getChessWidget(),
             _getStateWidget(),
           ],
         ),
@@ -65,16 +97,18 @@ class HomeView extends GetView<HomeController> {
               child: _getAnimatedCommandBar(),
             )),
       ],
-    );
+    ); */
 
-    return Scaffold(
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onPanStart: (details) {
-          windowManager.startDragging();
-        },
-        child: mainContent,
-      ),
+    // return Scaffold(
+    //   //Scaffold可提供一些默认theme
+    //   body:
+    // );
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onPanStart: (details) {
+        windowManager.startDragging();
+      },
+      child: mainUi,
     );
   }
 
@@ -115,8 +149,7 @@ class HomeView extends GetView<HomeController> {
     Docking docking = Docking(layout: layout);
 
     // layout
-    return SizedBox(
-      width: 250,
+    return Expanded(
       child: Container(
         child: docking,
         color: backgroundStartColor,
@@ -124,17 +157,11 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _getBoardWidget() {
-    final boardImage =
-        SvgPicture.asset(boardPath, width: boardWidth, height: boardHeight);
-    // final boardImage = Image.asset(
-    //   boardPath,
-    // );
-
-    return Expanded(
-      child: Stack(
-        children: [boardImage, ..._getPieceWidgets()],
-      ),
+  Widget _getChessWidget() {
+    final boardImage = SvgPicture.asset(boardPath,
+        width: _chessUiWidth, height: _real_app_height);
+    return Stack(
+      children: [boardImage, ..._getPieceWidgets()],
     );
   }
 

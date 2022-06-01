@@ -17,11 +17,16 @@ void main() async {
         TitleBarStyle.hidden,
         windowButtonVisibility: false,
       );
-      await windowManager.setSize(Size(appWidth, appHeight));
+      await windowManager.setTitle("梦入零式");
+      await windowManager.setSize(const Size(appWidth, appHeight));
+      await windowManager.setAspectRatio(appWidth/appHeight);
+      await windowManager.setMinimizable(false);
+      // await windowManager.setMinimumSize(Size(appWidth*minSizeScale, appHeight*minSizeScale));
+      // await windowManager.setMaximumSize(Size(appWidth*maxSizeScale, appHeight*maxSizeScale));
       await windowManager.setPreventClose(true);
       await windowManager.setSkipTaskbar(false);
-      await windowManager.setResizable(false);
-      await windowManager.setMinimizable(true);
+      await windowManager.setResizable(true);
+
       await windowManager.center();
       await windowManager.focus();
       await windowManager.show();
