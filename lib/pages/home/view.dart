@@ -37,44 +37,35 @@ class HomeView extends GetView<HomeController> {
   late Offset _leftTopOffSet; //左上角位置距离棋盘左上角的offset
   late double _piecePosOffSet; //相邻2个棋子位置的间距，x、y轴都一样
 
-  late double _real_app_width;
-  late double _real_app_height;
+  late double _width;
+  late double _height;
   late double _chessUiWidth;
-  late double _boardWidth; //这个是调整过的棋盘宽度
-  late double _boardHeight; //这个是调整过的棋盘高度
+  // late double _boardWidth; //这个是调整过的棋盘宽度
+  // late double _boardHeight; //这个是调整过的棋盘高度
   late double _pieceSize; //这个是调整过的棋子尺寸，宽高一致
-  late double winRealRatio;
+  late double realTestRatio;
   late double sizeRatio2;
 
   @override
   Widget build(BuildContext context) {
-    _real_app_width = MediaQuery.of(context).size.width;
-    _real_app_height = MediaQuery.of(context).size.height;
+    _width = MediaQuery.of(context).size.width;
+    _height = MediaQuery.of(context).size.height;
     // print('real w: ${_real_app_width}');
     // print('real h: ${_real_app_height}');
-    winRealRatio = _real_app_width / winWidth;
 
-    // size
-    _chessUiWidth = _real_app_width * chessUiWidthRatio;
-    _boardWidth = boardWidth * winRealRatio;
-    _boardHeight = boardHeight * winRealRatio;
-    _pieceSize = pieceSize * winRealRatio;
+    _chessUiWidth = _width * chessUiWidthRatio;
+
+    // 将自己测试的尺寸等比例转换到实际尺寸
+    realTestRatio = _width / testWidth;
+    _pieceSize = testPieceSize * realTestRatio;
     _leftTopOffSet = Offset(
-        winRealRatio * (leftTop1stPos.dx - boardLeftTopCornerPos.dx),
-        winRealRatio * (leftTop1stPos.dy - boardLeftTopCornerPos.dy));
+        realTestRatio * (testLeftTop1stPos.dx - testBoardLeftTopCornerPos.dx),
+        realTestRatio * (testLeftTop1stPos.dy - testBoardLeftTopCornerPos.dy));
     _piecePosOffSet =
-        winRealRatio * (leftTop2edPos.dx - leftTop1stPos.dx); //x、y轴都一样
-
-    // await getChessImageSize();
+        realTestRatio * (testLeftTop2edPos.dx - testLeftTop1stPos.dx); //x、y轴都一样
 
     // ui
-    final mainUi = Row(
-      children: [
-        _getChessWidget(),
-        _getStateWidget(),
-      ],
-    );
-    /* Stack(
+    final mainUi = Stack(
       alignment: AlignmentDirectional.centerEnd,
       children: [
         Row(
@@ -97,18 +88,17 @@ class HomeView extends GetView<HomeController> {
               child: _getAnimatedCommandBar(),
             )),
       ],
-    ); */
+    );
 
-    // return Scaffold(
-    //   //Scaffold可提供一些默认theme
-    //   body:
-    // );
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onPanStart: (details) {
-        windowManager.startDragging();
-      },
-      child: mainUi,
+    //Scaffold可提供一些默认theme，所以不能去除
+    return Scaffold(
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onPanStart: (details) {
+          windowManager.startDragging();
+        },
+        child: mainUi,
+      ),
     );
   }
 
@@ -158,8 +148,8 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _getChessWidget() {
-    final boardImage = SvgPicture.asset(boardPath,
-        width: _chessUiWidth, height: _real_app_height);
+    final boardImage =
+        SvgPicture.asset(boardPath, width: _chessUiWidth, height: _height);
     return Stack(
       children: [boardImage, ..._getPieceWidgets()],
     );
