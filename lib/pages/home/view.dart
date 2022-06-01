@@ -34,15 +34,12 @@ class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
 
   // final boardLeftTopDown2edPos = const Offset( 497,302);//左上角向下第二点
-  late Offset _leftTopOffSet; //左上角位置距离棋盘左上角的offset
-  late double _piecePosOffSet; //相邻2个棋子位置的间距，x、y轴都一样
 
   late double _width;
   late double _height;
   late double _chessUiWidth;
   // late double _boardWidth; //这个是调整过的棋盘宽度
   // late double _boardHeight; //这个是调整过的棋盘高度
-  late double _pieceSize; //这个是调整过的棋子尺寸，宽高一致
   late double realTestRatio;
   late double sizeRatio2;
 
@@ -57,11 +54,11 @@ class HomeView extends GetView<HomeController> {
 
     // 将自己测试的尺寸等比例转换到实际尺寸
     realTestRatio = _width / testWidth;
-    _pieceSize = testPieceSize * realTestRatio;
-    _leftTopOffSet = Offset(
+    controller.pieceSize = testPieceSize * realTestRatio;
+    controller.leftTopOffSet = Offset(
         realTestRatio * (testLeftTop1stPos.dx - testBoardLeftTopCornerPos.dx),
         realTestRatio * (testLeftTop1stPos.dy - testBoardLeftTopCornerPos.dy));
-    _piecePosOffSet =
+    controller.pieceGap =
         realTestRatio * (testLeftTop2edPos.dx - testLeftTop1stPos.dx); //x、y轴都一样
 
     // ui
@@ -93,6 +90,9 @@ class HomeView extends GetView<HomeController> {
     //Scaffold可提供一些默认theme，所以不能去除
     return Scaffold(
       body: GestureDetector(
+        onTapUp: (details) {
+          controller.onMouseClick(details.localPosition);
+        },
         behavior: HitTestBehavior.translucent,
         onPanStart: (details) {
           windowManager.startDragging();
@@ -126,16 +126,17 @@ class HomeView extends GetView<HomeController> {
   Widget _getStateWidget() {
     // docking tab
     DockingLayout layout = DockingLayout(
-        root: DockingColumn([
-      DockingTabs([
-        DockingItem(name: '棋谱', widget: Text("")),
-        DockingItem(name: '局势', widget: Text(""))
+      root: DockingColumn([
+        DockingTabs([
+          DockingItem(name: '棋谱', widget: Text("")),
+          DockingItem(name: '局势', widget: Text(""))
+        ]),
+        DockingTabs([
+          DockingItem(name: '思考细节', widget: Text("")),
+          DockingItem(name: '日志', widget: LogTable())
+        ])
       ]),
-      DockingTabs([
-        DockingItem(name: '思考细节', widget: Text("")),
-        DockingItem(name: '日志', widget: LogTable())
-      ])
-    ]));
+    );
     Docking docking = Docking(layout: layout);
 
     // layout
@@ -151,25 +152,48 @@ class HomeView extends GetView<HomeController> {
     final boardImage =
         SvgPicture.asset(boardPath, width: _chessUiWidth, height: _height);
     return Stack(
-      children: [boardImage, ..._getPieceWidgets()],
+      children: [
+        boardImage,
+        ..._getFocusedWidgets(),
+        ..._getPieceWidgets(),
+      ],
     );
   }
 
   _getPieceWidgets() {
-    var pieces = [];
-    final offsetX = _leftTopOffSet.dx - (_pieceSize / 2);
-    final offsetY = _leftTopOffSet.dy - (_pieceSize / 2);
+    var pieceWidgets = [];
+    final pieceRadius = (controller.pieceSize / 2);
+    final pieceOffsetX = controller.leftTopOffSet.dx - pieceRadius;
+    final pieceOffsetY = controller.leftTopOffSet.dy - pieceRadius;
 
     for (var eachPiece in controller.pieces) {
-      final newPiece = Positioned(
-        left: offsetX + (eachPiece.col - 1) * (_piecePosOffSet),
-        top: offsetY + (eachPiece.row - 1) * (_piecePosOffSet),
+      final pieceWidget = Positioned(
+        left: pieceOffsetX + (eachPiece.col - 1) * (controller.pieceGap),
+        top: pieceOffsetY + (eachPiece.row - 1) * (controller.pieceGap),
         child: SvgPicture.asset(getPieceImagePath(eachPiece.type),
-            width: _pieceSize, height: _pieceSize),
+            width: controller.pieceSize, height: controller.pieceSize),
       );
-      pieces.add(newPiece);
+      pieceWidgets.add(pieceWidget);
     }
-    return pieces;
+    return pieceWidgets;
+  }
+
+  _getFocusedWidgets() {
+    var focusedWidgets = [];
+    final pieceRadius = (controller.pieceSize / 2);
+    final pieceOffsetX = controller.leftTopOffSet.dx - pieceRadius;
+    final pieceOffsetY = controller.leftTopOffSet.dy - pieceRadius;
+
+    for (var eachSelectedPos in controller.selectedPoses) {
+      final focusedWidget = Positioned(
+        left: pieceOffsetX + (eachSelectedPos.col - 1) * (controller.pieceGap),
+        top: pieceOffsetY + (eachSelectedPos.row - 1) * (controller.pieceGap),
+        child: SvgPicture.asset(selectedPath,
+            width: controller.pieceSize, height: controller.pieceSize),
+      );
+      focusedWidgets.add(focusedWidget);
+    }
+    return focusedWidgets;
   }
 }
 

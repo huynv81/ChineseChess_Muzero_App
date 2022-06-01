@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 const skinPath = "./assets/skins/";
 const boardPath = "./assets/skins/board.svg";
 const samplePiecePath = "./assets/skins/bb.svg";
+const selectedPath = "./assets/skins/selected.svg";
 
 const backgroundStartColor = Color(0xffffd500);
 const backgroundEndColor = Color(0xfff6a00c);
@@ -99,6 +100,11 @@ class Piece {
   int col;
 
   Piece(this.type, this.row, this.col);
+}
+class FocusedPiece {
+  int row;
+  int col;
+  FocusedPiece( this.row, this.col);
 }
 
 
