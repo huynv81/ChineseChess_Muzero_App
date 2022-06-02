@@ -91,7 +91,7 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       body: GestureDetector(
         onTapUp: (details) {
-          controller.onMouseClick(details.localPosition);
+          controller.onClicked(details.localPosition);
         },
         behavior: HitTestBehavior.translucent,
         onPanStart: (details) {
@@ -154,7 +154,6 @@ class HomeView extends GetView<HomeController> {
     return Stack(
       children: [
         boardImage,
-        ..._getFocusedWidgets(),
         ..._getPieceWidgets(),
       ],
     );
@@ -167,33 +166,41 @@ class HomeView extends GetView<HomeController> {
     final pieceOffsetY = controller.leftTopOffSet.dy - pieceRadius;
 
     for (var eachPiece in controller.pieces) {
-      final pieceWidget = Positioned(
-        left: pieceOffsetX + (eachPiece.col - 1) * (controller.pieceGap),
-        top: pieceOffsetY + (eachPiece.row - 1) * (controller.pieceGap),
-        child: SvgPicture.asset(getPieceImagePath(eachPiece.type),
-            width: controller.pieceSize, height: controller.pieceSize),
-      );
-      pieceWidgets.add(pieceWidget);
+      final xPixel = pieceOffsetX + (eachPiece.col - 1) * (controller.pieceGap);
+      final yPixel = pieceOffsetY + (eachPiece.row - 1) * (controller.pieceGap);
+      // mask image
+      if (eachPiece.maskType() != MaskType.none) {
+        final pieceWidget = Positioned(
+          left: xPixel,
+          top: yPixel,
+          child: SvgPicture.asset(getMaskImagePath(eachPiece.maskType()),
+              width: controller.pieceSize, height: controller.pieceSize),
+        );
+        pieceWidgets.add(pieceWidget);
+      }
+      // piece image
+      if (eachPiece.pieceType() != SidePieceType.none) {
+        final pieceWidget = Positioned(
+          left: xPixel,
+          top: yPixel,
+          child: SvgPicture.asset(getPieceImagePath(eachPiece.pieceType()),
+              width: controller.pieceSize, height: controller.pieceSize),
+        );
+        pieceWidgets.add(pieceWidget);
+      }
     }
     return pieceWidgets;
   }
+}
 
-  _getFocusedWidgets() {
-    var focusedWidgets = [];
-    final pieceRadius = (controller.pieceSize / 2);
-    final pieceOffsetX = controller.leftTopOffSet.dx - pieceRadius;
-    final pieceOffsetY = controller.leftTopOffSet.dy - pieceRadius;
-
-    for (var eachSelectedPos in controller.selectedPoses) {
-      final focusedWidget = Positioned(
-        left: pieceOffsetX + (eachSelectedPos.col - 1) * (controller.pieceGap),
-        top: pieceOffsetY + (eachSelectedPos.row - 1) * (controller.pieceGap),
-        child: SvgPicture.asset(selectedPath,
-            width: controller.pieceSize, height: controller.pieceSize),
-      );
-      focusedWidgets.add(focusedWidget);
-    }
-    return focusedWidgets;
+String getMaskImagePath(MaskType sidePieceType) {
+  switch (sidePieceType) {
+    case MaskType.none:
+      throw '查找mask图片时，发现类型为none';
+    case MaskType.focused:
+      return "${skinPath}mask1.svg";
+    case MaskType.moved:
+      return "${skinPath}mask2.svg";
   }
 }
 

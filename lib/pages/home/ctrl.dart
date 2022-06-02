@@ -6,25 +6,33 @@
  * @Description  : 用以控制HomeView的control组件
  */
 
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../common/global.dart';
 
 class HomeController extends GetxController {
   final _logs = <DataRow>[].obs;
+
+  final masks = <Piece>[]; //添加了mask的piece引用列表
+
   get logs => _logs;
-
-  final _selectedPoses = <FocusedPiece>[].obs;
-  get selectedPoses => _selectedPoses;
-
-  final _pieces = <Piece>[].obs; //该list中是当前需要被展示的所有棋子信息
-  get pieces => _pieces;
-  // set pieces(value) => _pieces.value = value;
-
   set logs(value) => _logs.value = value;
+
+  final RxList<Piece> _pieces = <Piece>[].obs;
+  //该list中是当前需要被展示的所有棋子信息
+  get pieces => _pieces;
+
+  HomeController() {
+    for (var i = 0; i < boardRowCount * boardColCount; i++) {
+      _pieces.add(Piece(SidePieceType.none, 1, 1));
+    }
+  }
+
+  // set pieces(value) => _pieces.value = value;
+  Piece? _focusedPieceRef; //被鼠标选中的棋子,指向_pieces中某piece元素的引用
+
+  //
+  var _currentPlayer = Player.none;
   //
   final _animatedContainerHeight = toobarHeight.obs;
   get animatedContainerHeight => _animatedContainerHeight.value;
@@ -35,27 +43,49 @@ class HomeController extends GetxController {
   var pieceGap = 0.0; //相邻2个棋子中心位置的间距，x、y轴都一样
   var pieceSize = 0.0; //这个是调整过的棋子尺寸，宽高一致
 
-  onTest() {
-    Get.snackbar("test", "");
-  }
-
   void onToolButtonPressed(String logContent) {
     addLog(logContent);
-
-    //
-    _pieces.clear();
-    for (int i = 0; i < ORIG_BOARD_ARRAY.length; i++) {
-      final pieceNum = ORIG_BOARD_ARRAY[i];
-      var pieceType = pieceMap[pieceNum];
-      if (pieceType != null) {
+    if (logContent == newChessGameLog) {
+      //TODO: move to rust
+      var correctRow = 0;
+      var correctCol = 0;
+      for (int i = 0; i < ORIG_BOARD_ARRAY.length; i++) {
         final origRow = (i + 1) ~/ 16;
-        final yu = (i + 1) % 16;
-        if (yu == 0) {
-          _pieces.add(Piece(pieceType, origRow - 3, 16 - 3));
+        final modNum = (i + 1) % 16;
+        if (modNum == 0) {
+          correctRow = origRow - 3;
+          correctCol = 16 - 3;
         } else {
-          _pieces.add(Piece(pieceType, origRow + 1 - 3, yu - 3));
+          correctRow = origRow + 1 - 3;
+          correctCol = modNum - 3;
+        }
+        final inBoardRowRange = correctRow >= 1 && correctRow <= boardRowCount;
+        final inBoardColRange = correctCol >= 1 && correctCol <= boardColCount;
+        if (inBoardRowRange && inBoardColRange) {
+          final pieceTypeNum = ORIG_BOARD_ARRAY[i];
+          var pieceType = pieceMap[pieceTypeNum];
+          if (pieceType != null) {
+            final index = (correctRow - 1) * boardColCount + correctCol - 1;
+            _pieces[index] = (Piece(pieceType, correctRow, correctCol));
+          }
         }
       }
+      // 必要的初始化
+      _currentPlayer = Player.red;
+      _focusedPieceRef = null;
+    }
+  }
+
+  void _switchPlayer() {
+    switch (_currentPlayer) {
+      case Player.none:
+        throw '切换玩家时发现None';
+      case Player.red:
+        _currentPlayer = Player.black;
+        break;
+      case Player.black:
+        _currentPlayer = Player.red;
+        break;
     }
   }
 
@@ -71,16 +101,70 @@ class HomeController extends GetxController {
     );
   }
 
-  void onMouseClick(Offset localPosition) {
-    final nearestPos = getNearestPos(localPosition);
-    if (nearestPos[0] != null && nearestPos[1] != null) {
-      if (_selectedPoses.length >= 3) {
-        _selectedPoses.removeAt(0);
-      }
-      _selectedPoses.add(FocusedPiece(nearestPos[0]!, nearestPos[1]!));
-
-      addLog("Mouse clicked 行${nearestPos[0]}列${nearestPos[1]}");
+  void onClicked(Offset localPosition) {
+    // 是否为有效点击位
+    final validClickedPieceRef = getValidClickedPos(localPosition);
+    if (validClickedPieceRef == null) {
+      //NOTE：为null仅代表该位置非有效点击坐标，不包括该位置为空棋子的情况
+      return;
     }
+    addLog("有效点击：行${validClickedPieceRef.row}列${validClickedPieceRef.col}");
+
+    if (_focusedPieceRef != null) {
+      // ASSERT
+      if (_currentPlayer != _focusedPieceRef!.player()) {
+        throw '当前玩家和被选中的棋子的不是同一玩家';
+      }
+      //
+      if (validClickedPieceRef.player() == _currentPlayer) {
+        _focusedPieceRef!.setMaskType(MaskType.none);
+        _focusedPieceRef = validClickedPieceRef;
+        _focusedPieceRef!.setMaskType(MaskType.focused);
+        _pieces.refresh();
+      } else {
+        if (isMoveOrEatable(_focusedPieceRef!, validClickedPieceRef)) {
+          // 移动棋子
+          validClickedPieceRef.setPiece(_focusedPieceRef!.pieceType());
+          _focusedPieceRef!.setPiece(SidePieceType.none);
+
+          // 将之前masked的边框全部清除掉
+          for (var eachMaskedPiece in masks) {
+            eachMaskedPiece.setMaskType(MaskType.none);
+          }
+          masks.clear();
+
+          // 设置新移动棋子的mask并加入masks
+          _focusedPieceRef!.setMaskType(MaskType.moved);
+          validClickedPieceRef.setMaskType(MaskType.moved);
+          masks.add(_focusedPieceRef!);
+          masks.add(validClickedPieceRef);
+
+          _focusedPieceRef = null;
+
+          _switchPlayer();
+          _pieces.refresh();
+        }
+      }
+    } else if (validClickedPieceRef.player() == _currentPlayer) {
+      validClickedPieceRef.setMaskType(MaskType.focused);
+      _focusedPieceRef = validClickedPieceRef;
+      _pieces.refresh();
+    }
+  }
+
+  bool isMoveOrEatable(Piece srcPiece, Piece dstPiece) {
+    if (_currentPlayer == Player.none) {
+      throw '错误：玩家不该是none';
+    }
+    if (srcPiece.player() != _currentPlayer) {
+      throw '错误：带检查的起始位置棋子非当前玩家';
+    }
+    if (dstPiece.player() == _currentPlayer) {
+      throw '错误：带检查的目标位置棋子是当前玩家';
+    }
+
+// TODO：rust
+    return true;
   }
 
   // 若鼠标所选位置没有（空）棋子，则返回null
@@ -124,5 +208,21 @@ class HomeController extends GetxController {
       }
     }
     return [finalRow, finalCol];
+  }
+
+  Piece? getValidClickedPos(Offset localPosition) {
+    final nearestPos = getNearestPos(localPosition);
+
+    var row = nearestPos[0];
+    var col = nearestPos[1];
+    if (row != null && col != null) {
+      // 从_pieces中返回该位置的piece引用
+      for (var piece in _pieces) {
+        if (piece.row == row && piece.col == col) {
+          return piece;
+        }
+      }
+    }
+    return null;
   }
 }

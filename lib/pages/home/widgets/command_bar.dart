@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../../../common/global.dart';
 import '../../../common/widgets/ios_dialog_widget.dart';
 import '../ctrl.dart';
 import 'setting_sheet.dart';
@@ -52,7 +53,7 @@ class CommandBar extends GetView<HomeController> {
               CupertinoIcons.add_circled,
             ),
           ),
-          onPressed: () => controller.onToolButtonPressed("新建棋局"),
+          onPressed: () => controller.onToolButtonPressed(newChessGameLog),
           showLabel: false,
         ),
         ToolBarIconButton(
