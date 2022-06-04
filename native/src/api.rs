@@ -57,3 +57,8 @@ pub fn platform() -> Platform {
 pub fn rust_release_mode() -> bool {
     cfg!(not(debug_assertions))
 }
+
+// used to test value from dart side
+pub fn add_2_unsigned_value(v1: u32, v2: u32) -> u32 {
+    v1 + v2
+}

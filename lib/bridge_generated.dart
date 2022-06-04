@@ -15,6 +15,9 @@ abstract class Native {
   Future<Platform> platform({dynamic hint});
 
   Future<bool> rustReleaseMode({dynamic hint});
+
+  Future<int> add2UnsignedValue(
+      {required int v1, required int v2, dynamic hint});
 }
 
 enum Platform {
@@ -58,7 +61,24 @@ class NativeImpl extends FlutterRustBridgeBase<NativeWire> implements Native {
         hint: hint,
       ));
 
+  Future<int> add2UnsignedValue(
+          {required int v1, required int v2, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_add_2_unsigned_value(
+            port_, _api2wire_u32(v1), _api2wire_u32(v2)),
+        parseSuccessData: _wire2api_u32,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "add_2_unsigned_value",
+          argNames: ["v1", "v2"],
+        ),
+        argValues: [v1, v2],
+        hint: hint,
+      ));
+
   // Section: api2wire
+  int _api2wire_u32(int raw) {
+    return raw;
+  }
 
   // Section: api_fill_to_wire
 
@@ -71,6 +91,10 @@ bool _wire2api_bool(dynamic raw) {
 
 Platform _wire2api_platform(dynamic raw) {
   return Platform.values[raw];
+}
+
+int _wire2api_u32(dynamic raw) {
+  return raw as int;
 }
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
@@ -122,6 +146,25 @@ class NativeWire implements FlutterRustBridgeWireBase {
           'wire_rust_release_mode');
   late final _wire_rust_release_mode =
       _wire_rust_release_modePtr.asFunction<void Function(int)>();
+
+  void wire_add_2_unsigned_value(
+    int port_,
+    int v1,
+    int v2,
+  ) {
+    return _wire_add_2_unsigned_value(
+      port_,
+      v1,
+      v2,
+    );
+  }
+
+  late final _wire_add_2_unsigned_valuePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, ffi.Uint32, ffi.Uint32)>>('wire_add_2_unsigned_value');
+  late final _wire_add_2_unsigned_value =
+      _wire_add_2_unsigned_valuePtr.asFunction<void Function(int, int, int)>();
 
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,

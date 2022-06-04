@@ -163,7 +163,6 @@ class Piece {
         return Player.black;
     }
   }
-
 }
 
 const ORIG_BOARD_ARRAY = [

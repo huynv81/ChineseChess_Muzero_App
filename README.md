@@ -10,6 +10,7 @@
   - 可将三方的ucci引擎辅助内置引擎进行训练
 
 ## todo
+-
  - [] 绘制象棋界面--fluent ui  snack bar tabview  acrylic 鼠标侧边栏
  - [] 重启读取配置
 
@@ -27,32 +28,25 @@ winget install -e --id LLVM.LLVM
 cargo install flutter_rust_bridge_codegen just
 dart pub global activate ffigen
 ```
-4.更新必要的flutter包：
+5.更新必要的flutter包：
 ```dart
 flutter pub add -d build_runner
 flutter pub add -d freezed
 flutter pub add freezed_annotation
-flutter pub add build_runner
 ```
-5.justtfile中`gen`流程最后添加这句话:
+[关于freeze的介绍](https://github.com/rrousselGit/freezed)
+6.justtfile中`gen`流程最后添加这句话:
 ```shell
  gen:
      ..
      flutter pub run build_runner build --delete-conflicting-outputs
 ```
 并运行`just`生成rust绑定代码（只有rust代码有变动才需要）
-6.flutter run （将生成flutter侧的绑定代码，并最总生成app）
+7.flutter run （将生成flutter侧的绑定代码，并最总生成app）
 
 ([官方参考](http://cjycode.com/flutter_rust_bridge/template/generate.html)、[flutter_rust_bridge官方模板](https://github.com/Desdaemon/flutter_rust_bridge_template)）
 
 ## 常见问题
-### **运行just时出现**
-```
-export REPO_DIR="$PWD"
-error: Recipe `gen` could not be run because just could not find the shell: program not found
-```
-最新版template的justfile有问题，请使用我这里的[justfile](https://github.com/dbsxdbsx/testFrb/blob/main/justfile)。
-
 ### **运行`just clean`出现错误**
 ```
 flutter clean
@@ -64,4 +58,7 @@ error: Recipe `clean` could not be run because just could not find the shell: pr
 若仅更改了dart代码，则直接`flutter run`
 若还更改了rust代码，则`just && flutter run`
 ### **是否支持中文文件夹？**
-经测试，不支持。否则编译app时会发生各种奇怪的错误（最好也不要有“中划线”）。
+经测试，不支持。否则编译app时会发生各种奇怪的错误（文件名中最好也不要有“中划线”）。
+
+### **多rust模块生成？**
+https://github.com/fzyzcjy/flutter_rust_bridge/pull/481

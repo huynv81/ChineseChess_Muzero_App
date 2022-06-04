@@ -9,6 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../common/global.dart';
+import '../../ffi.dart';
 
 class HomeController extends GetxController {
   final _logs = <DataRow>[].obs;
@@ -70,6 +71,7 @@ class HomeController extends GetxController {
           }
         }
       }
+
       // 必要的初始化
       _currentPlayer = Player.red;
       _focusedPieceRef = null;
@@ -101,7 +103,7 @@ class HomeController extends GetxController {
     );
   }
 
-  void onClicked(Offset localPosition) {
+  Future<void> onClicked(Offset localPosition) async {
     // 是否为有效点击位
     final validClickedPieceRef = getValidClickedPos(localPosition);
     if (validClickedPieceRef == null) {
@@ -122,7 +124,9 @@ class HomeController extends GetxController {
         _focusedPieceRef!.setMaskType(MaskType.focused);
         _pieces.refresh();
       } else {
-        if (isMoveOrEatable(_focusedPieceRef!, validClickedPieceRef)) {
+        var flag =
+            await isMoveOrEatable(_focusedPieceRef!, validClickedPieceRef);
+        if (flag) {
           // 移动棋子
           validClickedPieceRef.setPiece(_focusedPieceRef!.pieceType());
           _focusedPieceRef!.setPiece(SidePieceType.none);
@@ -152,7 +156,7 @@ class HomeController extends GetxController {
     }
   }
 
-  bool isMoveOrEatable(Piece srcPiece, Piece dstPiece) {
+  Future<bool> isMoveOrEatable(Piece srcPiece, Piece dstPiece) async {
     if (_currentPlayer == Player.none) {
       throw '错误：玩家不该是none';
     }
@@ -164,6 +168,7 @@ class HomeController extends GetxController {
     }
 
 // TODO：rust
+    // var output = await api.add2UnsignedValue(v1: 1, v2: 5);
     return true;
   }
 
