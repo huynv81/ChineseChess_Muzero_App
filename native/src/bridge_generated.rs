@@ -42,28 +42,91 @@ pub extern "C" fn wire_rust_release_mode(port_: i64) {
 }
 
 #[no_mangle]
-pub extern "C" fn wire_add_2_unsigned_value(port_: i64, v1: u32, v2: u32) {
+pub extern "C" fn wire_is_legal_move(
+    port_: i64,
+    src_row: usize,
+    src_col: usize,
+    dst_row: usize,
+    dst_col: usize,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "add_2_unsigned_value",
+            debug_name: "is_legal_move",
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_v1 = v1.wire2api();
-            let api_v2 = v2.wire2api();
-            move |task_callback| Ok(add_2_unsigned_value(api_v1, api_v2))
+            let api_src_row = src_row.wire2api();
+            let api_src_col = src_col.wire2api();
+            let api_dst_row = dst_row.wire2api();
+            let api_dst_col = dst_col.wire2api();
+            move |task_callback| {
+                Ok(is_legal_move(
+                    api_src_row,
+                    api_src_col,
+                    api_dst_row,
+                    api_dst_col,
+                ))
+            }
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_update_board_data(port_: i64, row: usize, col: usize, piece_index: usize) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "update_board_data",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_row = row.wire2api();
+            let api_col = col.wire2api();
+            let api_piece_index = piece_index.wire2api();
+            move |task_callback| Ok(update_board_data(api_row, api_col, api_piece_index))
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_update_player_data(port_: i64, player: *mut wire_uint_8_list) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "update_player_data",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_player = player.wire2api();
+            move |task_callback| Ok(update_player_data(api_player))
         },
     )
 }
 
 // Section: wire structs
 
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_uint_8_list {
+    ptr: *mut u8,
+    len: i32,
+}
+
 // Section: wrapper structs
 
 // Section: static checks
 
 // Section: allocate functions
+
+#[no_mangle]
+pub extern "C" fn new_uint_8_list(len: i32) -> *mut wire_uint_8_list {
+    let ans = wire_uint_8_list {
+        ptr: support::new_leak_vec_ptr(Default::default(), len),
+        len,
+    };
+    support::new_leak_box_ptr(ans)
+}
 
 // Section: impl Wire2Api
 
@@ -84,8 +147,30 @@ where
     }
 }
 
-impl Wire2Api<u32> for u32 {
-    fn wire2api(self) -> u32 {
+impl Wire2Api<String> for *mut wire_uint_8_list {
+    fn wire2api(self) -> String {
+        let vec: Vec<u8> = self.wire2api();
+        String::from_utf8_lossy(&vec).into_owned()
+    }
+}
+
+impl Wire2Api<u8> for u8 {
+    fn wire2api(self) -> u8 {
+        self
+    }
+}
+
+impl Wire2Api<Vec<u8>> for *mut wire_uint_8_list {
+    fn wire2api(self) -> Vec<u8> {
+        unsafe {
+            let wrap = support::box_from_leak_ptr(self);
+            support::vec_from_leak_ptr(wrap.ptr, wrap.len)
+        }
+    }
+}
+
+impl Wire2Api<usize> for usize {
+    fn wire2api(self) -> usize {
         self
     }
 }

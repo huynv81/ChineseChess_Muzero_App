@@ -54,7 +54,7 @@ error: Recipe `clean` could not be run because just could not find the shell: pr
 ```
 在windows平台编译时，请使用git bash，不要用power shell。
 ### **如何清除并重新生成？**
-`just clean && flutter pub get && just && flutter run`
+`flutter pub get && just clean && just && flutter run`
 若仅更改了dart代码，则直接`flutter run`
 若还更改了rust代码，则`just && flutter run`
 ### **是否支持中文文件夹？**

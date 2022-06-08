@@ -1,3 +1,5 @@
+use crate::chess::{get_piece_all_valid_moves, BOARD_ARRAY};
+
 // This is the entry point of your Rust library.
 // When adding new code to your project, note that only items used
 // here will be transformed to their Dart equivalents.
@@ -58,7 +60,38 @@ pub fn rust_release_mode() -> bool {
     cfg!(not(debug_assertions))
 }
 
-// used to test value from dart side
-pub fn add_2_unsigned_value(v1: u32, v2: u32) -> u32 {
-    v1 + v2
+pub fn is_legal_move(src_row: usize, src_col: usize, dst_row: usize, dst_col: usize) -> bool {
+    let src_pos = crate::chess::get_board_pos_from_row_col(src_row, src_col);
+    let dst_pos = crate::chess::get_board_pos_from_row_col(dst_row, dst_col);
+    // println!("起始行列是：行{src_row} 列{src_col}");
+    // println!("目标行列是：行{dst_row} 列{dst_col}");
+    // println!("起始pos是：{src_pos}");
+    // println!("目标pos是：{dst_pos}");
+
+    // get src piece|
+    let board_array = BOARD_ARRAY.lock().unwrap();
+    let unside_src_piece = crate::chess::get_unside_piece_by_pos(&board_array, src_pos);
+    let move_str_to_check = crate::chess::get_english_move_str_from_pos(src_pos, dst_pos);
+    println!("move str:{move_str_to_check}");
+    // println!("棋子:{unside_src_piece:?}");
+
+    // check all move of the piece
+    let valid_moves = get_piece_all_valid_moves(&board_array, src_pos, unside_src_piece);
+    println!("valid_moves:{valid_moves:?}");
+
+    let contains = valid_moves.contains(&move_str_to_check);
+    println!("back:{contains}");
+    return contains;
+}
+
+pub fn update_board_data(row: usize, col: usize, piece_index: usize) {
+    // println!("update 行{row} 列{col} for piece:{piece_index}");
+    let index = crate::chess::get_board_pos_from_row_col(row, col);
+    BOARD_ARRAY.lock().unwrap()[index] = piece_index;
+    // println!("update ok!");
+}
+
+pub fn update_player_data(player: String) {
+    println!("update_player_data:{player}");
+    crate::chess::set_player_by_str(&player);
 }

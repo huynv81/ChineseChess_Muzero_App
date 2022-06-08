@@ -44,10 +44,9 @@ class HomeController extends GetxController {
   var pieceGap = 0.0; //相邻2个棋子中心位置的间距，x、y轴都一样
   var pieceSize = 0.0; //这个是调整过的棋子尺寸，宽高一致
 
-  void onToolButtonPressed(String logContent) {
+  Future<void> onToolButtonPressed(String logContent) async {
     addLog(logContent);
     if (logContent == newChessGameLog) {
-      //TODO: move to rust
       var correctRow = 0;
       var correctCol = 0;
       for (int i = 0; i < ORIG_BOARD_ARRAY.length; i++) {
@@ -75,10 +74,13 @@ class HomeController extends GetxController {
       // 必要的初始化
       _currentPlayer = Player.red;
       _focusedPieceRef = null;
+
+      // 后台数据更新
+      await _updateBackData();
     }
   }
 
-  void _switchPlayer() {
+  void _switchPlayer() async {
     switch (_currentPlayer) {
       case Player.none:
         throw '切换玩家时发现None';
@@ -123,36 +125,59 @@ class HomeController extends GetxController {
         _focusedPieceRef = validClickedPieceRef;
         _focusedPieceRef!.setMaskType(MaskType.focused);
         _pieces.refresh();
-      } else {
-        var flag =
-            await isMoveOrEatable(_focusedPieceRef!, validClickedPieceRef);
-        if (flag) {
-          // 移动棋子
-          validClickedPieceRef.setPiece(_focusedPieceRef!.pieceType());
-          _focusedPieceRef!.setPiece(SidePieceType.none);
+      } else if (await isMoveOrEatable(
+          _focusedPieceRef!, validClickedPieceRef)) {
+        // 移动棋子
+        validClickedPieceRef.setPiece(_focusedPieceRef!.pieceType());
+        _focusedPieceRef!.setPiece(SidePieceType.none);
 
-          // 将之前masked的边框全部清除掉
-          for (var eachMaskedPiece in masks) {
-            eachMaskedPiece.setMaskType(MaskType.none);
-          }
-          masks.clear();
-
-          // 设置新移动棋子的mask并加入masks
-          _focusedPieceRef!.setMaskType(MaskType.moved);
-          validClickedPieceRef.setMaskType(MaskType.moved);
-          masks.add(_focusedPieceRef!);
-          masks.add(validClickedPieceRef);
-
-          _focusedPieceRef = null;
-
-          _switchPlayer();
-          _pieces.refresh();
+        // 将之前masked的边框全部清除掉
+        for (var eachMaskedPiece in masks) {
+          eachMaskedPiece.setMaskType(MaskType.none);
         }
+        masks.clear();
+
+        // 设置新移动棋子的mask并加入masks
+        _focusedPieceRef!.setMaskType(MaskType.moved);
+        validClickedPieceRef.setMaskType(MaskType.moved);
+        masks.add(_focusedPieceRef!);
+        masks.add(validClickedPieceRef);
+
+        _focusedPieceRef = null;
+        _switchPlayer();
+        _pieces.refresh();
+        
+        await _updateBackData(); //更新后台数据
       }
     } else if (validClickedPieceRef.player() == _currentPlayer) {
       validClickedPieceRef.setMaskType(MaskType.focused);
       _focusedPieceRef = validClickedPieceRef;
       _pieces.refresh();
+    }
+  }
+
+  _updateBackData() async {
+    await _updateBoardData();
+    await _updatePlayerData();
+  }
+
+  _updateBoardData() async {
+    for (var piece in _pieces) {
+      await api.updateBoardData(
+          row: piece.row, col: piece.col, pieceIndex: piece.pieceIndex());
+    }
+  }
+
+  _updatePlayerData() async {
+    switch (_currentPlayer) {
+      case Player.none:
+        throw '更新后台玩家时发现None';
+      case Player.red:
+        await api.updatePlayerData(player: 'r');
+        break;
+      case Player.black:
+        await api.updatePlayerData(player: 'b');
+        break;
     }
   }
 
@@ -167,9 +192,11 @@ class HomeController extends GetxController {
       throw '错误：带检查的目标位置棋子是当前玩家';
     }
 
-// TODO：rust
-    // var output = await api.add2UnsignedValue(v1: 1, v2: 5);
-    return true;
+    return await api.isLegalMove(
+        srcRow: srcPiece.row,
+        srcCol: srcPiece.col,
+        dstRow: dstPiece.row,
+        dstCol: dstPiece.col);
   }
 
   // 若鼠标所选位置没有（空）棋子，则返回null

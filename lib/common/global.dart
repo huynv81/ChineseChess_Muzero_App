@@ -115,6 +115,10 @@ class Piece {
     return _pieceType;
   }
 
+  int pieceIndex() {
+    return pieceReverseMap[_pieceType]!;
+  }
+
   MaskType maskType() {
     return _maskType;
   }
@@ -440,6 +444,24 @@ const pieceMap = {
   20: SidePieceType.blackRook,
   21: SidePieceType.blackCannon,
   22: SidePieceType.blackPawn,
+};
+
+const pieceReverseMap = {
+  SidePieceType.none: 0,
+  SidePieceType.redKing: 8,
+  SidePieceType.redAdvisor: 9,
+  SidePieceType.redBishop: 10,
+  SidePieceType.redKnight: 11,
+  SidePieceType.redRook: 12,
+  SidePieceType.redCannon: 13,
+  SidePieceType.redPawn: 14,
+  SidePieceType.blackKing: 16,
+  SidePieceType.blackAdvisor: 17,
+  SidePieceType.blackBishop: 18,
+  SidePieceType.blackKnight: 19,
+  SidePieceType.blackRook: 20,
+  SidePieceType.blackCannon: 21,
+  SidePieceType.blackPawn: 22,
 };
 
 const newChessGameLog = "新建棋局";

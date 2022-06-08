@@ -16,8 +16,20 @@ abstract class Native {
 
   Future<bool> rustReleaseMode({dynamic hint});
 
-  Future<int> add2UnsignedValue(
-      {required int v1, required int v2, dynamic hint});
+  Future<bool> isLegalMove(
+      {required int srcRow,
+      required int srcCol,
+      required int dstRow,
+      required int dstCol,
+      dynamic hint});
+
+  Future<void> updateBoardData(
+      {required int row,
+      required int col,
+      required int pieceIndex,
+      dynamic hint});
+
+  Future<void> updatePlayerData({required String player, dynamic hint});
 }
 
 enum Platform {
@@ -61,22 +73,77 @@ class NativeImpl extends FlutterRustBridgeBase<NativeWire> implements Native {
         hint: hint,
       ));
 
-  Future<int> add2UnsignedValue(
-          {required int v1, required int v2, dynamic hint}) =>
+  Future<bool> isLegalMove(
+          {required int srcRow,
+          required int srcCol,
+          required int dstRow,
+          required int dstCol,
+          dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_add_2_unsigned_value(
-            port_, _api2wire_u32(v1), _api2wire_u32(v2)),
-        parseSuccessData: _wire2api_u32,
+        callFfi: (port_) => inner.wire_is_legal_move(
+            port_,
+            _api2wire_usize(srcRow),
+            _api2wire_usize(srcCol),
+            _api2wire_usize(dstRow),
+            _api2wire_usize(dstCol)),
+        parseSuccessData: _wire2api_bool,
         constMeta: const FlutterRustBridgeTaskConstMeta(
-          debugName: "add_2_unsigned_value",
-          argNames: ["v1", "v2"],
+          debugName: "is_legal_move",
+          argNames: ["srcRow", "srcCol", "dstRow", "dstCol"],
         ),
-        argValues: [v1, v2],
+        argValues: [srcRow, srcCol, dstRow, dstCol],
+        hint: hint,
+      ));
+
+  Future<void> updateBoardData(
+          {required int row,
+          required int col,
+          required int pieceIndex,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_update_board_data(
+            port_,
+            _api2wire_usize(row),
+            _api2wire_usize(col),
+            _api2wire_usize(pieceIndex)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "update_board_data",
+          argNames: ["row", "col", "pieceIndex"],
+        ),
+        argValues: [row, col, pieceIndex],
+        hint: hint,
+      ));
+
+  Future<void> updatePlayerData({required String player, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_update_player_data(port_, _api2wire_String(player)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "update_player_data",
+          argNames: ["player"],
+        ),
+        argValues: [player],
         hint: hint,
       ));
 
   // Section: api2wire
-  int _api2wire_u32(int raw) {
+  ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
+    return _api2wire_uint_8_list(utf8.encoder.convert(raw));
+  }
+
+  int _api2wire_u8(int raw) {
+    return raw;
+  }
+
+  ffi.Pointer<wire_uint_8_list> _api2wire_uint_8_list(Uint8List raw) {
+    final ans = inner.new_uint_8_list(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  int _api2wire_usize(int raw) {
     return raw;
   }
 
@@ -93,8 +160,8 @@ Platform _wire2api_platform(dynamic raw) {
   return Platform.values[raw];
 }
 
-int _wire2api_u32(dynamic raw) {
-  return raw as int;
+void _wire2api_unit(dynamic raw) {
+  return;
 }
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
@@ -147,24 +214,81 @@ class NativeWire implements FlutterRustBridgeWireBase {
   late final _wire_rust_release_mode =
       _wire_rust_release_modePtr.asFunction<void Function(int)>();
 
-  void wire_add_2_unsigned_value(
+  void wire_is_legal_move(
     int port_,
-    int v1,
-    int v2,
+    int src_row,
+    int src_col,
+    int dst_row,
+    int dst_col,
   ) {
-    return _wire_add_2_unsigned_value(
+    return _wire_is_legal_move(
       port_,
-      v1,
-      v2,
+      src_row,
+      src_col,
+      dst_row,
+      dst_col,
     );
   }
 
-  late final _wire_add_2_unsigned_valuePtr = _lookup<
+  late final _wire_is_legal_movePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int64, ffi.Uint32, ffi.Uint32)>>('wire_add_2_unsigned_value');
-  late final _wire_add_2_unsigned_value =
-      _wire_add_2_unsigned_valuePtr.asFunction<void Function(int, int, int)>();
+          ffi.Void Function(ffi.Int64, uintptr_t, uintptr_t, uintptr_t,
+              uintptr_t)>>('wire_is_legal_move');
+  late final _wire_is_legal_move = _wire_is_legal_movePtr
+      .asFunction<void Function(int, int, int, int, int)>();
+
+  void wire_update_board_data(
+    int port_,
+    int row,
+    int col,
+    int piece_index,
+  ) {
+    return _wire_update_board_data(
+      port_,
+      row,
+      col,
+      piece_index,
+    );
+  }
+
+  late final _wire_update_board_dataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, uintptr_t, uintptr_t,
+              uintptr_t)>>('wire_update_board_data');
+  late final _wire_update_board_data = _wire_update_board_dataPtr
+      .asFunction<void Function(int, int, int, int)>();
+
+  void wire_update_player_data(
+    int port_,
+    ffi.Pointer<wire_uint_8_list> player,
+  ) {
+    return _wire_update_player_data(
+      port_,
+      player,
+    );
+  }
+
+  late final _wire_update_player_dataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_update_player_data');
+  late final _wire_update_player_data = _wire_update_player_dataPtr
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
+  ffi.Pointer<wire_uint_8_list> new_uint_8_list(
+    int len,
+  ) {
+    return _new_uint_8_list(
+      len,
+    );
+  }
+
+  late final _new_uint_8_listPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_uint_8_list> Function(
+              ffi.Int32)>>('new_uint_8_list');
+  late final _new_uint_8_list = _new_uint_8_listPtr
+      .asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
 
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,
@@ -195,6 +319,14 @@ class NativeWire implements FlutterRustBridgeWireBase {
       .asFunction<void Function(DartPostCObjectFnType)>();
 }
 
+class wire_uint_8_list extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+typedef uintptr_t = ffi.UnsignedLongLong;
 typedef DartPostCObjectFnType = ffi.Pointer<
-    ffi.NativeFunction<ffi.Bool Function(DartPort, ffi.Pointer<ffi.Void>)>>;
+    ffi.NativeFunction<ffi.Uint8 Function(DartPort, ffi.Pointer<ffi.Void>)>>;
 typedef DartPort = ffi.Int64;
