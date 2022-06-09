@@ -15,6 +15,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '../../common/global.dart';
 import 'ctrl.dart';
+import 'widgets/board_arrow.dart';
 import 'widgets/command_bar.dart';
 import 'widgets/log_table.dart';
 
@@ -120,8 +121,8 @@ class HomeView extends GetView<HomeController> {
           DockingItem(name: '局势', widget: Text(""))
         ]),
         DockingTabs([
+          DockingItem(name: '日志', widget: LogTable()),
           DockingItem(name: '思考细节', widget: Text("")),
-          DockingItem(name: '日志', widget: LogTable())
         ])
       ]),
     );
@@ -130,19 +131,28 @@ class HomeView extends GetView<HomeController> {
     // layout
     return Expanded(
       child: Container(
-        child: docking,
         color: backgroundStartColor,
+        child: docking,
       ),
     );
   }
 
+  Widget _getArrowWidget() {
+    return CustomPaint(
+      // child: Container(),
+      painter: ArrowPainter(
+          controller.arrowMoves, controller.leftTopOffSet, controller.pieceGap),
+    );
+  }
+
   Widget _getChessWidget() {
-    final boardImage =
-        SvgPicture.asset(boardPath, /* width: _chessUiWidth, */ height: _height);
+    final boardImage = SvgPicture.asset(boardPath,
+        /* width: _chessUiWidth, */ height: _height);
     return Stack(
       children: [
         boardImage,
         ..._getPieceWidgets(),
+        _getArrowWidget(),
       ],
     );
   }

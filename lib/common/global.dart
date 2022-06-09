@@ -72,6 +72,36 @@ String getCurrentTimeString() {
 //   // _pieceWidth = decodedImage2.width;
 //   // _pieceHeight = decodedImage2.height;
 // }
+
+// 表示每一步棋的结构体
+class ChessMove {
+  final int srcRow;
+  final int srcCol;
+  final int dstRow;
+  final int dstCol;
+  final Player player;
+
+  ChessMove({
+    required this.srcRow,
+    required this.srcCol,
+    required this.dstRow,
+    required this.dstCol,
+    required this.player,
+  })  : assert(srcRow >= 1 && srcRow <= 10),
+        assert(srcCol >= 1 && srcCol <= 9),
+        assert(dstRow >= 1 && dstRow <= 10),
+        assert(dstCol >= 1 && dstCol <= 9);
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChessMove &&
+        srcRow == other.srcRow &&
+        srcCol == other.srcCol &&
+        dstRow == other.dstRow &&
+        dstCol == other.dstCol;
+  }
+}
+
 // 被选择的mask类型
 enum MaskType {
   none, //未被选中

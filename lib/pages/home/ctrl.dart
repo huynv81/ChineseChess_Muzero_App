@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../common/global.dart';
 import '../../ffi.dart';
+import 'widgets/board_arrow.dart';
 
 class HomeController extends GetxController {
   final _logs = <DataRow>[].obs;
@@ -19,9 +20,13 @@ class HomeController extends GetxController {
   get logs => _logs;
   set logs(value) => _logs.value = value;
 
-  final RxList<Piece> _pieces = <Piece>[].obs;
   //该list中是当前需要被展示的所有棋子信息
+  final RxList<Piece> _pieces = <Piece>[].obs;
   get pieces => _pieces;
+
+  // 需要绘制箭头的棋步
+  final RxList<ChessMove> _arrowMove = <ChessMove>[].obs;
+  get arrowMoves => _arrowMove;
 
   HomeController() {
     for (var i = 0; i < boardRowCount * boardColCount; i++) {
@@ -83,7 +88,42 @@ class HomeController extends GetxController {
         await _updateBackData();
         break;
       default: //测试用
-        final x = 5;
+        final arrow1 = ChessMove(
+            srcRow: 10, srcCol: 9, dstRow: 1, dstCol: 9, player: Player.red);
+        final arrow2 = ChessMove(
+            srcRow: 9, srcCol: 8, dstRow: 1, dstCol: 9, player: Player.black);
+        final arrow3 = ChessMove(
+            srcRow: 10, srcCol: 8, dstRow: 8, dstCol: 7, player: Player.black);
+        final arrow4 = ChessMove(
+            srcRow: 1, srcCol: 2, dstRow: 3, dstCol: 4, player: Player.black);
+        final arrow5 = ChessMove(
+            srcRow: 1, srcCol: 7, dstRow: 3, dstCol: 5, player: Player.black);
+        final arrow6 = ChessMove(
+            srcRow: 8, srcCol: 8, dstRow: 8, dstCol: 5, player: Player.black);
+        final arrow7 = ChessMove(
+            srcRow: 8, srcCol: 5, dstRow: 5, dstCol: 5, player: Player.red);
+        final arrow8 = ChessMove(
+            srcRow: 10, srcCol: 4, dstRow: 9, dstCol: 5, player: Player.red);
+        final arrow9 = ChessMove(
+            srcRow: 8, srcCol: 6, dstRow: 9, dstCol: 5, player: Player.black);
+        final arrow10 = ChessMove(
+            srcRow: 2, srcCol: 1, dstRow: 2, dstCol: 4, player: Player.red);
+        final arrow11 = ChessMove(
+            srcRow: 2, srcCol: 1, dstRow: 2, dstCol: 8, player: Player.red);
+        _arrowMove.addAll([
+          arrow1,
+          arrow2,
+          arrow3,
+          arrow4,
+          arrow5,
+          arrow6,
+          arrow7,
+          arrow8,
+          arrow9,
+          arrow10,
+          arrow11,
+        ]);
+        _arrowMove.refresh();
       //   final redMoveStr = await api.getRandomValidMove('r');
       //   final blackMoveStr = await api.getRandomValidMove('b');
       // // TODO: how to draw line with arrow
@@ -152,7 +192,7 @@ class HomeController extends GetxController {
 
   Future<void> onClicked(Offset localPosition) async {
     // 是否为有效点击位
-    final validClickedPieceRef = getValidClickedPos(localPosition);
+    final validClickedPieceRef = getChessPosFromOffset(localPosition);
     if (validClickedPieceRef == null) {
       //NOTE：为null仅代表该位置非有效点击坐标，不包括该位置为空棋子的情况
       return;
@@ -245,7 +285,7 @@ class HomeController extends GetxController {
   }
 
   // 若鼠标所选位置没有（空）棋子，则返回null
-  List<int?> getNearestPos(Offset localPosition) {
+  List<int?> getNearestChessPos(Offset localPosition) {
     int? finalRow;
     int? finalCol;
     const safeRatio = 0.9;
@@ -287,8 +327,8 @@ class HomeController extends GetxController {
     return [finalRow, finalCol];
   }
 
-  Piece? getValidClickedPos(Offset localPosition) {
-    final nearestPos = getNearestPos(localPosition);
+  Piece? getChessPosFromOffset(Offset localPosition) {
+    final nearestPos = getNearestChessPos(localPosition);
 
     var row = nearestPos[0];
     var col = nearestPos[1];
