@@ -80,7 +80,7 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       body: GestureDetector(
         onTapUp: (details) {
-          controller.onClicked(details.localPosition);
+          controller.onBoardClicked(details.localPosition);
         },
         behavior: HitTestBehavior.translucent,
         onPanStart: (details) {

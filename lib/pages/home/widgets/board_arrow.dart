@@ -15,12 +15,12 @@ class ArrowPainter extends CustomPainter {
 
   // 在某固定窗口尺寸下的绘制箭头的常量比率
   final double _arrowTriangleSizeRatio = 25.0 / 54;
-  final double _arrowWidth1Ratio = 5.0 / 54;
-  final double _arrowWidth2Ratio = 9.0 / 54;
+  final double _arrowWidth1Ratio = 4.0 / 54;
+  final double _arrowWidth2Ratio = 7.0 / 54;
   late double _arrowWidth;
 
   // 箭头颜色的透明度%，越高越不透明
-  final _opacity = 0.85;
+  final _opacity = 0.9;
 
   ArrowPainter(this.moves, this.leftTopOffSet, this.pieceGap) {
     _arrowTriangleSize = _arrowTriangleSizeRatio * pieceGap;
@@ -60,14 +60,14 @@ class ArrowPainter extends CustomPainter {
       canvas.save();
       // 设置颜色
       switch (eachMove.player) {
-        case Player.none:
-          return;
         case Player.red:
           pointPaint.color = Colors.red.withOpacity(_opacity);
           break;
         case Player.black:
           pointPaint.color = Colors.black.withOpacity(_opacity);
           break;
+        case Player.none:
+          continue;
       }
       // 绘制形状的必要参数
       final offsets = getAbsOffsetFromChessPos(eachMove);

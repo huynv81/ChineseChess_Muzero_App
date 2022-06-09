@@ -47,7 +47,7 @@ var testPieceSize = 57.0 * 1.18; //宽高一致
 
 const testBoardLeftTopCornerPos = Offset(460, 199); //捕获时时的窗口左上角全局offset
 const testLeftTop1stPos = Offset(498, 235); //捕获时左上角第一点全局offset
-const testLeftTop2edPos = Offset(564.75, 235); //捕获时左上角向右第二点全局offset
+const testLeftTop2edPos = Offset(564.47, 235); //捕获时左上角向右第二点全局offset
 
 const stateUiWidth = 250.0; //右侧状态ui的固定宽度
 const toobarHeight = 40.0;

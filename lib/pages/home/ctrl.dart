@@ -25,12 +25,22 @@ class HomeController extends GetxController {
   get pieces => _pieces;
 
   // 需要绘制箭头的棋步
-  final RxList<ChessMove> _arrowMove = <ChessMove>[].obs;
-  get arrowMoves => _arrowMove;
+  final RxList<ChessMove> _arrowMoves = <ChessMove>[].obs;
+  get arrowMoves => _arrowMoves;
 
   HomeController() {
     for (var i = 0; i < boardRowCount * boardColCount; i++) {
       _pieces.add(Piece(SidePieceType.none, 1, 1));
+    }
+
+    for (var i = 0; i < 2; i++) {
+      _arrowMoves.add(ChessMove(
+        srcRow: 1,
+        srcCol: 1,
+        dstRow: 1,
+        dstCol: 1,
+        player: _player,
+      ));
     }
   }
 
@@ -88,42 +98,43 @@ class HomeController extends GetxController {
         await _updateBackData();
         break;
       default: //测试用
-        final arrow1 = ChessMove(
-            srcRow: 10, srcCol: 9, dstRow: 1, dstCol: 9, player: Player.red);
-        final arrow2 = ChessMove(
-            srcRow: 9, srcCol: 8, dstRow: 1, dstCol: 9, player: Player.black);
-        final arrow3 = ChessMove(
-            srcRow: 10, srcCol: 8, dstRow: 8, dstCol: 7, player: Player.black);
-        final arrow4 = ChessMove(
-            srcRow: 1, srcCol: 2, dstRow: 3, dstCol: 4, player: Player.black);
-        final arrow5 = ChessMove(
-            srcRow: 1, srcCol: 7, dstRow: 3, dstCol: 5, player: Player.black);
-        final arrow6 = ChessMove(
-            srcRow: 8, srcCol: 8, dstRow: 8, dstCol: 5, player: Player.black);
-        final arrow7 = ChessMove(
-            srcRow: 8, srcCol: 5, dstRow: 5, dstCol: 5, player: Player.red);
-        final arrow8 = ChessMove(
-            srcRow: 10, srcCol: 4, dstRow: 9, dstCol: 5, player: Player.red);
-        final arrow9 = ChessMove(
-            srcRow: 8, srcCol: 6, dstRow: 9, dstCol: 5, player: Player.black);
-        final arrow10 = ChessMove(
-            srcRow: 2, srcCol: 1, dstRow: 2, dstCol: 4, player: Player.red);
-        final arrow11 = ChessMove(
-            srcRow: 2, srcCol: 1, dstRow: 2, dstCol: 8, player: Player.red);
-        _arrowMove.addAll([
-          arrow1,
-          arrow2,
-          arrow3,
-          arrow4,
-          arrow5,
-          arrow6,
-          arrow7,
-          arrow8,
-          arrow9,
-          arrow10,
-          arrow11,
-        ]);
-        _arrowMove.refresh();
+      final arrow1 = ChessMove(
+          srcRow: 10, srcCol: 9, dstRow: 1, dstCol: 9, player: Player.red);
+      final arrow2 = ChessMove(
+          srcRow: 9, srcCol: 8, dstRow: 1, dstCol: 9, player: Player.black);
+      final arrow3 = ChessMove(
+          srcRow: 10, srcCol: 8, dstRow: 8, dstCol: 7, player: Player.black);
+      final arrow4 = ChessMove(
+          srcRow: 1, srcCol: 2, dstRow: 3, dstCol: 4, player: Player.black);
+      final arrow5 = ChessMove(
+          srcRow: 1, srcCol: 7, dstRow: 3, dstCol: 5, player: Player.black);
+      final arrow6 = ChessMove(
+          srcRow: 8, srcCol: 8, dstRow: 8, dstCol: 5, player: Player.black);
+      final arrow7 = ChessMove(
+          srcRow: 8, srcCol: 5, dstRow: 5, dstCol: 5, player: Player.red);
+      final arrow8 = ChessMove(
+          srcRow: 10, srcCol: 4, dstRow: 9, dstCol: 5, player: Player.red);
+      final arrow9 = ChessMove(
+          srcRow: 8, srcCol: 6, dstRow: 9, dstCol: 5, player: Player.black);
+      final arrow10 = ChessMove(
+          srcRow: 2, srcCol: 1, dstRow: 2, dstCol: 4, player: Player.red);
+      final arrow11 = ChessMove(
+          srcRow: 2, srcCol: 1, dstRow: 2, dstCol: 8, player: Player.red);
+      _arrowMoves.addAll([
+        arrow1,
+        arrow2,
+        arrow3,
+        arrow4,
+        arrow5,
+        arrow6,
+        arrow7,
+        arrow8,
+        arrow9,
+        arrow10,
+        arrow11,
+      ]);
+      // _arrowMoves.refresh();
+
       //   final redMoveStr = await api.getRandomValidMove('r');
       //   final blackMoveStr = await api.getRandomValidMove('b');
       // // TODO: how to draw line with arrow
@@ -190,7 +201,7 @@ class HomeController extends GetxController {
     );
   }
 
-  Future<void> onClicked(Offset localPosition) async {
+  Future<void> onBoardClicked(Offset localPosition) async {
     // 是否为有效点击位
     final validClickedPieceRef = getChessPosFromOffset(localPosition);
     if (validClickedPieceRef == null) {
@@ -228,9 +239,23 @@ class HomeController extends GetxController {
         masks.add(_focusedPieceRef!);
         masks.add(validClickedPieceRef);
 
+        // TODO: 生成刚刚走的棋子的招法，测试箭头
+        final newMove = ChessMove(
+          srcRow: _focusedPieceRef!.row,
+          srcCol: _focusedPieceRef!.col,
+          dstRow: validClickedPieceRef.row,
+          dstCol: validClickedPieceRef.col,
+          player: _player,
+        );
+        if (_player == Player.red) {
+          _arrowMoves[0] = newMove;
+        } else if (_player == Player.black) {
+          _arrowMoves[1] = newMove;
+        }
+        //
         _focusedPieceRef = null;
         _switchPlayer();
-        _pieces.refresh();
+        _pieces.refresh();//这步一定要有，因为list中每个元素地址没变（只是元素中的子元素地址变了）
 
         await _updateBackData(); //更新后台数据
       }
