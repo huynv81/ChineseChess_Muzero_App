@@ -18,18 +18,6 @@ import 'ctrl.dart';
 import 'widgets/command_bar.dart';
 import 'widgets/log_table.dart';
 
-double calc_win_size_by_real_size(double realSize, double winRealSizeRatio) {
-  final winSize = winRealSizeRatio * realSize;
-  return winSize;
-  // return (winSize + 16.5) / devicePixelRatio;
-}
-
-double calc_real_size_by_app_size(double appSize, double winRealSizeRatio) {
-  final winSize = appSize * devicePixelRatio - 16.5;
-  return winSize;
-  // return winSize * (1 / winRealSizeRatio);
-}
-
 class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
 
@@ -50,7 +38,7 @@ class HomeView extends GetView<HomeController> {
     // print('real w: ${_real_app_width}');
     // print('real h: ${_real_app_height}');
 
-    _chessUiWidth = _width * chessUiWidthRatio;
+    // _chessUiWidth = _width * chessUiWidthRatio;
 
     // 将自己测试的尺寸等比例转换到实际尺寸
     realTestRatio = _width / testWidth;
@@ -150,7 +138,7 @@ class HomeView extends GetView<HomeController> {
 
   Widget _getChessWidget() {
     final boardImage =
-        SvgPicture.asset(boardPath, width: _chessUiWidth, height: _height);
+        SvgPicture.asset(boardPath, /* width: _chessUiWidth, */ height: _height);
     return Stack(
       children: [
         boardImage,

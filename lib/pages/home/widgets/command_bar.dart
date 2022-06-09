@@ -62,7 +62,7 @@ class CommandBar extends GetView<HomeController> {
             quarterTurns: -1,
             child: Text('AI'),
           ),
-          onPressed: () => getSettingSheet(context),
+          onPressed: () => controller.onToolButtonPressed('AI点击'),
           showLabel: false,
         ),
         ToolBarIconButton(

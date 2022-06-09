@@ -33,7 +33,7 @@ class HomeController extends GetxController {
   Piece? _focusedPieceRef; //被鼠标选中的棋子,指向_pieces中某piece元素的引用
 
   //
-  var _currentPlayer = Player.none;
+  var _player = Player.none;
   //
   final _animatedContainerHeight = toobarHeight.obs;
   get animatedContainerHeight => _animatedContainerHeight.value;
@@ -46,49 +46,94 @@ class HomeController extends GetxController {
 
   Future<void> onToolButtonPressed(String logContent) async {
     addLog(logContent);
-    if (logContent == newChessGameLog) {
-      var correctRow = 0;
-      var correctCol = 0;
-      for (int i = 0; i < ORIG_BOARD_ARRAY.length; i++) {
-        final origRow = (i + 1) ~/ 16;
-        final modNum = (i + 1) % 16;
-        if (modNum == 0) {
-          correctRow = origRow - 3;
-          correctCol = 16 - 3;
-        } else {
-          correctRow = origRow + 1 - 3;
-          correctCol = modNum - 3;
-        }
-        final inBoardRowRange = correctRow >= 1 && correctRow <= boardRowCount;
-        final inBoardColRange = correctCol >= 1 && correctCol <= boardColCount;
-        if (inBoardRowRange && inBoardColRange) {
-          final pieceTypeNum = ORIG_BOARD_ARRAY[i];
-          var pieceType = pieceMap[pieceTypeNum];
-          if (pieceType != null) {
-            final index = (correctRow - 1) * boardColCount + correctCol - 1;
-            _pieces[index] = (Piece(pieceType, correctRow, correctCol));
+    switch (logContent) {
+      case newChessGameLog:
+        var correctRow = 0;
+        var correctCol = 0;
+        final origBoardArray = await api.getOrigBoard();
+        for (int i = 0; i < origBoardArray.length; i++) {
+          final origRow = (i + 1) ~/ 16;
+          final modNum = (i + 1) % 16;
+          if (modNum == 0) {
+            correctRow = origRow - 3;
+            correctCol = 16 - 3;
+          } else {
+            correctRow = origRow + 1 - 3;
+            correctCol = modNum - 3;
+          }
+          final inBoardRowRange =
+              correctRow >= 1 && correctRow <= boardRowCount;
+          final inBoardColRange =
+              correctCol >= 1 && correctCol <= boardColCount;
+          if (inBoardRowRange && inBoardColRange) {
+            final pieceTypeNum = origBoardArray[i];
+            var pieceType = pieceMap[pieceTypeNum];
+            if (pieceType != null) {
+              final index = (correctRow - 1) * boardColCount + correctCol - 1;
+              _pieces[index] = (Piece(pieceType, correctRow, correctCol));
+            }
           }
         }
-      }
 
-      // 必要的初始化
-      _currentPlayer = Player.red;
-      _focusedPieceRef = null;
+        // 必要的初始化
+        _player = Player.red;
+        _focusedPieceRef = null;
 
-      // 后台数据更新
-      await _updateBackData();
+        // 后台数据更新
+        await _updateBackData();
+        break;
+      default: //测试用
+        final x = 5;
+      //   final redMoveStr = await api.getRandomValidMove('r');
+      //   final blackMoveStr = await api.getRandomValidMove('b');
+      // // TODO: how to draw line with arrow
+
     }
+
+    // if (logContent == newChessGameLog) {
+    //   var correctRow = 0;
+    //   var correctCol = 0;
+    //   final origBoardArray = await api.getOrigBoard();
+    //   for (int i = 0; i < origBoardArray.length; i++) {
+    //     final origRow = (i + 1) ~/ 16;
+    //     final modNum = (i + 1) % 16;
+    //     if (modNum == 0) {
+    //       correctRow = origRow - 3;
+    //       correctCol = 16 - 3;
+    //     } else {
+    //       correctRow = origRow + 1 - 3;
+    //       correctCol = modNum - 3;
+    //     }
+    //     final inBoardRowRange = correctRow >= 1 && correctRow <= boardRowCount;
+    //     final inBoardColRange = correctCol >= 1 && correctCol <= boardColCount;
+    //     if (inBoardRowRange && inBoardColRange) {
+    //       final pieceTypeNum = origBoardArray[i];
+    //       var pieceType = pieceMap[pieceTypeNum];
+    //       if (pieceType != null) {
+    //         final index = (correctRow - 1) * boardColCount + correctCol - 1;
+    //         _pieces[index] = (Piece(pieceType, correctRow, correctCol));
+    //       }
+    //     }
+    //   }
+
+    // // 必要的初始化
+    // _currentPlayer = Player.red;
+    // _focusedPieceRef = null;
+
+    // // 后台数据更新
+    // await _updateBackData();
+    // }
   }
 
   void _switchPlayer() async {
-    switch (_currentPlayer) {
+    switch (_player) {
       case Player.none:
         throw '切换玩家时发现None';
       case Player.red:
-        _currentPlayer = Player.black;
+        _player = Player.black;
         break;
       case Player.black:
-        _currentPlayer = Player.red;
+        _player = Player.red;
         break;
     }
   }
@@ -116,11 +161,11 @@ class HomeController extends GetxController {
 
     if (_focusedPieceRef != null) {
       // ASSERT
-      if (_currentPlayer != _focusedPieceRef!.player()) {
+      if (_player != _focusedPieceRef!.player()) {
         throw '当前玩家和被选中的棋子的不是同一玩家';
       }
       //
-      if (validClickedPieceRef.player() == _currentPlayer) {
+      if (validClickedPieceRef.player() == _player) {
         _focusedPieceRef!.setMaskType(MaskType.none);
         _focusedPieceRef = validClickedPieceRef;
         _focusedPieceRef!.setMaskType(MaskType.focused);
@@ -146,10 +191,10 @@ class HomeController extends GetxController {
         _focusedPieceRef = null;
         _switchPlayer();
         _pieces.refresh();
-        
+
         await _updateBackData(); //更新后台数据
       }
-    } else if (validClickedPieceRef.player() == _currentPlayer) {
+    } else if (validClickedPieceRef.player() == _player) {
       validClickedPieceRef.setMaskType(MaskType.focused);
       _focusedPieceRef = validClickedPieceRef;
       _pieces.refresh();
@@ -169,7 +214,7 @@ class HomeController extends GetxController {
   }
 
   _updatePlayerData() async {
-    switch (_currentPlayer) {
+    switch (_player) {
       case Player.none:
         throw '更新后台玩家时发现None';
       case Player.red:
@@ -182,13 +227,13 @@ class HomeController extends GetxController {
   }
 
   Future<bool> isMoveOrEatable(Piece srcPiece, Piece dstPiece) async {
-    if (_currentPlayer == Player.none) {
+    if (_player == Player.none) {
       throw '错误：玩家不该是none';
     }
-    if (srcPiece.player() != _currentPlayer) {
+    if (srcPiece.player() != _player) {
       throw '错误：带检查的起始位置棋子非当前玩家';
     }
-    if (dstPiece.player() == _currentPlayer) {
+    if (dstPiece.player() == _player) {
       throw '错误：带检查的目标位置棋子是当前玩家';
     }
 

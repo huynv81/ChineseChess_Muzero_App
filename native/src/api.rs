@@ -60,7 +60,7 @@ pub fn rust_release_mode() -> bool {
     cfg!(not(debug_assertions))
 }
 
-pub fn is_legal_move(src_row: usize, src_col: usize, dst_row: usize, dst_col: usize) -> bool {
+pub fn is_legal_move(src_row: u8, src_col: u8, dst_row: u8, dst_col: u8) -> bool {
     let src_pos = crate::chess::get_board_pos_from_row_col(src_row, src_col);
     let dst_pos = crate::chess::get_board_pos_from_row_col(dst_row, dst_col);
     // println!("起始行列是：行{src_row} 列{src_col}");
@@ -84,10 +84,14 @@ pub fn is_legal_move(src_row: usize, src_col: usize, dst_row: usize, dst_col: us
     return contains;
 }
 
-pub fn update_board_data(row: usize, col: usize, piece_index: usize) {
+pub fn get_orig_board() -> [u8; 256] {
+    crate::chess::ORIG_BOARD_ARRAY
+}
+
+pub fn update_board_data(row: u8, col: u8, piece_index: u8) {
     // println!("update 行{row} 列{col} for piece:{piece_index}");
     let index = crate::chess::get_board_pos_from_row_col(row, col);
-    BOARD_ARRAY.lock().unwrap()[index] = piece_index;
+    BOARD_ARRAY.lock().unwrap()[index as usize] = piece_index;
     // println!("update ok!");
 }
 

@@ -23,6 +23,8 @@ abstract class Native {
       required int dstCol,
       dynamic hint});
 
+  Future<Uint8List> getOrigBoard({dynamic hint});
+
   Future<void> updateBoardData(
       {required int row,
       required int col,
@@ -82,10 +84,10 @@ class NativeImpl extends FlutterRustBridgeBase<NativeWire> implements Native {
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_is_legal_move(
             port_,
-            _api2wire_usize(srcRow),
-            _api2wire_usize(srcCol),
-            _api2wire_usize(dstRow),
-            _api2wire_usize(dstCol)),
+            _api2wire_u8(srcRow),
+            _api2wire_u8(srcCol),
+            _api2wire_u8(dstRow),
+            _api2wire_u8(dstCol)),
         parseSuccessData: _wire2api_bool,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "is_legal_move",
@@ -95,17 +97,26 @@ class NativeImpl extends FlutterRustBridgeBase<NativeWire> implements Native {
         hint: hint,
       ));
 
+  Future<Uint8List> getOrigBoard({dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_get_orig_board(port_),
+        parseSuccessData: _wire2api_uint_8_list,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "get_orig_board",
+          argNames: [],
+        ),
+        argValues: [],
+        hint: hint,
+      ));
+
   Future<void> updateBoardData(
           {required int row,
           required int col,
           required int pieceIndex,
           dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_update_board_data(
-            port_,
-            _api2wire_usize(row),
-            _api2wire_usize(col),
-            _api2wire_usize(pieceIndex)),
+        callFfi: (port_) => inner.wire_update_board_data(port_,
+            _api2wire_u8(row), _api2wire_u8(col), _api2wire_u8(pieceIndex)),
         parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "update_board_data",
@@ -143,10 +154,6 @@ class NativeImpl extends FlutterRustBridgeBase<NativeWire> implements Native {
     return ans;
   }
 
-  int _api2wire_usize(int raw) {
-    return raw;
-  }
-
   // Section: api_fill_to_wire
 
 }
@@ -158,6 +165,14 @@ bool _wire2api_bool(dynamic raw) {
 
 Platform _wire2api_platform(dynamic raw) {
   return Platform.values[raw];
+}
+
+int _wire2api_u8(dynamic raw) {
+  return raw as int;
+}
+
+Uint8List _wire2api_uint_8_list(dynamic raw) {
+  return raw as Uint8List;
 }
 
 void _wire2api_unit(dynamic raw) {
@@ -232,10 +247,24 @@ class NativeWire implements FlutterRustBridgeWireBase {
 
   late final _wire_is_legal_movePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, uintptr_t, uintptr_t, uintptr_t,
-              uintptr_t)>>('wire_is_legal_move');
+          ffi.Void Function(ffi.Int64, ffi.Uint8, ffi.Uint8, ffi.Uint8,
+              ffi.Uint8)>>('wire_is_legal_move');
   late final _wire_is_legal_move = _wire_is_legal_movePtr
       .asFunction<void Function(int, int, int, int, int)>();
+
+  void wire_get_orig_board(
+    int port_,
+  ) {
+    return _wire_get_orig_board(
+      port_,
+    );
+  }
+
+  late final _wire_get_orig_boardPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_get_orig_board');
+  late final _wire_get_orig_board =
+      _wire_get_orig_boardPtr.asFunction<void Function(int)>();
 
   void wire_update_board_data(
     int port_,
@@ -253,8 +282,8 @@ class NativeWire implements FlutterRustBridgeWireBase {
 
   late final _wire_update_board_dataPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, uintptr_t, uintptr_t,
-              uintptr_t)>>('wire_update_board_data');
+          ffi.Void Function(ffi.Int64, ffi.Uint8, ffi.Uint8,
+              ffi.Uint8)>>('wire_update_board_data');
   late final _wire_update_board_data = _wire_update_board_dataPtr
       .asFunction<void Function(int, int, int, int)>();
 
@@ -326,7 +355,6 @@ class wire_uint_8_list extends ffi.Struct {
   external int len;
 }
 
-typedef uintptr_t = ffi.UnsignedLongLong;
 typedef DartPostCObjectFnType = ffi.Pointer<
     ffi.NativeFunction<ffi.Uint8 Function(DartPort, ffi.Pointer<ffi.Void>)>>;
 typedef DartPort = ffi.Int64;

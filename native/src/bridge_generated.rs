@@ -44,10 +44,10 @@ pub extern "C" fn wire_rust_release_mode(port_: i64) {
 #[no_mangle]
 pub extern "C" fn wire_is_legal_move(
     port_: i64,
-    src_row: usize,
-    src_col: usize,
-    dst_row: usize,
-    dst_col: usize,
+    src_row: u8,
+    src_col: u8,
+    dst_row: u8,
+    dst_col: u8,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -73,7 +73,19 @@ pub extern "C" fn wire_is_legal_move(
 }
 
 #[no_mangle]
-pub extern "C" fn wire_update_board_data(port_: i64, row: usize, col: usize, piece_index: usize) {
+pub extern "C" fn wire_get_orig_board(port_: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "get_orig_board",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| Ok(get_orig_board()),
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_update_board_data(port_: i64, row: u8, col: u8, piece_index: u8) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "update_board_data",
@@ -166,12 +178,6 @@ impl Wire2Api<Vec<u8>> for *mut wire_uint_8_list {
             let wrap = support::box_from_leak_ptr(self);
             support::vec_from_leak_ptr(wrap.ptr, wrap.len)
         }
-    }
-}
-
-impl Wire2Api<usize> for usize {
-    fn wire2api(self) -> usize {
-        self
     }
 }
 
