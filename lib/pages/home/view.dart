@@ -18,6 +18,7 @@ import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import 'widgets/command_bar.dart';
 import 'widgets/log_table.dart';
+import 'widgets/mark_point.dart';
 
 class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
@@ -36,8 +37,8 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     _width = MediaQuery.of(context).size.width;
     _height = MediaQuery.of(context).size.height;
-    // print('real w: ${_real_app_width}');
-    // print('real h: ${_real_app_height}');
+    // debugPrint('real w: ${_real_app_width}');
+    // debugPrint('real h: ${_real_app_height}');
 
     // _chessUiWidth = _width * chessUiWidthRatio;
 
@@ -56,7 +57,7 @@ class HomeView extends GetView<HomeController> {
       children: [
         Row(
           children: [
-            Obx(() => _getChessWidget()),
+            _getChessWidget(),
             _getStateWidget(),
           ],
         ),
@@ -152,7 +153,7 @@ class HomeView extends GetView<HomeController> {
       children: [
         boardImage,
         ..._getPieceWidgets(),
-        _getArrowWidget(),
+        // _getArrowWidget(),
       ],
     );
   }
@@ -166,28 +167,52 @@ class HomeView extends GetView<HomeController> {
     for (var eachPiece in controller.pieces) {
       final xPixel = pieceOffsetX + (eachPiece.col - 1) * (controller.pieceGap);
       final yPixel = pieceOffsetY + (eachPiece.row - 1) * (controller.pieceGap);
-      // mask image
-      if (eachPiece.maskType() != MaskType.none) {
-        final pieceWidget = Positioned(
-          left: xPixel,
-          top: yPixel,
-          child: SvgPicture.asset(getMaskImagePath(eachPiece.maskType()),
-              width: controller.pieceSize, height: controller.pieceSize),
-        );
-        pieceWidgets.add(pieceWidget);
-      }
-      // piece image
-      if (eachPiece.pieceType() != SidePieceType.none) {
-        final pieceWidget = Positioned(
-          left: xPixel,
-          top: yPixel,
-          child: SvgPicture.asset(getPieceImagePath(eachPiece.pieceType()),
-              width: controller.pieceSize, height: controller.pieceSize),
-        );
-        pieceWidgets.add(pieceWidget);
-      }
+
+      pieceWidgets.add(GetBuilder<HomeController>(
+        id: eachPiece.index,
+        builder: (_) {
+          debugPrint("重建id:${eachPiece.index}");
+          return Positioned(
+            left: xPixel,
+            top: yPixel,
+            child: Container(
+              decoration: BoxDecoration(
+                // 刚下完的棋子周围的光圈
+                border: eachPiece.maskType() == MaskType.moved
+                    ? getWhiteBorderCircle()
+                    : eachPiece.maskType() == MaskType.focused
+                        ? getGreenBorderCircle()
+                        : null, //
+                borderRadius: BorderRadius.all(
+                  Radius.circular((controller.pieceSize) / 2),
+                ),
+              ),
+              child: eachPiece.pieceType() != SidePieceType.none
+                  ? SvgPicture.asset(getPieceImagePath(eachPiece.pieceType()),
+                      width: controller.pieceSize, height: controller.pieceSize)
+                  : eachPiece.maskType() == MaskType.moved
+                      ? Text("haha")
+                      : null,
+            ),
+          );
+        },
+      ));
     }
     return pieceWidgets;
+  }
+
+  Border getWhiteBorderCircle() {
+    return Border.all(
+        color: Color.fromARGB(137, 5, 13, 107),
+        width: 2,
+        style: BorderStyle.solid);
+  }
+
+  Border getGreenBorderCircle() {
+    return Border.all(
+        color: Color.fromARGB(137, 2, 130, 51),
+        width: 2,
+        style: BorderStyle.solid);
   }
 }
 

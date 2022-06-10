@@ -21,8 +21,7 @@ class HomeController extends GetxController {
   set logs(value) => _logs.value = value;
 
   //该list中是当前需要被展示的所有棋子信息
-  final RxList<Piece> _pieces = <Piece>[].obs;
-  get pieces => _pieces;
+  final pieces = <Piece>[];
 
   // 需要绘制箭头的棋步
   final RxList<ChessMove> _arrowMoves = <ChessMove>[].obs;
@@ -30,7 +29,7 @@ class HomeController extends GetxController {
 
   HomeController() {
     for (var i = 0; i < boardRowCount * boardColCount; i++) {
-      _pieces.add(Piece(SidePieceType.none, 1, 1));
+      pieces.add(Piece(SidePieceType.none, i));
     }
 
     for (var i = 0; i < 2; i++) {
@@ -61,6 +60,8 @@ class HomeController extends GetxController {
 
   Future<void> onToolButtonPressed(String logContent) async {
     addLog(logContent);
+    final indexes = <int>[];
+
     switch (logContent) {
       case newChessGameLog:
         var correctRow = 0;
@@ -85,7 +86,10 @@ class HomeController extends GetxController {
             var pieceType = pieceMap[pieceTypeNum];
             if (pieceType != null) {
               final index = (correctRow - 1) * boardColCount + correctCol - 1;
-              _pieces[index] = (Piece(pieceType, correctRow, correctCol));
+              pieces[index].setPieceType(pieceType);
+              pieces[index].setMaskType(MaskType.none);
+
+              indexes.add(index);
             }
           }
         }
@@ -96,43 +100,46 @@ class HomeController extends GetxController {
 
         // 后台数据更新
         await _updateBackData();
+        //
+        update(indexes);
+
         break;
       default: //测试用
-      final arrow1 = ChessMove(
-          srcRow: 10, srcCol: 9, dstRow: 1, dstCol: 9, player: Player.red);
-      final arrow2 = ChessMove(
-          srcRow: 9, srcCol: 8, dstRow: 1, dstCol: 9, player: Player.black);
-      final arrow3 = ChessMove(
-          srcRow: 10, srcCol: 8, dstRow: 8, dstCol: 7, player: Player.black);
-      final arrow4 = ChessMove(
-          srcRow: 1, srcCol: 2, dstRow: 3, dstCol: 4, player: Player.black);
-      final arrow5 = ChessMove(
-          srcRow: 1, srcCol: 7, dstRow: 3, dstCol: 5, player: Player.black);
-      final arrow6 = ChessMove(
-          srcRow: 8, srcCol: 8, dstRow: 8, dstCol: 5, player: Player.black);
-      final arrow7 = ChessMove(
-          srcRow: 8, srcCol: 5, dstRow: 5, dstCol: 5, player: Player.red);
-      final arrow8 = ChessMove(
-          srcRow: 10, srcCol: 4, dstRow: 9, dstCol: 5, player: Player.red);
-      final arrow9 = ChessMove(
-          srcRow: 8, srcCol: 6, dstRow: 9, dstCol: 5, player: Player.black);
-      final arrow10 = ChessMove(
-          srcRow: 2, srcCol: 1, dstRow: 2, dstCol: 4, player: Player.red);
-      final arrow11 = ChessMove(
-          srcRow: 2, srcCol: 1, dstRow: 2, dstCol: 8, player: Player.red);
-      _arrowMoves.addAll([
-        arrow1,
-        arrow2,
-        arrow3,
-        arrow4,
-        arrow5,
-        arrow6,
-        arrow7,
-        arrow8,
-        arrow9,
-        arrow10,
-        arrow11,
-      ]);
+        final arrow1 = ChessMove(
+            srcRow: 10, srcCol: 9, dstRow: 1, dstCol: 9, player: Player.red);
+        final arrow2 = ChessMove(
+            srcRow: 9, srcCol: 8, dstRow: 1, dstCol: 9, player: Player.black);
+        final arrow3 = ChessMove(
+            srcRow: 10, srcCol: 8, dstRow: 8, dstCol: 7, player: Player.black);
+        final arrow4 = ChessMove(
+            srcRow: 1, srcCol: 2, dstRow: 3, dstCol: 4, player: Player.black);
+        final arrow5 = ChessMove(
+            srcRow: 1, srcCol: 7, dstRow: 3, dstCol: 5, player: Player.black);
+        final arrow6 = ChessMove(
+            srcRow: 8, srcCol: 8, dstRow: 8, dstCol: 5, player: Player.black);
+        final arrow7 = ChessMove(
+            srcRow: 8, srcCol: 5, dstRow: 5, dstCol: 5, player: Player.red);
+        final arrow8 = ChessMove(
+            srcRow: 10, srcCol: 4, dstRow: 9, dstCol: 5, player: Player.red);
+        final arrow9 = ChessMove(
+            srcRow: 8, srcCol: 6, dstRow: 9, dstCol: 5, player: Player.black);
+        final arrow10 = ChessMove(
+            srcRow: 2, srcCol: 1, dstRow: 2, dstCol: 4, player: Player.red);
+        final arrow11 = ChessMove(
+            srcRow: 2, srcCol: 1, dstRow: 2, dstCol: 8, player: Player.red);
+        _arrowMoves.addAll([
+          arrow1,
+          arrow2,
+          arrow3,
+          arrow4,
+          arrow5,
+          arrow6,
+          arrow7,
+          arrow8,
+          arrow9,
+          arrow10,
+          arrow11,
+        ]);
       // _arrowMoves.refresh();
 
       //   final redMoveStr = await api.getRandomValidMove('r');
@@ -218,18 +225,20 @@ class HomeController extends GetxController {
       //
       if (validClickedPieceRef.player() == _player) {
         _focusedPieceRef!.setMaskType(MaskType.none);
+        validClickedPieceRef.setMaskType(MaskType.focused);
+        update([_focusedPieceRef!.index, validClickedPieceRef.index]);
         _focusedPieceRef = validClickedPieceRef;
-        _focusedPieceRef!.setMaskType(MaskType.focused);
-        _pieces.refresh();
       } else if (await isMoveOrEatable(
           _focusedPieceRef!, validClickedPieceRef)) {
         // 移动棋子
-        validClickedPieceRef.setPiece(_focusedPieceRef!.pieceType());
-        _focusedPieceRef!.setPiece(SidePieceType.none);
+        validClickedPieceRef.setPieceType(_focusedPieceRef!.pieceType());
+        _focusedPieceRef!.setPieceType(SidePieceType.none);
 
         // 将之前masked的边框全部清除掉
+        final oldMaskId = [];
         for (var eachMaskedPiece in masks) {
           eachMaskedPiece.setMaskType(MaskType.none);
+          oldMaskId.add(eachMaskedPiece.index);
         }
         masks.clear();
 
@@ -252,17 +261,20 @@ class HomeController extends GetxController {
         } else if (_player == Player.black) {
           _arrowMoves[1] = newMove;
         }
-        //
-        _focusedPieceRef = null;
+        // 必要更新（注意顺序）
+        update([
+          ...oldMaskId,
+          _focusedPieceRef!.index,
+          validClickedPieceRef.index,
+        ]);
         _switchPlayer();
-        _pieces.refresh();//这步一定要有，因为list中每个元素地址没变（只是元素中的子元素地址变了）
-
         await _updateBackData(); //更新后台数据
+        _focusedPieceRef = null;
       }
     } else if (validClickedPieceRef.player() == _player) {
       validClickedPieceRef.setMaskType(MaskType.focused);
       _focusedPieceRef = validClickedPieceRef;
-      _pieces.refresh();
+      update([_focusedPieceRef!.index]);
     }
   }
 
@@ -272,7 +284,7 @@ class HomeController extends GetxController {
   }
 
   _updateBoardData() async {
-    for (var piece in _pieces) {
+    for (var piece in pieces) {
       await api.updateBoardData(
           row: piece.row, col: piece.col, pieceIndex: piece.pieceIndex());
     }
@@ -359,7 +371,7 @@ class HomeController extends GetxController {
     var col = nearestPos[1];
     if (row != null && col != null) {
       // 从_pieces中返回该位置的piece引用
-      for (var piece in _pieces) {
+      for (var piece in pieces) {
         if (piece.row == row && piece.col == col) {
           return piece;
         }

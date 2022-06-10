@@ -134,13 +134,21 @@ enum Player { none, red, black }
 class Piece {
   SidePieceType _pieceType;
   var _maskType = MaskType.none;
-  int row;
-  int col;
+  late int row;
+  late int col;
+  int index; //从0开始计数，最大89
 
-  Piece(this._pieceType, this.row, this.col);
+  Piece(this._pieceType, this.index) : assert(index >= 0 && index <= 89) {
+    row = index ~/ boardColCount + 1;
+    col = index % boardColCount + 1;
+  }
 
   SidePieceType pieceType() {
     return _pieceType;
+  }
+
+  setPieceType(SidePieceType pieceType) {
+    _pieceType = pieceType;
   }
 
   int pieceIndex() {
@@ -153,10 +161,6 @@ class Piece {
 
   void setMaskType(MaskType maskType) {
     _maskType = maskType;
-  }
-
-  void setPiece(SidePieceType piece) {
-    _pieceType = piece;
   }
 
   Player player() {
