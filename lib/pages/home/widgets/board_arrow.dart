@@ -100,6 +100,14 @@ class ArrowPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(ArrowPainter oldDelegate) {
-    return moves != oldDelegate.moves;
+    final isSameLen = moves.length != oldDelegate.moves.length;
+    if (isSameLen) {
+      for (var i = 0; i < moves.length; i++) {
+        if (oldDelegate.moves[i] != moves[i]) return true;
+      }
+    } else {
+      return true;
+    }
+    return false;
   }
 }

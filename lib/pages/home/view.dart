@@ -140,7 +140,6 @@ class HomeView extends GetView<HomeController> {
 
   Widget _getArrowWidget() {
     return CustomPaint(
-      // child: Container(),
       painter: ArrowPainter(
           controller.arrowMoves, controller.leftTopOffSet, controller.pieceGap),
     );
@@ -153,7 +152,7 @@ class HomeView extends GetView<HomeController> {
       children: [
         boardImage,
         ..._getPieceWidgets(),
-        // _getArrowWidget(),
+        _getArrowWidget(),
       ],
     );
   }
@@ -171,7 +170,7 @@ class HomeView extends GetView<HomeController> {
       pieceWidgets.add(GetBuilder<HomeController>(
         id: eachPiece.index,
         builder: (_) {
-          debugPrint("重建id:${eachPiece.index}");
+          // debugPrint("重建id:${eachPiece.index}");
           return Positioned(
             left: xPixel,
             top: yPixel,
