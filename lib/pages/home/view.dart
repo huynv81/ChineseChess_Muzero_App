@@ -7,6 +7,7 @@
  */
 import 'dart:io';
 
+import 'package:dashed_rect/dashed_rect.dart';
 import 'package:docking/docking.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -163,7 +164,7 @@ class HomeView extends GetView<HomeController> {
     final pieceOffsetX = controller.leftTopOffSet.dx - pieceRadius;
     final pieceOffsetY = controller.leftTopOffSet.dy - pieceRadius;
 
-    for (var eachPiece in controller.pieces) {
+    for (Piece eachPiece in controller.pieces) {
       final xPixel = pieceOffsetX + (eachPiece.col - 1) * (controller.pieceGap);
       final yPixel = pieceOffsetY + (eachPiece.row - 1) * (controller.pieceGap);
 
@@ -171,27 +172,30 @@ class HomeView extends GetView<HomeController> {
         id: eachPiece.index,
         builder: (_) {
           // debugPrint("重建id:${eachPiece.index}");
+          final mask = eachPiece.maskType();
+          final pieceType = eachPiece.pieceType();
           return Positioned(
             left: xPixel,
             top: yPixel,
-            child: Container(
-              decoration: BoxDecoration(
-                // 刚下完的棋子周围的光圈
-                border: eachPiece.maskType() == MaskType.moved
-                    ? getWhiteBorderCircle()
-                    : eachPiece.maskType() == MaskType.focused
-                        ? getGreenBorderCircle()
-                        : null, //
-                borderRadius: BorderRadius.all(
-                  Radius.circular((controller.pieceSize) / 2),
-                ),
-              ),
-              child: eachPiece.pieceType() != SidePieceType.none
-                  ? SvgPicture.asset(getPieceImagePath(eachPiece.pieceType()),
-                      width: controller.pieceSize, height: controller.pieceSize)
-                  : eachPiece.maskType() == MaskType.moved
-                      ? Text("haha")
-                      : null,
+            child: DashedRect(
+              gap: mask == MaskType.none
+                  ? 50 //该数很大时不会显示线框
+                  : mask == MaskType.focused
+                      ? 0.08 //数字越小越接近实线，0.08刚刚好！
+                      : 3,
+              strokeWidth: 1.5,
+              color: Colors.deepPurpleAccent,
+              // color: Colors.purple,
+              child: pieceType == SidePieceType.none
+                  ? SizedBox(
+                      width: controller.pieceSize,
+                      height: controller.pieceSize,
+                    )
+                  : SvgPicture.asset(
+                      getPieceImagePath(eachPiece.pieceType()),
+                      width: controller.pieceSize,
+                      height: controller.pieceSize,
+                    ),
             ),
           );
         },

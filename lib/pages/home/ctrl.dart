@@ -157,24 +157,25 @@ class HomeController extends GetxController {
           eachMaskedPiece.setMaskType(MaskType.none);
           oldMaskId.add(eachMaskedPiece.index);
         }
-        masks.clear();
 
         // 设置新移动棋子的mask并加入masks
         _focusedPieceRef!.setMaskType(MaskType.moved);
         validClickedPieceRef.setMaskType(MaskType.moved);
+        masks.clear();
         masks.add(_focusedPieceRef!);
         masks.add(validClickedPieceRef);
 
-        // TODO: 生成刚刚走的棋子的招法，测试箭头
-        arrowMoves.clear();
-        final newMove = ChessMove(
-          srcRow: _focusedPieceRef!.row,
-          srcCol: _focusedPieceRef!.col,
-          dstRow: validClickedPieceRef.row,
-          dstCol: validClickedPieceRef.col,
-          player: _player,
-        );
-        arrowMoves.add(newMove);
+        // // TODO: 生成刚刚走的棋子的招法，测试箭头
+        // arrowMoves.clear();
+        // final newMove = ChessMove(
+        //   srcRow: _focusedPieceRef!.row,
+        //   srcCol: _focusedPieceRef!.col,
+        //   dstRow: validClickedPieceRef.row,
+        //   dstCol: validClickedPieceRef.col,
+        //   player: _player,
+        // );
+        // arrowMoves.add(newMove);
+
         // 必要更新（注意顺序）
         update([
           ...oldMaskId,

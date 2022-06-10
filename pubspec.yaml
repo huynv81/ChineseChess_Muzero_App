@@ -42,8 +42,9 @@ dependencies:
   intl: ^0.17.0
   docking: ^1.2.0+1
   macos_ui: ^1.1.0+1
+  dashed_rect: ^0.0.4
   flutter_svg: ^1.1.0
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
