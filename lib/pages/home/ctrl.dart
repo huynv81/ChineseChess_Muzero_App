@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-05-08 15:28:56
+ * @LastEditTime : 2022-06-11 12:59:25
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../common/global.dart';
 import '../../ffi.dart';
-import 'widgets/board_arrow.dart';
 
 class HomeController extends GetxController {
   final _logs = <DataRow>[].obs;
@@ -55,7 +54,7 @@ class HomeController extends GetxController {
       case newChessGameLog:
         var correctRow = 0;
         var correctCol = 0;
-        final origBoardArray = await api.getOrigBoard();
+        final origBoardArray = await ruleApi.getOrigBoard();
         for (int i = 0; i < origBoardArray.length; i++) {
           final origRow = (i + 1) ~/ 16;
           final modNum = (i + 1) % 16;
@@ -96,7 +95,8 @@ class HomeController extends GetxController {
         break;
 
       default: //测试用
-
+        var x = await ucciApi.testAdd(num1: 1, num2: 2);
+        var y = 5;
     }
   }
 
@@ -200,7 +200,7 @@ class HomeController extends GetxController {
 
   _updateBoardData() async {
     for (var piece in pieces) {
-      await api.updateBoardData(
+      await ruleApi.updateBoardData(
           row: piece.row, col: piece.col, pieceIndex: piece.pieceIndex());
     }
   }
@@ -210,10 +210,10 @@ class HomeController extends GetxController {
       case Player.none:
         throw '更新后台玩家时发现None';
       case Player.red:
-        await api.updatePlayerData(player: 'r');
+        await ruleApi.updatePlayerData(player: 'r');
         break;
       case Player.black:
-        await api.updatePlayerData(player: 'b');
+        await ruleApi.updatePlayerData(player: 'b');
         break;
     }
   }
@@ -229,7 +229,7 @@ class HomeController extends GetxController {
       throw '错误：带检查的目标位置棋子是当前玩家';
     }
 
-    return await api.isLegalMove(
+    return await ruleApi.isLegalMove(
         srcRow: srcPiece.row,
         srcCol: srcPiece.col,
         dstRow: dstPiece.row,

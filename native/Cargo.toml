@@ -10,7 +10,7 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 anyhow = "1"
-flutter_rust_bridge = "*"
+flutter_rust_bridge = "1.34.2"
 once_cell = "*"
 phf = { version = "*", features = ["macros"] }
 num-traits = "*"
