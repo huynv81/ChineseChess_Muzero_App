@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-06-13 09:20:34
+ * @LastEditTime : 2022-06-14 10:05:55
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 import 'dart:io';
@@ -82,7 +82,7 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       body: GestureDetector(
         onTapUp: (details) {
-          controller.onBoardClicked(details.localPosition);
+          controller.onWindowClicked(details.localPosition);
         },
         behavior: HitTestBehavior.translucent,
         onPanStart: (details) {
@@ -178,7 +178,7 @@ class HomeView extends GetView<HomeController> {
             left: xPixel,
             top: yPixel,
             child: DashedRect(
-              gap: mask == MaskType.none
+              gap: !controller.gameStarted || mask == MaskType.none
                   ? 50 //该数超过30后不会显示线框
                   : mask == MaskType.focused
                       ? 0.08 //数字越小越接近实线，0.08刚刚好！

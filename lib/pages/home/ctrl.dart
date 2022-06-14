@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-06-14 09:35:35
+ * @LastEditTime : 2022-06-14 10:03:22
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -14,6 +14,7 @@ import '../../common/global.dart';
 import '../../ffi.dart';
 
 class HomeController extends GetxController {
+  var gameStarted = false;
   final _logs = <DataRow>[].obs;
 
   final masks = <Piece>[]; //添加了mask的piece引用列表
@@ -93,6 +94,7 @@ class HomeController extends GetxController {
         // 后台数据更新
         await _updateBackData();
         //
+        gameStarted = true;
         update(indexes);
         break;
 
@@ -130,7 +132,8 @@ class HomeController extends GetxController {
     );
   }
 
-  Future<void> onBoardClicked(Offset localPosition) async {
+  // 整个窗口任意位置点击均会触发此函数
+  Future<void> onWindowClicked(Offset localPosition) async {
     // 是否为有效点击位
     final validClickedPieceRef = getChessPosFromOffset(localPosition);
     if (validClickedPieceRef == null) {
