@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-05-08 16:31:08
+ * @LastEditTime : 2022-06-13 09:20:34
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 import 'dart:io';
@@ -179,10 +179,10 @@ class HomeView extends GetView<HomeController> {
             top: yPixel,
             child: DashedRect(
               gap: mask == MaskType.none
-                  ? 50 //该数很大时不会显示线框
+                  ? 50 //该数超过30后不会显示线框
                   : mask == MaskType.focused
                       ? 0.08 //数字越小越接近实线，0.08刚刚好！
-                      : 3,
+                      : 3, //虚线框
               strokeWidth: 1.5,
               color: Colors.deepPurpleAccent,
               // color: Colors.purple,

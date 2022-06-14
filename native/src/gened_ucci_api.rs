@@ -17,22 +17,6 @@ use flutter_rust_bridge::*;
 
 // Section: wire functions
 
-#[no_mangle]
-pub extern "C" fn wire_test_add(port_: i64, num1: u8, num2: u8) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "test_add",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_num1 = num1.wire2api();
-            let api_num2 = num2.wire2api();
-            move |task_callback| Ok(test_add(api_num1, api_num2))
-        },
-    )
-}
-
 // Section: wire structs
 
 // Section: wrapper structs
@@ -57,12 +41,6 @@ where
         } else {
             Some(self.wire2api())
         }
-    }
-}
-
-impl Wire2Api<u8> for u8 {
-    fn wire2api(self) -> u8 {
-        self
     }
 }
 

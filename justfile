@@ -9,12 +9,14 @@ llvm_path := if os() == "macos" {
 default: gen lint
 
 gen:
+    # RUST_LOG=debug
     # api for chess rule
     export REPO_DIR="$PWD"; cd /; flutter_rust_bridge_codegen {{llvm_path}} \
         --rust-input "$REPO_DIR/native/src/rule_api.rs" \
         --rust-output "$REPO_DIR/native/src/gened_rule_api.rs" \
         --dart-output "$REPO_DIR/lib/gened_rule_api.dart" \
-        --class-name RuleApi
+        --class-name RuleApi \
+
     # api for connecting ucci engine
     export REPO_DIR="$PWD"; cd /; flutter_rust_bridge_codegen {{llvm_path}} \
         --rust-input "$REPO_DIR/native/src/ucci_api.rs" \
@@ -24,6 +26,7 @@ gen:
         --exclude-sync-execution-mode-utility true
 
     # Uncomment this line to invoke build_runner as well
+    flutter pub get
     flutter pub run build_runner build --delete-conflicting-outputs
 
 lint:

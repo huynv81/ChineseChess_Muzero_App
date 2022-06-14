@@ -11,11 +11,7 @@ import 'dart:typed_data';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
-abstract class UcciApi {
-  Future<int> testAdd({required int num1, required int num2, dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kTestAddConstMeta;
-}
+abstract class UcciApi {}
 
 class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
     implements UcciApi {
@@ -24,35 +20,13 @@ class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
 
   UcciApiImpl.raw(UcciApiWire inner) : super(inner);
 
-  Future<int> testAdd({required int num1, required int num2, dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_test_add(port_, _api2wire_u8(num1), _api2wire_u8(num2)),
-        parseSuccessData: _wire2api_u8,
-        constMeta: kTestAddConstMeta,
-        argValues: [num1, num2],
-        hint: hint,
-      ));
-
-  FlutterRustBridgeTaskConstMeta get kTestAddConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "test_add",
-        argNames: ["num1", "num2"],
-      );
-
   // Section: api2wire
-  int _api2wire_u8(int raw) {
-    return raw;
-  }
 
   // Section: api_fill_to_wire
 
 }
 
 // Section: wire2api
-int _wire2api_u8(dynamic raw) {
-  return raw as int;
-}
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
 
@@ -207,24 +181,6 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
           'free_WireSyncReturnStruct');
   late final _free_WireSyncReturnStruct = _free_WireSyncReturnStructPtr
       .asFunction<void Function(WireSyncReturnStruct)>();
-
-  void wire_test_add(
-    int port_,
-    int num1,
-    int num2,
-  ) {
-    return _wire_test_add(
-      port_,
-      num1,
-      num2,
-    );
-  }
-
-  late final _wire_test_addPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Uint8, ffi.Uint8)>>('wire_test_add');
-  late final _wire_test_add =
-      _wire_test_addPtr.asFunction<void Function(int, int, int)>();
 
   void store_dart_post_cobject(
     DartPostCObjectFnType ptr,

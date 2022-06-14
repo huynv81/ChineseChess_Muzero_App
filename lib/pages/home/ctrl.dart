@@ -2,9 +2,11 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-06-11 12:59:25
+ * @LastEditTime : 2022-06-14 09:35:35
  * @Description  : 用以控制HomeView的control组件
  */
+
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -95,7 +97,10 @@ class HomeController extends GetxController {
         break;
 
       default: //测试用
-        var x = await ucciApi.testAdd(num1: 1, num2: 2);
+        // String enginePath = Directory.current.path + '/assets/engines/$engine';
+        // final engine = "eleeye.exe";
+        // final result = await ruleApi.launchUcciEngine(enginePath: enginePath);
+        // var r = await ruleApi.testGetOutput();
         var y = 5;
     }
   }
