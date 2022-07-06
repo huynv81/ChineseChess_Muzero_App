@@ -8,14 +8,16 @@ class LogTable extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => SingleChildScrollView(
-          child: DataTable(
-            columns: const [
-              DataColumn(label: Text("时间")),
-              DataColumn(label: Text("内容")),
-            ],
-            rows: controller.logs,
-          ),
-        ));
+    return Obx(
+      () => SingleChildScrollView(
+        child: DataTable(
+          columns: const [
+            DataColumn(label: Text("时间")),
+            DataColumn(label: Text("内容")),
+          ],
+          rows: controller.logs,
+        ),
+      ),
+    );
   }
 }

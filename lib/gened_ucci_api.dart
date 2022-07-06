@@ -11,7 +11,27 @@ import 'dart:typed_data';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
-abstract class UcciApi {}
+abstract class UcciApi {
+  Future<void> testNormalFunc({required int x, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kTestNormalFuncConstMeta;
+
+  Future<void> testConflict({required int x, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kTestConflictConstMeta;
+
+  Future<void> testStringFunc({required String x, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kTestStringFuncConstMeta;
+
+  Stream<int> tick({dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kTickConstMeta;
+
+  Future<void> testStringFunc2({required String x, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kTestStringFunc2ConstMeta;
+}
 
 class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
     implements UcciApi {
@@ -20,13 +40,109 @@ class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
 
   UcciApiImpl.raw(UcciApiWire inner) : super(inner);
 
+  Future<void> testNormalFunc({required int x, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_test_normal_func(port_, _api2wire_u8(x)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: kTestNormalFuncConstMeta,
+        argValues: [x],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kTestNormalFuncConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "test_normal_func",
+        argNames: ["x"],
+      );
+
+  Future<void> testConflict({required int x, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_test_conflict(port_, _api2wire_u8(x)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: kTestConflictConstMeta,
+        argValues: [x],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kTestConflictConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "test_conflict",
+        argNames: ["x"],
+      );
+
+  Future<void> testStringFunc({required String x, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_test_string_func(port_, _api2wire_String(x)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: kTestStringFuncConstMeta,
+        argValues: [x],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kTestStringFuncConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "test_string_func",
+        argNames: ["x"],
+      );
+
+  Stream<int> tick({dynamic hint}) => executeStream(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_tick(port_),
+        parseSuccessData: _wire2api_i32,
+        constMeta: kTickConstMeta,
+        argValues: [],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kTickConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "tick",
+        argNames: [],
+      );
+
+  Future<void> testStringFunc2({required String x, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_test_string_func_2(port_, _api2wire_String(x)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: kTestStringFunc2ConstMeta,
+        argValues: [x],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kTestStringFunc2ConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "test_string_func_2",
+        argNames: ["x"],
+      );
+
   // Section: api2wire
+  ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
+    return _api2wire_uint_8_list(utf8.encoder.convert(raw));
+  }
+
+  int _api2wire_u8(int raw) {
+    return raw;
+  }
+
+  ffi.Pointer<wire_uint_8_list> _api2wire_uint_8_list(Uint8List raw) {
+    final ans = inner.new_uint_8_list_1(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
 
   // Section: api_fill_to_wire
 
 }
 
 // Section: wire2api
+int _wire2api_i32(dynamic raw) {
+  return raw as int;
+}
+
+void _wire2api_unit(dynamic raw) {
+  return;
+}
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
 
@@ -50,124 +166,6 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
           lookup)
       : _lookup = lookup;
 
-  void wire_platform(
-    int port_,
-  ) {
-    return _wire_platform(
-      port_,
-    );
-  }
-
-  late final _wire_platformPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_platform');
-  late final _wire_platform =
-      _wire_platformPtr.asFunction<void Function(int)>();
-
-  void wire_rust_release_mode(
-    int port_,
-  ) {
-    return _wire_rust_release_mode(
-      port_,
-    );
-  }
-
-  late final _wire_rust_release_modePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_rust_release_mode');
-  late final _wire_rust_release_mode =
-      _wire_rust_release_modePtr.asFunction<void Function(int)>();
-
-  void wire_is_legal_move(
-    int port_,
-    int src_row,
-    int src_col,
-    int dst_row,
-    int dst_col,
-  ) {
-    return _wire_is_legal_move(
-      port_,
-      src_row,
-      src_col,
-      dst_row,
-      dst_col,
-    );
-  }
-
-  late final _wire_is_legal_movePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Uint8, ffi.Uint8, ffi.Uint8,
-              ffi.Uint8)>>('wire_is_legal_move');
-  late final _wire_is_legal_move = _wire_is_legal_movePtr
-      .asFunction<void Function(int, int, int, int, int)>();
-
-  void wire_get_orig_board(
-    int port_,
-  ) {
-    return _wire_get_orig_board(
-      port_,
-    );
-  }
-
-  late final _wire_get_orig_boardPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_get_orig_board');
-  late final _wire_get_orig_board =
-      _wire_get_orig_boardPtr.asFunction<void Function(int)>();
-
-  void wire_update_board_data(
-    int port_,
-    int row,
-    int col,
-    int piece_index,
-  ) {
-    return _wire_update_board_data(
-      port_,
-      row,
-      col,
-      piece_index,
-    );
-  }
-
-  late final _wire_update_board_dataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Uint8, ffi.Uint8,
-              ffi.Uint8)>>('wire_update_board_data');
-  late final _wire_update_board_data = _wire_update_board_dataPtr
-      .asFunction<void Function(int, int, int, int)>();
-
-  void wire_update_player_data(
-    int port_,
-    ffi.Pointer<wire_uint_8_list> player,
-  ) {
-    return _wire_update_player_data(
-      port_,
-      player,
-    );
-  }
-
-  late final _wire_update_player_dataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64,
-              ffi.Pointer<wire_uint_8_list>)>>('wire_update_player_data');
-  late final _wire_update_player_data = _wire_update_player_dataPtr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
-
-  ffi.Pointer<wire_uint_8_list> new_uint_8_list(
-    int len,
-  ) {
-    return _new_uint_8_list(
-      len,
-    );
-  }
-
-  late final _new_uint_8_listPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<wire_uint_8_list> Function(
-              ffi.Int32)>>('new_uint_8_list');
-  late final _new_uint_8_list = _new_uint_8_listPtr
-      .asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
-
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,
   ) {
@@ -181,6 +179,99 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
           'free_WireSyncReturnStruct');
   late final _free_WireSyncReturnStruct = _free_WireSyncReturnStructPtr
       .asFunction<void Function(WireSyncReturnStruct)>();
+
+  void wire_test_normal_func(
+    int port_,
+    int x,
+  ) {
+    return _wire_test_normal_func(
+      port_,
+      x,
+    );
+  }
+
+  late final _wire_test_normal_funcPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint8)>>(
+          'wire_test_normal_func');
+  late final _wire_test_normal_func =
+      _wire_test_normal_funcPtr.asFunction<void Function(int, int)>();
+
+  void wire_test_conflict(
+    int port_,
+    int x,
+  ) {
+    return _wire_test_conflict(
+      port_,
+      x,
+    );
+  }
+
+  late final _wire_test_conflictPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint8)>>(
+          'wire_test_conflict');
+  late final _wire_test_conflict =
+      _wire_test_conflictPtr.asFunction<void Function(int, int)>();
+
+  void wire_test_string_func(
+    int port_,
+    ffi.Pointer<wire_uint_8_list> x,
+  ) {
+    return _wire_test_string_func(
+      port_,
+      x,
+    );
+  }
+
+  late final _wire_test_string_funcPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_test_string_func');
+  late final _wire_test_string_func = _wire_test_string_funcPtr
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_tick(
+    int port_,
+  ) {
+    return _wire_tick(
+      port_,
+    );
+  }
+
+  late final _wire_tickPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_tick');
+  late final _wire_tick = _wire_tickPtr.asFunction<void Function(int)>();
+
+  void wire_test_string_func_2(
+    int port_,
+    ffi.Pointer<wire_uint_8_list> x,
+  ) {
+    return _wire_test_string_func_2(
+      port_,
+      x,
+    );
+  }
+
+  late final _wire_test_string_func_2Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_test_string_func_2');
+  late final _wire_test_string_func_2 = _wire_test_string_func_2Ptr
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
+  ffi.Pointer<wire_uint_8_list> new_uint_8_list_1(
+    int len,
+  ) {
+    return _new_uint_8_list_1(
+      len,
+    );
+  }
+
+  late final _new_uint_8_list_1Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_uint_8_list> Function(
+              ffi.Int32)>>('new_uint_8_list_1');
+  late final _new_uint_8_list_1 = _new_uint_8_list_1Ptr
+      .asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
 
   void store_dart_post_cobject(
     DartPostCObjectFnType ptr,
@@ -205,5 +296,5 @@ class wire_uint_8_list extends ffi.Struct {
 }
 
 typedef DartPostCObjectFnType = ffi.Pointer<
-    ffi.NativeFunction<ffi.Uint8 Function(DartPort, ffi.Pointer<ffi.Void>)>>;
+    ffi.NativeFunction<ffi.Bool Function(DartPort, ffi.Pointer<ffi.Void>)>>;
 typedef DartPort = ffi.Int64;

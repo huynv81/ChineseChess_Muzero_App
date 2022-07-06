@@ -116,6 +116,36 @@ pub extern "C" fn wire_update_player_data(port_: i64, player: *mut wire_uint_8_l
     )
 }
 
+#[no_mangle]
+pub extern "C" fn wire_test_conflict_1(port_: i64, s: *mut wire_uint_8_list) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "test_conflict_1",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_s = s.wire2api();
+            move |task_callback| Ok(test_conflict_1(api_s))
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_test_string_func_1(port_: i64, x: *mut wire_uint_8_list) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "test_string_func_1",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_x = x.wire2api();
+            move |task_callback| Ok(test_string_func_1(api_x))
+        },
+    )
+}
+
 // Section: wire structs
 
 #[repr(C)]
@@ -132,7 +162,7 @@ pub struct wire_uint_8_list {
 // Section: allocate functions
 
 #[no_mangle]
-pub extern "C" fn new_uint_8_list(len: i32) -> *mut wire_uint_8_list {
+pub extern "C" fn new_uint_8_list_0(len: i32) -> *mut wire_uint_8_list {
     let ans = wire_uint_8_list {
         ptr: support::new_leak_vec_ptr(Default::default(), len),
         len,

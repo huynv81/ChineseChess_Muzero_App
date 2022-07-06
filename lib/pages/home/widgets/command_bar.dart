@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-30 11:10:14
  * @LastEditors  : 老董
- * @LastEditTime : 2022-05-08 16:27:45
+ * @LastEditTime : 2022-06-15 20:22:56
  * @Description  : ios风格的工具栏
  */
 
@@ -64,6 +64,7 @@ class CommandBar extends GetView<HomeController> {
           ),
           onPressed: () => controller.onToolButtonPressed('AI点击'),
           showLabel: false,
+          // tooltipMessage: 'AI设置'
         ),
         ToolBarIconButton(
           label: "设置",

@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-06-14 10:03:22
+ * @LastEditTime : 2022-07-06 10:52:44
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -14,6 +14,28 @@ import '../../common/global.dart';
 import '../../ffi.dart';
 
 class HomeController extends GetxController {
+  // test
+  // http://cjycode.com/flutter_rust_bridge/feature/stream.html
+  var rustStreamBinder = 0.obs;
+  Stream<int> rustTickStream = ucciApi.tick();
+  late final Worker worker;
+
+  HomeController() {
+    for (var i = 0; i < boardRowCount * boardColCount; i++) {
+      pieces.add(Piece(SidePieceType.none, i));
+    }
+
+    rustStreamBinder.bindStream(rustTickStream);
+    worker = ever(
+      rustStreamBinder,
+      (value) {
+        addLog(value.toString());
+      },
+    );
+
+    // rustTickStream.l
+  }
+
   var gameStarted = false;
   final _logs = <DataRow>[].obs;
 
@@ -27,12 +49,6 @@ class HomeController extends GetxController {
 
   // 需要绘制箭头的棋步
   final arrowMoves = <ChessMove>[];
-
-  HomeController() {
-    for (var i = 0; i < boardRowCount * boardColCount; i++) {
-      pieces.add(Piece(SidePieceType.none, i));
-    }
-  }
 
   // set pieces(value) => _pieces.value = value;
   Piece? _focusedPieceRef; //被鼠标选中的棋子,指向_pieces中某piece元素的引用
@@ -103,6 +119,11 @@ class HomeController extends GetxController {
         // final engine = "eleeye.exe";
         // final result = await ruleApi.launchUcciEngine(enginePath: enginePath);
         // var r = await ruleApi.testGetOutput();
+        // var r = await ruleApi.test2(s: "test");
+        // await ucciApi.test(x: 5);
+        await ruleApi.testConflict1(s: "hi");
+        await ucciApi.testNormalFunc(x: 5);
+        await ucciApi.testStringFunc(x: "hi");
         var y = 5;
     }
   }

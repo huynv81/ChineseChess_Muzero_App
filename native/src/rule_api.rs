@@ -102,17 +102,18 @@ pub fn update_player_data(player: String) {
     crate::chess::set_player_by_str(&player);
 }
 
-//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ucci↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-// use crate::ucci::execute;
+//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓test↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+pub fn test_conflict_1(s: String) -> bool {
+    return true;
+}
+pub fn test_string_func_1(x: String) {
+    println!("test implicit parameter conflicts");
+}
+// pub fn test_conflict_1(s: String) -> bool {
+//     return true;
+// }
 
-// pub fn launch_ucci_engine(engine_path: String) -> bool {
-//     println!("引擎路径是：{engine_path}");
-//     return execute(&engine_path);
+// pub fn test_conflict_2(s: String) -> bool {
+//     return true;
 // }
-// pub fn test_get_output() -> String {
-//     let mut command = Command::new("date");
-//     let output = command.output().unwrap();
-//     let x = std::str::from_utf8(&output.stdout[..]).unwrap();
-//     x.into()
-// }
-//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ucci↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑test↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
