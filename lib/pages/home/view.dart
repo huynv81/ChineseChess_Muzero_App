@@ -5,7 +5,6 @@
  * @LastEditTime : 2022-06-14 10:05:55
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
-import 'dart:io';
 
 import 'package:dashed_rect/dashed_rect.dart';
 import 'package:docking/docking.dart';
@@ -19,7 +18,6 @@ import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import 'widgets/command_bar.dart';
 import 'widgets/log_table.dart';
-import 'widgets/mark_point.dart';
 
 class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
@@ -119,12 +117,12 @@ class HomeView extends GetView<HomeController> {
     DockingLayout layout = DockingLayout(
       root: DockingColumn([
         DockingTabs([
-          DockingItem(name: '棋谱', widget: Text("")),
-          DockingItem(name: '局势', widget: Text(""))
+          DockingItem(name: '棋谱', widget: const Text("")),
+          DockingItem(name: '局势', widget: const Text(""))
         ]),
         DockingTabs([
-          DockingItem(name: '日志', widget: LogTable()),
-          DockingItem(name: '思考细节', widget: Text("")),
+          DockingItem(name: '日志', widget: const LogTable()),
+          DockingItem(name: '思考细节', widget: const Text("")),
         ])
       ]),
     );
@@ -206,14 +204,14 @@ class HomeView extends GetView<HomeController> {
 
   Border getWhiteBorderCircle() {
     return Border.all(
-        color: Color.fromARGB(137, 5, 13, 107),
+        color: const Color.fromARGB(137, 5, 13, 107),
         width: 2,
         style: BorderStyle.solid);
   }
 
   Border getGreenBorderCircle() {
     return Border.all(
-        color: Color.fromARGB(137, 2, 130, 51),
+        color: const Color.fromARGB(137, 2, 130, 51),
         width: 2,
         style: BorderStyle.solid);
   }

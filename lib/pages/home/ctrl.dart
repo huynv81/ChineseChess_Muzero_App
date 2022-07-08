@@ -6,8 +6,6 @@
  * @Description  : 用以控制HomeView的control组件
  */
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../common/global.dart';
@@ -60,7 +58,7 @@ class HomeController extends GetxController {
   set animatedContainerHeight(value) => _animatedContainerHeight.value = value;
 
   // real chess size
-  var leftTopOffSet = Offset(0.0, 0.0); //左上角棋子位置距离棋盘左上角的offset
+  var leftTopOffSet = const Offset(0.0, 0.0); //左上角棋子位置距离棋盘左上角的offset
   var pieceGap = 0.0; //相邻2个棋子中心位置的间距，x、y轴都一样
   var pieceSize = 0.0; //这个是调整过的棋子尺寸，宽高一致
 

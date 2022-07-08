@@ -9,7 +9,7 @@ class MarkComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 返回棋子原来位置的白点
-    return Container(
+    return SizedBox(
       width: size,
       height: size,
       child: Center(
@@ -17,16 +17,16 @@ class MarkComponent extends StatelessWidget {
           width: 22,
           height: 22,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(30)),
+              borderRadius: const BorderRadius.all(Radius.circular(30)),
               border: Border.all(
                 width: 1.0,
-                color: Color.fromRGBO(255, 255, 255, .8),
+                color: const Color.fromRGBO(255, 255, 255, .8),
               )),
           child: Center(
             child: Container(
               width: 15,
               height: 15,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: Color.fromRGBO(255, 255, 255, .8),
                   borderRadius: BorderRadius.all(Radius.circular(15))),
             ),
