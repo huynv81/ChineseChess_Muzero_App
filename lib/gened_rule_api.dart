@@ -451,35 +451,6 @@ class RuleApiWire implements FlutterRustBridgeWireBase {
           'store_dart_post_cobject');
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
-
-  ffi.Pointer<wire_uint_8_list> new_uint_8_list_01(
-    int len,
-  ) {
-    return _new_uint_8_list_01(
-      len,
-    );
-  }
-
-  late final _new_uint_8_list_01Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<wire_uint_8_list> Function(
-              ffi.Int32)>>('new_uint_8_list_0');
-  late final _new_uint_8_list_01 = _new_uint_8_list_01Ptr
-      .asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
-
-  void free_WireSyncReturnStruct1(
-    WireSyncReturnStruct val,
-  ) {
-    return _free_WireSyncReturnStruct1(
-      val,
-    );
-  }
-
-  late final _free_WireSyncReturnStruct1Ptr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(WireSyncReturnStruct)>>(
-          'free_WireSyncReturnStruct');
-  late final _free_WireSyncReturnStruct1 = _free_WireSyncReturnStruct1Ptr
-      .asFunction<void Function(WireSyncReturnStruct)>();
 }
 
 class wire_uint_8_list extends ffi.Struct {

@@ -12,25 +12,13 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
 abstract class UcciApi {
-  Future<void> testNormalFunc({required int x, dynamic hint});
+  Stream<String> registerUcciEngine({required String enginePath, dynamic hint});
 
-  FlutterRustBridgeTaskConstMeta get kTestNormalFuncConstMeta;
+  FlutterRustBridgeTaskConstMeta get kRegisterUcciEngineConstMeta;
 
-  Future<void> testConflict({required int x, dynamic hint});
+  Future<void> writeToProcess({required String command, dynamic hint});
 
-  FlutterRustBridgeTaskConstMeta get kTestConflictConstMeta;
-
-  Future<void> testStringFunc({required String x, dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kTestStringFuncConstMeta;
-
-  Stream<int> tick({dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kTickConstMeta;
-
-  Future<void> testStringFunc2({required String x, dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kTestStringFunc2ConstMeta;
+  FlutterRustBridgeTaskConstMeta get kWriteToProcessConstMeta;
 }
 
 class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
@@ -40,80 +28,37 @@ class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
 
   UcciApiImpl.raw(UcciApiWire inner) : super(inner);
 
-  Future<void> testNormalFunc({required int x, dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_test_normal_func(port_, _api2wire_u8(x)),
-        parseSuccessData: _wire2api_unit,
-        constMeta: kTestNormalFuncConstMeta,
-        argValues: [x],
+  Stream<String> registerUcciEngine(
+          {required String enginePath, dynamic hint}) =>
+      executeStream(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_register_ucci_engine(
+            port_, _api2wire_String(enginePath)),
+        parseSuccessData: _wire2api_String,
+        constMeta: kRegisterUcciEngineConstMeta,
+        argValues: [enginePath],
         hint: hint,
       ));
 
-  FlutterRustBridgeTaskConstMeta get kTestNormalFuncConstMeta =>
+  FlutterRustBridgeTaskConstMeta get kRegisterUcciEngineConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
-        debugName: "test_normal_func",
-        argNames: ["x"],
+        debugName: "register_ucci_engine",
+        argNames: ["enginePath"],
       );
 
-  Future<void> testConflict({required int x, dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_test_conflict(port_, _api2wire_u8(x)),
-        parseSuccessData: _wire2api_unit,
-        constMeta: kTestConflictConstMeta,
-        argValues: [x],
-        hint: hint,
-      ));
-
-  FlutterRustBridgeTaskConstMeta get kTestConflictConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "test_conflict",
-        argNames: ["x"],
-      );
-
-  Future<void> testStringFunc({required String x, dynamic hint}) =>
+  Future<void> writeToProcess({required String command, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) =>
-            inner.wire_test_string_func(port_, _api2wire_String(x)),
+            inner.wire_write_to_process(port_, _api2wire_String(command)),
         parseSuccessData: _wire2api_unit,
-        constMeta: kTestStringFuncConstMeta,
-        argValues: [x],
+        constMeta: kWriteToProcessConstMeta,
+        argValues: [command],
         hint: hint,
       ));
 
-  FlutterRustBridgeTaskConstMeta get kTestStringFuncConstMeta =>
+  FlutterRustBridgeTaskConstMeta get kWriteToProcessConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
-        debugName: "test_string_func",
-        argNames: ["x"],
-      );
-
-  Stream<int> tick({dynamic hint}) => executeStream(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_tick(port_),
-        parseSuccessData: _wire2api_i32,
-        constMeta: kTickConstMeta,
-        argValues: [],
-        hint: hint,
-      ));
-
-  FlutterRustBridgeTaskConstMeta get kTickConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "tick",
-        argNames: [],
-      );
-
-  Future<void> testStringFunc2({required String x, dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_test_string_func_2(port_, _api2wire_String(x)),
-        parseSuccessData: _wire2api_unit,
-        constMeta: kTestStringFunc2ConstMeta,
-        argValues: [x],
-        hint: hint,
-      ));
-
-  FlutterRustBridgeTaskConstMeta get kTestStringFunc2ConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "test_string_func_2",
-        argNames: ["x"],
+        debugName: "write_to_process",
+        argNames: ["command"],
       );
 
   // Section: api2wire
@@ -136,8 +81,16 @@ class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
 }
 
 // Section: wire2api
-int _wire2api_i32(dynamic raw) {
+String _wire2api_String(dynamic raw) {
+  return raw as String;
+}
+
+int _wire2api_u8(dynamic raw) {
   return raw as int;
+}
+
+Uint8List _wire2api_uint_8_list(dynamic raw) {
+  return raw as Uint8List;
 }
 
 void _wire2api_unit(dynamic raw) {
@@ -180,82 +133,38 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
   late final _free_WireSyncReturnStruct = _free_WireSyncReturnStructPtr
       .asFunction<void Function(WireSyncReturnStruct)>();
 
-  void wire_test_normal_func(
+  void wire_register_ucci_engine(
     int port_,
-    int x,
+    ffi.Pointer<wire_uint_8_list> engine_path,
   ) {
-    return _wire_test_normal_func(
+    return _wire_register_ucci_engine(
       port_,
-      x,
+      engine_path,
     );
   }
 
-  late final _wire_test_normal_funcPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint8)>>(
-          'wire_test_normal_func');
-  late final _wire_test_normal_func =
-      _wire_test_normal_funcPtr.asFunction<void Function(int, int)>();
-
-  void wire_test_conflict(
-    int port_,
-    int x,
-  ) {
-    return _wire_test_conflict(
-      port_,
-      x,
-    );
-  }
-
-  late final _wire_test_conflictPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint8)>>(
-          'wire_test_conflict');
-  late final _wire_test_conflict =
-      _wire_test_conflictPtr.asFunction<void Function(int, int)>();
-
-  void wire_test_string_func(
-    int port_,
-    ffi.Pointer<wire_uint_8_list> x,
-  ) {
-    return _wire_test_string_func(
-      port_,
-      x,
-    );
-  }
-
-  late final _wire_test_string_funcPtr = _lookup<
+  late final _wire_register_ucci_enginePtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Int64,
-              ffi.Pointer<wire_uint_8_list>)>>('wire_test_string_func');
-  late final _wire_test_string_func = _wire_test_string_funcPtr
+              ffi.Pointer<wire_uint_8_list>)>>('wire_register_ucci_engine');
+  late final _wire_register_ucci_engine = _wire_register_ucci_enginePtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
-  void wire_tick(
+  void wire_write_to_process(
     int port_,
+    ffi.Pointer<wire_uint_8_list> command,
   ) {
-    return _wire_tick(
+    return _wire_write_to_process(
       port_,
+      command,
     );
   }
 
-  late final _wire_tickPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_tick');
-  late final _wire_tick = _wire_tickPtr.asFunction<void Function(int)>();
-
-  void wire_test_string_func_2(
-    int port_,
-    ffi.Pointer<wire_uint_8_list> x,
-  ) {
-    return _wire_test_string_func_2(
-      port_,
-      x,
-    );
-  }
-
-  late final _wire_test_string_func_2Ptr = _lookup<
+  late final _wire_write_to_processPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Int64,
-              ffi.Pointer<wire_uint_8_list>)>>('wire_test_string_func_2');
-  late final _wire_test_string_func_2 = _wire_test_string_func_2Ptr
+              ffi.Pointer<wire_uint_8_list>)>>('wire_write_to_process');
+  late final _wire_write_to_process = _wire_write_to_processPtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list_1(

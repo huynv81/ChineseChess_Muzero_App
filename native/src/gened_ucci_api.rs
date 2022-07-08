@@ -18,73 +18,31 @@ use flutter_rust_bridge::*;
 // Section: wire functions
 
 #[no_mangle]
-pub extern "C" fn wire_test_normal_func(port_: i64, x: u8) {
+pub extern "C" fn wire_register_ucci_engine(port_: i64, engine_path: *mut wire_uint_8_list) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "test_normal_func",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_x = x.wire2api();
-            move |task_callback| Ok(test_normal_func(api_x))
-        },
-    )
-}
-
-#[no_mangle]
-pub extern "C" fn wire_test_conflict(port_: i64, x: u8) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "test_conflict",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_x = x.wire2api();
-            move |task_callback| Ok(test_conflict(api_x))
-        },
-    )
-}
-
-#[no_mangle]
-pub extern "C" fn wire_test_string_func(port_: i64, x: *mut wire_uint_8_list) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "test_string_func",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_x = x.wire2api();
-            move |task_callback| Ok(test_string_func(api_x))
-        },
-    )
-}
-
-#[no_mangle]
-pub extern "C" fn wire_tick(port_: i64) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "tick",
+            debug_name: "register_ucci_engine",
             port: Some(port_),
             mode: FfiCallMode::Stream,
         },
-        move || move |task_callback| tick(task_callback.stream_sink()),
+        move || {
+            let api_engine_path = engine_path.wire2api();
+            move |task_callback| register_ucci_engine(api_engine_path, task_callback.stream_sink())
+        },
     )
 }
 
 #[no_mangle]
-pub extern "C" fn wire_test_string_func_2(port_: i64, x: *mut wire_uint_8_list) {
+pub extern "C" fn wire_write_to_process(port_: i64, command: *mut wire_uint_8_list) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "test_string_func_2",
+            debug_name: "write_to_process",
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_x = x.wire2api();
-            move |task_callback| Ok(test_string_func_2(api_x))
+            let api_command = command.wire2api();
+            move |task_callback| Ok(write_to_process(api_command))
         },
     )
 }

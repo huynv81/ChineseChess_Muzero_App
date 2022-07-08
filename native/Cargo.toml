@@ -15,3 +15,7 @@ once_cell = "*"
 phf = { version = "*", features = ["macros"] }
 num-traits = "*"
 num-derive = "*"
+# tokio = { version = "1", features = ["rt", "macros"] }
+tokio = { version = "1", features = ["full"] }
+futures-util = "0.3"
+process-stream = "0.4.1"

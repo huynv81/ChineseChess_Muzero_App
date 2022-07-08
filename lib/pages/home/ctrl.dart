@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-06 10:52:44
+ * @LastEditTime : 2022-07-08 10:34:28
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -16,8 +16,9 @@ import '../../ffi.dart';
 class HomeController extends GetxController {
   // test
   // http://cjycode.com/flutter_rust_bridge/feature/stream.html
-  var rustStreamBinder = 0.obs;
-  Stream<int> rustTickStream = ucciApi.tick();
+  var rustStreamBinder = "".obs;
+  Stream<String> rustTickStream =
+      ucciApi.registerUcciEngine(enginePath: "nihao");
   late final Worker worker;
 
   HomeController() {
@@ -32,8 +33,6 @@ class HomeController extends GetxController {
         addLog(value.toString());
       },
     );
-
-    // rustTickStream.l
   }
 
   var gameStarted = false;
@@ -121,10 +120,8 @@ class HomeController extends GetxController {
         // var r = await ruleApi.testGetOutput();
         // var r = await ruleApi.test2(s: "test");
         // await ucciApi.test(x: 5);
-        await ruleApi.testConflict1(s: "hi");
-        await ucciApi.testNormalFunc(x: 5);
-        await ucciApi.testStringFunc(x: "hi");
-        var y = 5;
+        // await ruleApi.testConflict1(s: "hi");
+        await ucciApi.writeToProcess(command: "ucci");
     }
   }
 
