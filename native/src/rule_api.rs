@@ -1,5 +1,3 @@
-use std::process::Command;
-
 use crate::chess::{get_piece_all_valid_moves, BOARD_ARRAY};
 
 // This is the entry point of your Rust library.
@@ -83,7 +81,7 @@ pub fn is_legal_move(src_row: u8, src_col: u8, dst_row: u8, dst_col: u8) -> bool
 
     let contains = valid_moves.contains(&move_str_to_check);
     println!("back:{contains}");
-    return contains;
+    contains
 }
 
 pub fn get_orig_board() -> [u8; 256] {
@@ -101,19 +99,3 @@ pub fn update_player_data(player: String) {
     println!("update_player_data:{player}");
     crate::chess::set_player_by_str(&player);
 }
-
-//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓test↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-pub fn test_conflict_1(s: String) -> bool {
-    return true;
-}
-pub fn test_string_func_1(x: String) {
-    println!("test implicit parameter conflicts");
-}
-// pub fn test_conflict_1(s: String) -> bool {
-//     return true;
-// }
-
-// pub fn test_conflict_2(s: String) -> bool {
-//     return true;
-// }
-//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑test↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑

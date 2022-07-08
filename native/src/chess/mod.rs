@@ -62,11 +62,11 @@ const IN_BOARD_MATRIX: [u8; 256] = [
 
 // 判断棋子是否在九宫中
 fn is_pos_in_fort(pos: u8) -> bool {
-    return FORT_MATRIX[pos as usize] != 0;
+    FORT_MATRIX[pos as usize] != 0
 }
 
 fn is_pos_in_board(pos: u8) -> bool {
-    return IN_BOARD_MATRIX[pos as usize] != 0;
+    IN_BOARD_MATRIX[pos as usize] != 0
 }
 
 fn is_pos_in_home_side(player: &std::sync::MutexGuard<Player>, pos: u8) -> bool {
@@ -74,7 +74,7 @@ fn is_pos_in_home_side(player: &std::sync::MutexGuard<Player>, pos: u8) -> bool 
     match player_ref {
         Player::Unknown => panic!("出现了未知的player"),
         _ => {
-            let player_num = player_ref.clone() as u8;
+            let player_num = *player_ref as u8;
             (pos & 0x80) != (player_num << 7)
         }
     }
@@ -101,7 +101,7 @@ fn SQUARE_FORWARD(player: &std::sync::MutexGuard<Player>, src_pos: u8) -> u8 {
     match player_ref {
         Player::Unknown => panic!("出现了未知的player"),
         _ => {
-            let player_num = player_ref.clone() as u8;
+            let player_num = *player_ref as u8;
             src_pos - 16 + (player_num << 5)
         }
     }
@@ -113,7 +113,7 @@ fn is_self_piece_by_pos(
     board_pos: u8,
 ) -> bool {
     let red_black_piece_index = get_side_piece_by_pos(board_array, board_pos);
-    return !(red_black_piece_index as u8 & get_piece_offset_tag(player) == 0);
+    red_black_piece_index as u8 & get_piece_offset_tag(player) != 0
 }
 
 /// 进而返回红黑标记(红子返回8，黑子返回16)
@@ -124,7 +124,7 @@ fn get_piece_offset_tag(player: &std::sync::MutexGuard<Player>) -> u8 {
         Player::Black => 1,
         Player::Unknown => panic!("玩家标识符为Unkown！"),
     };
-    return 8 + (player_index << 3);
+    8 + (player_index << 3)
 }
 
 // ----------------------分割线----------------------
@@ -185,8 +185,8 @@ fn get_pos_str_from_row_col(row: u8, col: u8) -> String {
 }
 
 pub fn get_board_pos_from_row_col(row: u8, col: u8) -> u8 {
-    let index = (16 * (row + 2) + 3 + col) - 1;
-    index
+    
+    (16 * (row + 2) + 3 + col) - 1
 }
 
 pub fn set_player_by_str(player_str: &str) {
@@ -332,22 +332,18 @@ pub fn get_piece_all_valid_moves(
         PieceType::Pawn => {
             // 未过河的招法判断
             let mut dst_pos_to_check = SQUARE_FORWARD(player, src_pos);
-            if is_pos_in_board(dst_pos_to_check) {
-                if !is_self_piece_by_pos(board_array, player, dst_pos_to_check) {
-                    let move_str = get_english_move_str_from_pos(src_pos, dst_pos_to_check);
-                    valid_move_vec.push(move_str);
-                }
+            if is_pos_in_board(dst_pos_to_check) && !is_self_piece_by_pos(board_array, player, dst_pos_to_check) {
+                let move_str = get_english_move_str_from_pos(src_pos, dst_pos_to_check);
+                valid_move_vec.push(move_str);
             }
 
             // 过河情况的左右2个方向判断
             if !is_pos_in_home_side(player, src_pos) {
                 for horizontal_offset in [-1i32, 1] {
                     dst_pos_to_check = (src_pos as i32 + horizontal_offset) as u8;
-                    if is_pos_in_board(dst_pos_to_check) {
-                        if !is_self_piece_by_pos(board_array, player, dst_pos_to_check) {
-                            let move_str = get_english_move_str_from_pos(src_pos, dst_pos_to_check);
-                            valid_move_vec.push(move_str);
-                        }
+                    if is_pos_in_board(dst_pos_to_check) && !is_self_piece_by_pos(board_array, player, dst_pos_to_check) {
+                        let move_str = get_english_move_str_from_pos(src_pos, dst_pos_to_check);
+                        valid_move_vec.push(move_str);
                     }
                 }
             }
