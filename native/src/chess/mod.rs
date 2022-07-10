@@ -185,7 +185,6 @@ fn get_pos_str_from_row_col(row: u8, col: u8) -> String {
 }
 
 pub fn get_board_pos_from_row_col(row: u8, col: u8) -> u8 {
-    
     (16 * (row + 2) + 3 + col) - 1
 }
 
@@ -332,7 +331,9 @@ pub fn get_piece_all_valid_moves(
         PieceType::Pawn => {
             // 未过河的招法判断
             let mut dst_pos_to_check = SQUARE_FORWARD(player, src_pos);
-            if is_pos_in_board(dst_pos_to_check) && !is_self_piece_by_pos(board_array, player, dst_pos_to_check) {
+            if is_pos_in_board(dst_pos_to_check)
+                && !is_self_piece_by_pos(board_array, player, dst_pos_to_check)
+            {
                 let move_str = get_english_move_str_from_pos(src_pos, dst_pos_to_check);
                 valid_move_vec.push(move_str);
             }
@@ -341,7 +342,9 @@ pub fn get_piece_all_valid_moves(
             if !is_pos_in_home_side(player, src_pos) {
                 for horizontal_offset in [-1i32, 1] {
                     dst_pos_to_check = (src_pos as i32 + horizontal_offset) as u8;
-                    if is_pos_in_board(dst_pos_to_check) && !is_self_piece_by_pos(board_array, player, dst_pos_to_check) {
+                    if is_pos_in_board(dst_pos_to_check)
+                        && !is_self_piece_by_pos(board_array, player, dst_pos_to_check)
+                    {
                         let move_str = get_english_move_str_from_pos(src_pos, dst_pos_to_check);
                         valid_move_vec.push(move_str);
                     }

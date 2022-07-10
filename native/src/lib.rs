@@ -1,3 +1,4 @@
+mod gened_log_api; /* AUTO INJECTED BY flutter_rust_bridge. This line may not be accurate, and you can change it according to your needs. */
 // mod auto_api;
 mod chess;
 mod gened_rule_api; /* AUTO INJECTED BY flutter_rust_bridge. This line may not be accurate, and you can change it according to your needs. */
@@ -6,13 +7,14 @@ mod rule_api;
 mod ucci;
 mod ucci_api;
 
+mod log_api;
 
 /// 初始化示例：init_logger(&"./logs/").expect("日志模块初始化失败！");
-pub fn init_logger(path: &str) -> Result<(), fern::InitError> {
+fn init_logger_inside(path: &str) -> Result<(), fern::InitError> {
     std::fs::create_dir_all(path).expect("创建日志目录失败！");
     let d = fern::Dispatch::new().format(|out, message, record| {
         out.finish(format_args!(
-"{}[{}] {}",
+            "{}[{}] {}",
             chrono::Local::now().format("%Y/%m/%d %H:%M:%S"),
             record.level(),
             message

@@ -2,11 +2,14 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-08 10:34:28
+ * @LastEditTime : 2022-07-11 06:37:05
  * @Description  : 用以控制HomeView的control组件
  */
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:get/get.dart';
 import '../../common/global.dart';
 import '../../ffi.dart';
@@ -119,6 +122,9 @@ class HomeController extends GetxController {
         // var r = await ruleApi.test2(s: "test");
         // await ucciApi.test(x: 5);
         // await ruleApi.testConflict1(s: "hi");
+
+        await ruleApi.testLog1(log: "你好1");
+        await logApi.testLog3(log: "你好3");
         await ucciApi.writeToProcess(command: "ucci");
     }
   }

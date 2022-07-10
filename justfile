@@ -11,10 +11,19 @@ default: gen lint
 gen:
     # combine version
     export REPO_DIR="$PWD"; cd /; flutter_rust_bridge_codegen {{llvm_path}} \
-        --rust-input "$REPO_DIR/native/src/rule_api.rs" "$REPO_DIR/native/src/ucci_api.rs" \
-        --dart-output "$REPO_DIR/lib/gened_rule_api.dart" "$REPO_DIR/lib/gened_ucci_api.dart" \
-        --rust-output "$REPO_DIR/native/src/gened_rule_api.rs"  "$REPO_DIR/native/src/gened_ucci_api.rs" \
-        --class-name RuleApi UcciApi \
+        --rust-input \
+        "$REPO_DIR/native/src/rule_api.rs" \
+        "$REPO_DIR/native/src/ucci_api.rs" \
+        "$REPO_DIR/native/src/log_api.rs" \
+        --dart-output \
+        "$REPO_DIR/lib/gened_rule_api.dart" \
+        "$REPO_DIR/lib/gened_ucci_api.dart" \
+        "$REPO_DIR/lib/gened_log_api.dart" \
+        --rust-output \
+        "$REPO_DIR/native/src/gened_rule_api.rs" \
+        "$REPO_DIR/native/src/gened_ucci_api.rs" \
+        "$REPO_DIR/native/src/gened_log_api.rs" \
+        --class-name RuleApi UcciApi LogApi \
 
     # Uncomment this line to invoke build_runner as well
     # flutter pub get

@@ -2,6 +2,7 @@ use flutter_rust_bridge::StreamSink;
 
 use futures_util::stream::StreamExt;
 
+use log::{debug, info};
 use once_cell::sync::Lazy;
 use process_stream::{Process, ProcessExt};
 
@@ -15,7 +16,6 @@ static COMMAND: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
 static FLAG: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
 
 // crate::init_logger(&"./logs/").expect("日志模块初始化失败！");
-
 
 // refer:https://github.com/fzyzcjy/flutter_rust_bridge/issues/517
 // refer:http://cjycode.com/flutter_rust_bridge/feature/stream.html
@@ -40,12 +40,12 @@ pub async fn register_ucci_engine(
         let reader_thread = tokio::spawn(async move {
             loop {
                 while let Some(value) = stream.next().await {
-                    println!("收到： {}", value);
+                    debug!("收到： {}", value);
                     cloned_listener.add((*value).into());
                 }
             }
         });
-        println!("已监听process输出");
+        info!("已监听process输出");
 
         //
         let mut writer = process.take_stdin().unwrap();
@@ -55,12 +55,12 @@ pub async fn register_ucci_engine(
                     let cmd_str = format!("{}\r\n", (*COMMAND.lock().unwrap()));
                     let cmd = cmd_str.as_bytes();
                     writer.write(cmd).await.unwrap();
-                    println!("执行了{cmd_str}");
+                    debug!("执行了{cmd_str}");
                     (*FLAG.lock().unwrap()) = false;
                 }
             }
         });
-        println!("已监听process输入");
+        info!("已监听process输入");
 
         (reader_thread, writer_thread)
     } else {

@@ -45,13 +45,9 @@ abstract class RuleApi {
 
   FlutterRustBridgeTaskConstMeta get kUpdatePlayerDataConstMeta;
 
-  Future<bool> testConflict1({required String s, dynamic hint});
+  Future<void> testLog1({required String log, dynamic hint});
 
-  FlutterRustBridgeTaskConstMeta get kTestConflict1ConstMeta;
-
-  Future<void> testStringFunc1({required String x, dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kTestStringFunc1ConstMeta;
+  FlutterRustBridgeTaskConstMeta get kTestLog1ConstMeta;
 }
 
 enum Platform {
@@ -178,36 +174,19 @@ class RuleApiImpl extends FlutterRustBridgeBase<RuleApiWire>
         argNames: ["player"],
       );
 
-  Future<bool> testConflict1({required String s, dynamic hint}) =>
+  Future<void> testLog1({required String log, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_test_conflict_1(port_, _api2wire_String(s)),
-        parseSuccessData: _wire2api_bool,
-        constMeta: kTestConflict1ConstMeta,
-        argValues: [s],
-        hint: hint,
-      ));
-
-  FlutterRustBridgeTaskConstMeta get kTestConflict1ConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "test_conflict_1",
-        argNames: ["s"],
-      );
-
-  Future<void> testStringFunc1({required String x, dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_test_string_func_1(port_, _api2wire_String(x)),
+        callFfi: (port_) => inner.wire_test_log_1(port_, _api2wire_String(log)),
         parseSuccessData: _wire2api_unit,
-        constMeta: kTestStringFunc1ConstMeta,
-        argValues: [x],
+        constMeta: kTestLog1ConstMeta,
+        argValues: [log],
         hint: hint,
       ));
 
-  FlutterRustBridgeTaskConstMeta get kTestStringFunc1ConstMeta =>
+  FlutterRustBridgeTaskConstMeta get kTestLog1ConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
-        debugName: "test_string_func_1",
-        argNames: ["x"],
+        debugName: "test_log_1",
+        argNames: ["log"],
       );
 
   // Section: api2wire
@@ -375,38 +354,21 @@ class RuleApiWire implements FlutterRustBridgeWireBase {
   late final _wire_update_player_data = _wire_update_player_dataPtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
-  void wire_test_conflict_1(
+  void wire_test_log_1(
     int port_,
-    ffi.Pointer<wire_uint_8_list> s,
+    ffi.Pointer<wire_uint_8_list> log,
   ) {
-    return _wire_test_conflict_1(
+    return _wire_test_log_1(
       port_,
-      s,
+      log,
     );
   }
 
-  late final _wire_test_conflict_1Ptr = _lookup<
+  late final _wire_test_log_1Ptr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64,
-              ffi.Pointer<wire_uint_8_list>)>>('wire_test_conflict_1');
-  late final _wire_test_conflict_1 = _wire_test_conflict_1Ptr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
-
-  void wire_test_string_func_1(
-    int port_,
-    ffi.Pointer<wire_uint_8_list> x,
-  ) {
-    return _wire_test_string_func_1(
-      port_,
-      x,
-    );
-  }
-
-  late final _wire_test_string_func_1Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64,
-              ffi.Pointer<wire_uint_8_list>)>>('wire_test_string_func_1');
-  late final _wire_test_string_func_1 = _wire_test_string_func_1Ptr
+          ffi.Void Function(
+              ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_test_log_1');
+  late final _wire_test_log_1 = _wire_test_log_1Ptr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list_0(

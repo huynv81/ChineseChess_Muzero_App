@@ -135,11 +135,11 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
 
   void wire_register_ucci_engine(
     int port_,
-    ffi.Pointer<wire_uint_8_list> engine_path,
+    ffi.Pointer<wire_uint_8_list> _engine_path,
   ) {
     return _wire_register_ucci_engine(
       port_,
-      engine_path,
+      _engine_path,
     );
   }
 

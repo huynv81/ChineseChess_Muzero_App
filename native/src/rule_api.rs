@@ -99,3 +99,7 @@ pub fn update_player_data(player: String) {
     println!("update_player_data:{player}");
     crate::chess::set_player_by_str(&player);
 }
+
+pub fn test_log_1(log: String) {
+    log::info!("{}", log);
+}

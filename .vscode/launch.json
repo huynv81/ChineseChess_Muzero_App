@@ -7,19 +7,22 @@
         {
             "name": "ChineseChess_Muzero_App",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "cwd": "${workspaceFolder}",
         },
         {
             "name": "ChineseChess_Muzero_App (profile mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "cwd": "${workspaceFolder}",
         },
         {
             "name": "ChineseChess_Muzero_App (release mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "cwd": "${workspaceFolder}",
         }
     ]
 }
