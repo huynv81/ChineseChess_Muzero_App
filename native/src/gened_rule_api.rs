@@ -18,26 +18,17 @@ use flutter_rust_bridge::*;
 // Section: wire functions
 
 #[no_mangle]
-pub extern "C" fn wire_platform(port_: i64) {
+pub extern "C" fn wire_test_log_1(port_: i64, log: *mut wire_uint_8_list) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "platform",
+            debug_name: "test_log_1",
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
-        move || move |task_callback| Ok(platform()),
-    )
-}
-
-#[no_mangle]
-pub extern "C" fn wire_rust_release_mode(port_: i64) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "rust_release_mode",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
+        move || {
+            let api_log = log.wire2api();
+            move |task_callback| Ok(test_log_1(api_log))
         },
-        move || move |task_callback| Ok(rust_release_mode()),
     )
 }
 
@@ -112,36 +103,6 @@ pub extern "C" fn wire_update_player_data(port_: i64, player: *mut wire_uint_8_l
         move || {
             let api_player = player.wire2api();
             move |task_callback| Ok(update_player_data(api_player))
-        },
-    )
-}
-
-#[no_mangle]
-pub extern "C" fn wire_test_log_1(port_: i64, log: *mut wire_uint_8_list) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "test_log_1",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_log = log.wire2api();
-            move |task_callback| Ok(test_log_1(api_log))
-        },
-    )
-}
-
-#[no_mangle]
-pub extern "C" fn wire_test_print(port_: i64, log: *mut wire_uint_8_list) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "test_print",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_log = log.wire2api();
-            move |task_callback| Ok(test_print(api_log))
         },
     )
 }
@@ -224,22 +185,6 @@ impl<T> NewWithNullPtr for *mut T {
 }
 
 // Section: impl IntoDart
-
-impl support::IntoDart for Platform {
-    fn into_dart(self) -> support::DartCObject {
-        match self {
-            Self::Unknown => 0,
-            Self::Android => 1,
-            Self::Ios => 2,
-            Self::Windows => 3,
-            Self::Unix => 4,
-            Self::MacIntel => 5,
-            Self::MacApple => 6,
-            Self::Wasm => 7,
-        }
-        .into_dart()
-    }
-}
 
 // Section: executor
 

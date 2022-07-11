@@ -12,6 +12,14 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
 abstract class UtilApi {
+  Future<Platform> platform({dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kPlatformConstMeta;
+
+  Future<bool> rustReleaseMode({dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kRustReleaseModeConstMeta;
+
   Future<void> initLogger({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kInitLoggerConstMeta;
@@ -21,12 +29,53 @@ abstract class UtilApi {
   FlutterRustBridgeTaskConstMeta get kActivateApiConstMeta;
 }
 
+enum Platform {
+  Unknown,
+  Android,
+  Ios,
+  Windows,
+  Unix,
+  MacIntel,
+  MacApple,
+  Wasm,
+}
+
 class UtilApiImpl extends FlutterRustBridgeBase<UtilApiWire>
     implements UtilApi {
   factory UtilApiImpl(ffi.DynamicLibrary dylib) =>
       UtilApiImpl.raw(UtilApiWire(dylib));
 
   UtilApiImpl.raw(UtilApiWire inner) : super(inner);
+
+  Future<Platform> platform({dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_platform(port_),
+        parseSuccessData: _wire2api_platform,
+        constMeta: kPlatformConstMeta,
+        argValues: [],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kPlatformConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "platform",
+        argNames: [],
+      );
+
+  Future<bool> rustReleaseMode({dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_rust_release_mode(port_),
+        parseSuccessData: _wire2api_bool,
+        constMeta: kRustReleaseModeConstMeta,
+        argValues: [],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kRustReleaseModeConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "rust_release_mode",
+        argNames: [],
+      );
 
   Future<void> initLogger({dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
@@ -65,6 +114,14 @@ class UtilApiImpl extends FlutterRustBridgeBase<UtilApiWire>
 }
 
 // Section: wire2api
+bool _wire2api_bool(dynamic raw) {
+  return raw as bool;
+}
+
+Platform _wire2api_platform(dynamic raw) {
+  return Platform.values[raw];
+}
+
 void _wire2api_unit(dynamic raw) {
   return;
 }
@@ -90,6 +147,34 @@ class UtilApiWire implements FlutterRustBridgeWireBase {
       ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
           lookup)
       : _lookup = lookup;
+
+  void wire_platform(
+    int port_,
+  ) {
+    return _wire_platform(
+      port_,
+    );
+  }
+
+  late final _wire_platformPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_platform');
+  late final _wire_platform =
+      _wire_platformPtr.asFunction<void Function(int)>();
+
+  void wire_rust_release_mode(
+    int port_,
+  ) {
+    return _wire_rust_release_mode(
+      port_,
+    );
+  }
+
+  late final _wire_rust_release_modePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_rust_release_mode');
+  late final _wire_rust_release_mode =
+      _wire_rust_release_modePtr.asFunction<void Function(int)>();
 
   void wire_init_logger(
     int port_,

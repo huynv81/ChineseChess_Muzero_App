@@ -12,13 +12,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
 abstract class RuleApi {
-  Future<Platform> platform({dynamic hint});
+  Future<void> testLog1({required String log, dynamic hint});
 
-  FlutterRustBridgeTaskConstMeta get kPlatformConstMeta;
-
-  Future<bool> rustReleaseMode({dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kRustReleaseModeConstMeta;
+  FlutterRustBridgeTaskConstMeta get kTestLog1ConstMeta;
 
   Future<bool> isLegalMove(
       {required int srcRow,
@@ -44,25 +40,6 @@ abstract class RuleApi {
   Future<void> updatePlayerData({required String player, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kUpdatePlayerDataConstMeta;
-
-  Future<void> testLog1({required String log, dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kTestLog1ConstMeta;
-
-  Future<void> testPrint({required String log, dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kTestPrintConstMeta;
-}
-
-enum Platform {
-  Unknown,
-  Android,
-  Ios,
-  Windows,
-  Unix,
-  MacIntel,
-  MacApple,
-  Wasm,
 }
 
 class RuleApiImpl extends FlutterRustBridgeBase<RuleApiWire>
@@ -72,34 +49,19 @@ class RuleApiImpl extends FlutterRustBridgeBase<RuleApiWire>
 
   RuleApiImpl.raw(RuleApiWire inner) : super(inner);
 
-  Future<Platform> platform({dynamic hint}) =>
+  Future<void> testLog1({required String log, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_platform(port_),
-        parseSuccessData: _wire2api_platform,
-        constMeta: kPlatformConstMeta,
-        argValues: [],
+        callFfi: (port_) => inner.wire_test_log_1(port_, _api2wire_String(log)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: kTestLog1ConstMeta,
+        argValues: [log],
         hint: hint,
       ));
 
-  FlutterRustBridgeTaskConstMeta get kPlatformConstMeta =>
+  FlutterRustBridgeTaskConstMeta get kTestLog1ConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
-        debugName: "platform",
-        argNames: [],
-      );
-
-  Future<bool> rustReleaseMode({dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_rust_release_mode(port_),
-        parseSuccessData: _wire2api_bool,
-        constMeta: kRustReleaseModeConstMeta,
-        argValues: [],
-        hint: hint,
-      ));
-
-  FlutterRustBridgeTaskConstMeta get kRustReleaseModeConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "rust_release_mode",
-        argNames: [],
+        debugName: "test_log_1",
+        argNames: ["log"],
       );
 
   Future<bool> isLegalMove(
@@ -178,36 +140,6 @@ class RuleApiImpl extends FlutterRustBridgeBase<RuleApiWire>
         argNames: ["player"],
       );
 
-  Future<void> testLog1({required String log, dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_test_log_1(port_, _api2wire_String(log)),
-        parseSuccessData: _wire2api_unit,
-        constMeta: kTestLog1ConstMeta,
-        argValues: [log],
-        hint: hint,
-      ));
-
-  FlutterRustBridgeTaskConstMeta get kTestLog1ConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "test_log_1",
-        argNames: ["log"],
-      );
-
-  Future<void> testPrint({required String log, dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_test_print(port_, _api2wire_String(log)),
-        parseSuccessData: _wire2api_unit,
-        constMeta: kTestPrintConstMeta,
-        argValues: [log],
-        hint: hint,
-      ));
-
-  FlutterRustBridgeTaskConstMeta get kTestPrintConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "test_print",
-        argNames: ["log"],
-      );
-
   // Section: api2wire
   ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
     return _api2wire_uint_8_list(utf8.encoder.convert(raw));
@@ -230,10 +162,6 @@ class RuleApiImpl extends FlutterRustBridgeBase<RuleApiWire>
 // Section: wire2api
 bool _wire2api_bool(dynamic raw) {
   return raw as bool;
-}
-
-Platform _wire2api_platform(dynamic raw) {
-  return Platform.values[raw];
 }
 
 int _wire2api_u8(dynamic raw) {
@@ -270,33 +198,22 @@ class RuleApiWire implements FlutterRustBridgeWireBase {
           lookup)
       : _lookup = lookup;
 
-  void wire_platform(
+  void wire_test_log_1(
     int port_,
+    ffi.Pointer<wire_uint_8_list> log,
   ) {
-    return _wire_platform(
+    return _wire_test_log_1(
       port_,
+      log,
     );
   }
 
-  late final _wire_platformPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_platform');
-  late final _wire_platform =
-      _wire_platformPtr.asFunction<void Function(int)>();
-
-  void wire_rust_release_mode(
-    int port_,
-  ) {
-    return _wire_rust_release_mode(
-      port_,
-    );
-  }
-
-  late final _wire_rust_release_modePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_rust_release_mode');
-  late final _wire_rust_release_mode =
-      _wire_rust_release_modePtr.asFunction<void Function(int)>();
+  late final _wire_test_log_1Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_test_log_1');
+  late final _wire_test_log_1 = _wire_test_log_1Ptr
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
   void wire_is_legal_move(
     int port_,
@@ -371,40 +288,6 @@ class RuleApiWire implements FlutterRustBridgeWireBase {
           ffi.Void Function(ffi.Int64,
               ffi.Pointer<wire_uint_8_list>)>>('wire_update_player_data');
   late final _wire_update_player_data = _wire_update_player_dataPtr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
-
-  void wire_test_log_1(
-    int port_,
-    ffi.Pointer<wire_uint_8_list> log,
-  ) {
-    return _wire_test_log_1(
-      port_,
-      log,
-    );
-  }
-
-  late final _wire_test_log_1Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_test_log_1');
-  late final _wire_test_log_1 = _wire_test_log_1Ptr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
-
-  void wire_test_print(
-    int port_,
-    ffi.Pointer<wire_uint_8_list> log,
-  ) {
-    return _wire_test_print(
-      port_,
-      log,
-    );
-  }
-
-  late final _wire_test_printPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_test_print');
-  late final _wire_test_print = _wire_test_printPtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list_0(

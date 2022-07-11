@@ -21,7 +21,7 @@ class HomeController extends GetxController {
 
   HomeController() {
     utilApi.activateApi();
-    // ruleApi.testPrint(log: "cesi");
+
     for (var i = 0; i < boardRowCount * boardColCount; i++) {
       pieces.add(Piece(SidePieceType.none, i));
     }
