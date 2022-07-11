@@ -21,7 +21,7 @@ fn init_logger(path: &str) {
         let d = fern::Dispatch::new().format(|out, message, record| {
             out.finish(format_args!(
                 "{}[{}] {}",
-                chrono::Local::now().format("%Y/%m/%d %H:%M:%S"),
+                chrono::Local::now().format("%Y/%m/%d %H:%M:%S "),
                 record.level(),
                 message
             ))

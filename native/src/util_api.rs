@@ -59,4 +59,4 @@ pub fn rust_set_up() {
 }
 
 // 为激活本模块init_logger()而写的伪函数
-pub fn activate_api() {}
+pub fn activate() {}

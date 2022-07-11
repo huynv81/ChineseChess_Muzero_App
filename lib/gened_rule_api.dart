@@ -218,6 +218,20 @@ class RuleApiWire implements FlutterRustBridgeWireBase {
           lookup)
       : _lookup = lookup;
 
+  void wire_activate_api(
+    int port_,
+  ) {
+    return _wire_activate_api(
+      port_,
+    );
+  }
+
+  late final _wire_activate_apiPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_activate_api');
+  late final _wire_activate_api =
+      _wire_activate_apiPtr.asFunction<void Function(int)>();
+
   void wire_test_log_1(
     int port_,
     ffi.Pointer<wire_uint_8_list> log,
@@ -368,6 +382,20 @@ class RuleApiWire implements FlutterRustBridgeWireBase {
       _lookup<ffi.NativeFunction<ffi.Void Function(DartPostCObjectFnType)>>(
           'store_dart_post_cobject');
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
+      .asFunction<void Function(DartPostCObjectFnType)>();
+
+  void store_dart_post_cobject1(
+    DartPostCObjectFnType ptr,
+  ) {
+    return _store_dart_post_cobject1(
+      ptr,
+    );
+  }
+
+  late final _store_dart_post_cobject1Ptr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(DartPostCObjectFnType)>>(
+          'store_dart_post_cobject');
+  late final _store_dart_post_cobject1 = _store_dart_post_cobject1Ptr
       .asFunction<void Function(DartPostCObjectFnType)>();
 }
 

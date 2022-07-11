@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-11 12:26:45
+ * @LastEditTime : 2022-07-11 13:42:55
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -20,9 +20,6 @@ class HomeController extends GetxController {
   late final Worker worker;
 
   HomeController() {
-    utilApi.activateApi();
-    // ruleApi.testPrint1(log: "t1");
-
     for (var i = 0; i < boardRowCount * boardColCount; i++) {
       pieces.add(Piece(SidePieceType.none, i));
     }

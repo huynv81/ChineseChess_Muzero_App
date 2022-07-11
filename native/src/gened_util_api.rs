@@ -54,14 +54,14 @@ pub extern "C" fn wire_rust_set_up(port_: i64) {
 }
 
 #[no_mangle]
-pub extern "C" fn wire_activate_api(port_: i64) {
+pub extern "C" fn wire_activate(port_: i64) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "activate_api",
+            debug_name: "activate",
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
-        move || move |task_callback| Ok(activate_api()),
+        move || move |task_callback| Ok(activate()),
     )
 }
 

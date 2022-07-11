@@ -24,9 +24,9 @@ abstract class UtilApi {
 
   FlutterRustBridgeTaskConstMeta get kRustSetUpConstMeta;
 
-  Future<void> activateApi({dynamic hint});
+  Future<void> activate({dynamic hint});
 
-  FlutterRustBridgeTaskConstMeta get kActivateApiConstMeta;
+  FlutterRustBridgeTaskConstMeta get kActivateConstMeta;
 }
 
 enum Platform {
@@ -91,18 +91,17 @@ class UtilApiImpl extends FlutterRustBridgeBase<UtilApiWire>
         argNames: [],
       );
 
-  Future<void> activateApi({dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_activate_api(port_),
+  Future<void> activate({dynamic hint}) => executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_activate(port_),
         parseSuccessData: _wire2api_unit,
-        constMeta: kActivateApiConstMeta,
+        constMeta: kActivateConstMeta,
         argValues: [],
         hint: hint,
       ));
 
-  FlutterRustBridgeTaskConstMeta get kActivateApiConstMeta =>
+  FlutterRustBridgeTaskConstMeta get kActivateConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
-        debugName: "activate_api",
+        debugName: "activate",
         argNames: [],
       );
 
@@ -189,19 +188,19 @@ class UtilApiWire implements FlutterRustBridgeWireBase {
   late final _wire_rust_set_up =
       _wire_rust_set_upPtr.asFunction<void Function(int)>();
 
-  void wire_activate_api(
+  void wire_activate(
     int port_,
   ) {
-    return _wire_activate_api(
+    return _wire_activate(
       port_,
     );
   }
 
-  late final _wire_activate_apiPtr =
+  late final _wire_activatePtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_activate_api');
-  late final _wire_activate_api =
-      _wire_activate_apiPtr.asFunction<void Function(int)>();
+          'wire_activate');
+  late final _wire_activate =
+      _wire_activatePtr.asFunction<void Function(int)>();
 
   void store_dart_post_cobject(
     DartPostCObjectFnType ptr,

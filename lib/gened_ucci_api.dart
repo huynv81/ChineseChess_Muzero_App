@@ -119,6 +119,20 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
           lookup)
       : _lookup = lookup;
 
+  void wire_activate_api(
+    int port_,
+  ) {
+    return _wire_activate_api(
+      port_,
+    );
+  }
+
+  late final _wire_activate_apiPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_activate_api');
+  late final _wire_activate_api =
+      _wire_activate_apiPtr.asFunction<void Function(int)>();
+
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,
   ) {
