@@ -131,6 +131,21 @@ pub extern "C" fn wire_test_log_1(port_: i64, log: *mut wire_uint_8_list) {
     )
 }
 
+#[no_mangle]
+pub extern "C" fn wire_test_print(port_: i64, log: *mut wire_uint_8_list) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "test_print",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_log = log.wire2api();
+            move |task_callback| Ok(test_print(api_log))
+        },
+    )
+}
+
 // Section: wire structs
 
 #[repr(C)]

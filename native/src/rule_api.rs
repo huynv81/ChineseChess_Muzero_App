@@ -103,3 +103,7 @@ pub fn update_player_data(player: String) {
 pub fn test_log_1(log: String) {
     log::info!("{}", log);
 }
+
+pub fn test_print(log: String) {
+    println!("{}", log);
+}

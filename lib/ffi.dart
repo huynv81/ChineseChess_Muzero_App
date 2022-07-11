@@ -4,10 +4,8 @@
 import 'dart:ffi';
 import 'dart:io' as io;
 
-// import 'extend_log_api.dart';
-// import 'extend_ucci_api.dart';
-import 'extend_log_api.dart';
-import 'gened_log_api.dart';
+import 'extend_util_api.dart';
+import 'gened_util_api.dart';
 import 'gened_rule_api.dart';
 import 'gened_ucci_api.dart';
 
@@ -20,10 +18,10 @@ final _dylib = io.Platform.isWindows ? '$_base.dll' : 'lib$_base.so';
 // The late modifier delays initializing the value until it is actually needed,
 // leaving precious little time for the program to quickly start up.
 
-final LogApi logApi = LogApiImplExtend(io.Platform.isIOS || io.Platform.isMacOS
-// final LogApi logApi = LogApiImpl(io.Platform.isIOS || io.Platform.isMacOS
-    ? DynamicLibrary.executable()
-    : DynamicLibrary.open(_dylib));
+final UtilApi utilApi = UtilApiImplExtend(
+    io.Platform.isIOS || io.Platform.isMacOS
+        ? DynamicLibrary.executable()
+        : DynamicLibrary.open(_dylib));
 
 final RuleApi ruleApi = RuleApiImpl(io.Platform.isIOS || io.Platform.isMacOS
     ? DynamicLibrary.executable()

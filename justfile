@@ -14,16 +14,16 @@ gen:
         --rust-input \
         "$REPO_DIR/native/src/rule_api.rs" \
         "$REPO_DIR/native/src/ucci_api.rs" \
-        "$REPO_DIR/native/src/log_api.rs" \
+        "$REPO_DIR/native/src/util_api.rs" \
         --dart-output \
         "$REPO_DIR/lib/gened_rule_api.dart" \
         "$REPO_DIR/lib/gened_ucci_api.dart" \
-        "$REPO_DIR/lib/gened_log_api.dart" \
+        "$REPO_DIR/lib/gened_util_api.dart" \
         --rust-output \
         "$REPO_DIR/native/src/gened_rule_api.rs" \
         "$REPO_DIR/native/src/gened_ucci_api.rs" \
-        "$REPO_DIR/native/src/gened_log_api.rs" \
-        --class-name RuleApi UcciApi LogApi \
+        "$REPO_DIR/native/src/gened_util_api.rs" \
+        --class-name RuleApi UcciApi UtilApi \
 
     # Uncomment this line to invoke build_runner as well
     # flutter pub get

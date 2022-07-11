@@ -26,13 +26,13 @@ pub async fn register_ucci_engine(
     listener: StreamSink<String>,
 ) -> anyhow::Result<()> {
     (*LISTENER.lock().unwrap()) = Some(listener);
-    println!("已注册引擎");
+    info!("已启动ucci监听");
     let p = r"D:\DATA\BaiduSyncdisk\project\personal\chinese_chess\ChineseChess_Muzero_App\assets\engine\XQAtom64 v1.0.6\XQAtom.exe";
     // // let p = r"D:\DATA\BaiduSyncdisk\project\personal\rust_cmd\target\debug\rust_cmd.exe";
 
     let mut process = Process::new(p);
     process.stdin(Stdio::piped());
-    println!("已捕获process");
+    info!("已捕获引擎process");
 
     let (reader_thread, writer_thread) = if let Some(ref mut listener) = *LISTENER.lock().unwrap() {
         let cloned_listener = listener.clone(); // 必须clone,否则无法在async move中使用

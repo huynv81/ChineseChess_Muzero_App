@@ -48,6 +48,10 @@ abstract class RuleApi {
   Future<void> testLog1({required String log, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kTestLog1ConstMeta;
+
+  Future<void> testPrint({required String log, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kTestPrintConstMeta;
 }
 
 enum Platform {
@@ -186,6 +190,21 @@ class RuleApiImpl extends FlutterRustBridgeBase<RuleApiWire>
   FlutterRustBridgeTaskConstMeta get kTestLog1ConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "test_log_1",
+        argNames: ["log"],
+      );
+
+  Future<void> testPrint({required String log, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_test_print(port_, _api2wire_String(log)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: kTestPrintConstMeta,
+        argValues: [log],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kTestPrintConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "test_print",
         argNames: ["log"],
       );
 
@@ -369,6 +388,23 @@ class RuleApiWire implements FlutterRustBridgeWireBase {
           ffi.Void Function(
               ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_test_log_1');
   late final _wire_test_log_1 = _wire_test_log_1Ptr
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_test_print(
+    int port_,
+    ffi.Pointer<wire_uint_8_list> log,
+  ) {
+    return _wire_test_print(
+      port_,
+      log,
+    );
+  }
+
+  late final _wire_test_printPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_test_print');
+  late final _wire_test_print = _wire_test_printPtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list_0(
