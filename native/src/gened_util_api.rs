@@ -42,14 +42,14 @@ pub extern "C" fn wire_rust_release_mode(port_: i64) {
 }
 
 #[no_mangle]
-pub extern "C" fn wire_init_logger(port_: i64) {
+pub extern "C" fn wire_rust_set_up(port_: i64) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "init_logger",
+            debug_name: "rust_set_up",
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
-        move || move |task_callback| Ok(init_logger()),
+        move || move |task_callback| Ok(rust_set_up()),
     )
 }
 

@@ -54,8 +54,8 @@ pub fn rust_release_mode() -> bool {
     cfg!(not(debug_assertions))
 }
 
-pub fn init_logger() {
-    crate::init_logger_inside("./logs/");
+pub fn rust_set_up() {
+    crate::init_logger("./logs/");
 }
 
 // 为激活本模块init_logger()而写的伪函数

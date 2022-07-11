@@ -15,7 +15,7 @@ mod util_api;
 static INIT_LOGGER_ONCE: Once = Once::new();
 /// 初始化示例：init_logger(&"./logs/").expect("日志模块初始化失败！");
 // fn init_logger_inside(path: &str) -> Result<(), fern::InitError> {
-fn init_logger_inside(path: &str) {
+fn init_logger(path: &str) {
     INIT_LOGGER_ONCE.call_once(|| {
         std::fs::create_dir_all(path).expect("创建日志目录失败！");
         let d = fern::Dispatch::new().format(|out, message, record| {

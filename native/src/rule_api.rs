@@ -4,6 +4,10 @@ pub fn test_log_1(log: String) {
     log::info!("{}", log);
 }
 
+pub fn test_print_1(log: String) {
+    println!("{}", log);
+}
+
 pub fn is_legal_move(src_row: u8, src_col: u8, dst_row: u8, dst_col: u8) -> bool {
     let src_pos = crate::chess::get_board_pos_from_row_col(src_row, src_col);
     let dst_pos = crate::chess::get_board_pos_from_row_col(dst_row, dst_col);

@@ -33,6 +33,21 @@ pub extern "C" fn wire_test_log_1(port_: i64, log: *mut wire_uint_8_list) {
 }
 
 #[no_mangle]
+pub extern "C" fn wire_test_print_1(port_: i64, log: *mut wire_uint_8_list) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "test_print_1",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_log = log.wire2api();
+            move |task_callback| Ok(test_print_1(api_log))
+        },
+    )
+}
+
+#[no_mangle]
 pub extern "C" fn wire_is_legal_move(
     port_: i64,
     src_row: u8,

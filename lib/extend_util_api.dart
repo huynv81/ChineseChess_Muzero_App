@@ -13,6 +13,6 @@ class UtilApiImplExtend extends UtilApiImpl with FlutterRustBridgeSetupMixin {
 
   @override
   Future<void> setup() async {
-    await initLogger(hint: FlutterRustBridgeSetupMixin.kHintSetup);
+    await rustSetUp(hint: FlutterRustBridgeSetupMixin.kHintSetup);
   }
 }

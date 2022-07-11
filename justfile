@@ -9,7 +9,6 @@ llvm_path := if os() == "macos" {
 default: gen lint
 
 gen:
-    # combine version
     export REPO_DIR="$PWD"; cd /; flutter_rust_bridge_codegen {{llvm_path}} \
         --rust-input \
         "$REPO_DIR/native/src/rule_api.rs" \

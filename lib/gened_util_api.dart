@@ -20,9 +20,9 @@ abstract class UtilApi {
 
   FlutterRustBridgeTaskConstMeta get kRustReleaseModeConstMeta;
 
-  Future<void> initLogger({dynamic hint});
+  Future<void> rustSetUp({dynamic hint});
 
-  FlutterRustBridgeTaskConstMeta get kInitLoggerConstMeta;
+  FlutterRustBridgeTaskConstMeta get kRustSetUpConstMeta;
 
   Future<void> activateApi({dynamic hint});
 
@@ -77,18 +77,17 @@ class UtilApiImpl extends FlutterRustBridgeBase<UtilApiWire>
         argNames: [],
       );
 
-  Future<void> initLogger({dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_init_logger(port_),
+  Future<void> rustSetUp({dynamic hint}) => executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_rust_set_up(port_),
         parseSuccessData: _wire2api_unit,
-        constMeta: kInitLoggerConstMeta,
+        constMeta: kRustSetUpConstMeta,
         argValues: [],
         hint: hint,
       ));
 
-  FlutterRustBridgeTaskConstMeta get kInitLoggerConstMeta =>
+  FlutterRustBridgeTaskConstMeta get kRustSetUpConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
-        debugName: "init_logger",
+        debugName: "rust_set_up",
         argNames: [],
       );
 
@@ -176,19 +175,19 @@ class UtilApiWire implements FlutterRustBridgeWireBase {
   late final _wire_rust_release_mode =
       _wire_rust_release_modePtr.asFunction<void Function(int)>();
 
-  void wire_init_logger(
+  void wire_rust_set_up(
     int port_,
   ) {
-    return _wire_init_logger(
+    return _wire_rust_set_up(
       port_,
     );
   }
 
-  late final _wire_init_loggerPtr =
+  late final _wire_rust_set_upPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_init_logger');
-  late final _wire_init_logger =
-      _wire_init_loggerPtr.asFunction<void Function(int)>();
+          'wire_rust_set_up');
+  late final _wire_rust_set_up =
+      _wire_rust_set_upPtr.asFunction<void Function(int)>();
 
   void wire_activate_api(
     int port_,
