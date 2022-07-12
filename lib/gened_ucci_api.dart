@@ -12,9 +12,10 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
 abstract class UcciApi {
-  Stream<String> registerUcciEngine({required String enginePath, dynamic hint});
+  Stream<String> subscribeUcciEngine(
+      {required String enginePath, dynamic hint});
 
-  FlutterRustBridgeTaskConstMeta get kRegisterUcciEngineConstMeta;
+  FlutterRustBridgeTaskConstMeta get kSubscribeUcciEngineConstMeta;
 
   Future<void> writeToProcess({required String command, dynamic hint});
 
@@ -28,20 +29,20 @@ class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
 
   UcciApiImpl.raw(UcciApiWire inner) : super(inner);
 
-  Stream<String> registerUcciEngine(
+  Stream<String> subscribeUcciEngine(
           {required String enginePath, dynamic hint}) =>
       executeStream(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_register_ucci_engine(
+        callFfi: (port_) => inner.wire_subscribe_ucci_engine(
             port_, _api2wire_String(enginePath)),
         parseSuccessData: _wire2api_String,
-        constMeta: kRegisterUcciEngineConstMeta,
+        constMeta: kSubscribeUcciEngineConstMeta,
         argValues: [enginePath],
         hint: hint,
       ));
 
-  FlutterRustBridgeTaskConstMeta get kRegisterUcciEngineConstMeta =>
+  FlutterRustBridgeTaskConstMeta get kSubscribeUcciEngineConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
-        debugName: "register_ucci_engine",
+        debugName: "subscribe_ucci_engine",
         argNames: ["enginePath"],
       );
 
@@ -119,20 +120,6 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
           lookup)
       : _lookup = lookup;
 
-  void wire_activate_api(
-    int port_,
-  ) {
-    return _wire_activate_api(
-      port_,
-    );
-  }
-
-  late final _wire_activate_apiPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_activate_api');
-  late final _wire_activate_api =
-      _wire_activate_apiPtr.asFunction<void Function(int)>();
-
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,
   ) {
@@ -147,21 +134,21 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
   late final _free_WireSyncReturnStruct = _free_WireSyncReturnStructPtr
       .asFunction<void Function(WireSyncReturnStruct)>();
 
-  void wire_register_ucci_engine(
+  void wire_subscribe_ucci_engine(
     int port_,
-    ffi.Pointer<wire_uint_8_list> _engine_path,
+    ffi.Pointer<wire_uint_8_list> engine_path,
   ) {
-    return _wire_register_ucci_engine(
+    return _wire_subscribe_ucci_engine(
       port_,
-      _engine_path,
+      engine_path,
     );
   }
 
-  late final _wire_register_ucci_enginePtr = _lookup<
+  late final _wire_subscribe_ucci_enginePtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Int64,
-              ffi.Pointer<wire_uint_8_list>)>>('wire_register_ucci_engine');
-  late final _wire_register_ucci_engine = _wire_register_ucci_enginePtr
+              ffi.Pointer<wire_uint_8_list>)>>('wire_subscribe_ucci_engine');
+  late final _wire_subscribe_ucci_engine = _wire_subscribe_ucci_enginePtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
   void wire_write_to_process(

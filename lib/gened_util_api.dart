@@ -146,6 +146,20 @@ class UtilApiWire implements FlutterRustBridgeWireBase {
           lookup)
       : _lookup = lookup;
 
+  void free_WireSyncReturnStruct(
+    WireSyncReturnStruct val,
+  ) {
+    return _free_WireSyncReturnStruct(
+      val,
+    );
+  }
+
+  late final _free_WireSyncReturnStructPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(WireSyncReturnStruct)>>(
+          'free_WireSyncReturnStruct');
+  late final _free_WireSyncReturnStruct = _free_WireSyncReturnStructPtr
+      .asFunction<void Function(WireSyncReturnStruct)>();
+
   void wire_platform(
     int port_,
   ) {
@@ -215,20 +229,6 @@ class UtilApiWire implements FlutterRustBridgeWireBase {
           'store_dart_post_cobject');
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
-
-  void free_WireSyncReturnStruct(
-    WireSyncReturnStruct val,
-  ) {
-    return _free_WireSyncReturnStruct(
-      val,
-    );
-  }
-
-  late final _free_WireSyncReturnStructPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(WireSyncReturnStruct)>>(
-          'free_WireSyncReturnStruct');
-  late final _free_WireSyncReturnStruct = _free_WireSyncReturnStructPtr
-      .asFunction<void Function(WireSyncReturnStruct)>();
 }
 
 typedef DartPostCObjectFnType = ffi.Pointer<

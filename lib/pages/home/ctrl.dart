@@ -2,9 +2,11 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-11 13:42:55
+ * @LastEditTime : 2022-07-12 09:46:46
  * @Description  : 用以控制HomeView的control组件
  */
+
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,23 +16,28 @@ import '../../ffi.dart';
 class HomeController extends GetxController {
   // test
   // http://cjycode.com/flutter_rust_bridge/feature/stream.html
-  var rustStreamBinder = "".obs;
-  Stream<String> rustTickStream =
-      ucciApi.registerUcciEngine(enginePath: "nihao");
+  var ucciEngineBinder = "".obs;
+  Stream<String> ucciEngineStream = ucciApi.subscribeUcciEngine(
+      enginePath:
+          r"D:\DATA\BaiduSyncdisk\project\personal\chinese_chess\ChineseChess_Muzero_App\assets\engine\XQAtom64 v1.0.6\XQAtom.exe");
   late final Worker worker;
 
   HomeController() {
     for (var i = 0; i < boardRowCount * boardColCount; i++) {
       pieces.add(Piece(SidePieceType.none, i));
     }
-
-    rustStreamBinder.bindStream(rustTickStream);
     worker = ever(
-      rustStreamBinder,
+      ucciEngineBinder,
       (value) {
-        addLog(value.toString());
+        onReceiveUcciEngineMessage(value);
       },
     );
+
+    ucciEngineBinder.bindStream(ucciEngineStream);
+  }
+
+  void onReceiveUcciEngineMessage(Object? value) {
+    addLog(value.toString());
   }
 
   var gameStarted = false;

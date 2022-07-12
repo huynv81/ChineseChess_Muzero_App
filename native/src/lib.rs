@@ -1,20 +1,17 @@
 use std::sync::Once;
 
-mod gened_util_api; /* AUTO INJECTED BY flutter_rust_bridge. This line may not be accurate, and you can change it according to your needs. */
-/* AUTO INJECTED BY flutter_rust_bridge. This line may not be accurate, and you can change it according to your needs. */
-// mod auto_api;
 mod chess;
-mod gened_rule_api; /* AUTO INJECTED BY flutter_rust_bridge. This line may not be accurate, and you can change it according to your needs. */
-mod gened_ucci_api; /* AUTO INJECTED BY flutter_rust_bridge. This line may not be accurate, and you can change it according to your needs. */
-mod rule_api;
 mod ucci;
-mod ucci_api;
 
+mod rule_api;
+mod ucci_api;
 mod util_api;
 
+mod gened_rule_api;
+mod gened_ucci_api;
+mod gened_util_api;
+
 static INIT_LOGGER_ONCE: Once = Once::new();
-/// 初始化示例：init_logger(&"./logs/").expect("日志模块初始化失败！");
-// fn init_logger_inside(path: &str) -> Result<(), fern::InitError> {
 fn init_logger(path: &str) {
     INIT_LOGGER_ONCE.call_once(|| {
         std::fs::create_dir_all(path).expect("创建日志目录失败！");
@@ -32,13 +29,13 @@ fn init_logger(path: &str) {
             .chain(fern::DateBased::new(path, "%Y-%m-%d.log"))
             .chain(std::io::stdout())
             .apply()
-            .unwrap();
+            .expect("日志模块配置失败！");
 
         #[cfg(not(debug_assertions))]
         d.level(log::LevelFilter::Info)
             .chain(fern::DateBased::new(path, "%Y-%m-%d.log"))
             .apply()
-            .unwrap();
+            .expect("日志模块配置失败！");
 
         std::panic::set_hook(Box::new(|m| {
             log::error!("{}", m);

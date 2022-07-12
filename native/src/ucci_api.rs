@@ -21,16 +21,16 @@ static FLAG: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
 // refer:http://cjycode.com/flutter_rust_bridge/feature/stream.html
 // refer:http://cjycode.com/flutter_rust_bridge/feature/async_rust.html
 #[tokio::main(flavor = "current_thread")]
-pub async fn register_ucci_engine(
-    _engine_path: String,
+pub async fn subscribe_ucci_engine(
+    engine_path: String,
     listener: StreamSink<String>,
 ) -> anyhow::Result<()> {
     (*LISTENER.lock().unwrap()) = Some(listener);
     info!("已启动ucci监听");
-    let p = r"D:\DATA\BaiduSyncdisk\project\personal\chinese_chess\ChineseChess_Muzero_App\assets\engine\XQAtom64 v1.0.6\XQAtom.exe";
+    // let p = r"D:\DATA\BaiduSyncdisk\project\personal\chinese_chess\ChineseChess_Muzero_App\assets\engine\XQAtom64 v1.0.6\XQAtom.exe";
     // // let p = r"D:\DATA\BaiduSyncdisk\project\personal\rust_cmd\target\debug\rust_cmd.exe";
 
-    let mut process = Process::new(p);
+    let mut process = Process::new(engine_path);
     process.stdin(Stdio::piped());
     info!("已捕获引擎process");
 

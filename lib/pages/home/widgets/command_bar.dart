@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-30 11:10:14
  * @LastEditors  : 老董
- * @LastEditTime : 2022-06-15 20:22:56
+ * @LastEditTime : 2022-07-12 18:52:21
  * @Description  : ios风格的工具栏
  */
 
@@ -103,7 +103,7 @@ class CommandBar extends GetView<HomeController> {
               CupertinoIcons.minus,
             ),
           ),
-          onPressed: () => windowManager.minimize, //TODO:失效了？
+          onPressed: () => windowManager.minimize(), //TODO:失效了？
           showLabel: false,
         ),
         ToolBarIconButton(

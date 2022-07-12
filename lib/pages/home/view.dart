@@ -2,22 +2,29 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-06-14 10:05:55
+ * @LastEditTime : 2022-07-12 18:53:19
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
+// import 'package:floatingpanel/floatingpanel.dart';
+
+import 'dart:io';
 
 import 'package:dashed_rect/dashed_rect.dart';
 import 'package:docking/docking.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../common/global.dart';
+import '../../common/widgets/ios_dialog_widget.dart';
 import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import 'widgets/command_bar.dart';
 import 'widgets/log_table.dart';
+import 'widgets/floatingPanel.dart';
+import 'widgets/setting_sheet.dart';
 
 class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
@@ -62,17 +69,75 @@ class HomeView extends GetView<HomeController> {
         ),
 
         // 工具栏
-        Obx(() => MouseRegion(
-              onEnter: (value) {
-                controller.animatedContainerHeight = toobarHeight;
-              },
-              onExit: (value) {
-                controller.animatedContainerHeight =
-                    hideToobarHeight; //留一点空方便鼠标移上去时触发弹出
-              },
-              cursor: SystemMouseCursors.click, //Cursor type on hover
-              child: _getAnimatedCommandBar(),
-            )),
+        // Obx(
+        //   () => MouseRegion(
+        //     onEnter: (value) {
+        //       controller.animatedContainerHeight = toobarHeight;
+        //     },
+        //     onExit: (value) {
+        //       controller.animatedContainerHeight =
+        //           hideToobarHeight; //留一点空方便鼠标移上去时触发弹出
+        //     },
+        //     cursor: SystemMouseCursors.click, //Cursor type on hover
+        //     child: _getAnimatedCommandBar(),
+        //   ),
+        // ),
+        // Focus(
+        //   child: ,
+        //   onFocusChange: (hasFocus) {
+        //     if (hasFocus) {
+        //       print("got focus!");
+        //     } else {
+        //       print("not focused!");
+        //     }
+        //   },
+        // )
+        FloatBoxPanel(
+          //Customize properties
+          backgroundColor: const Color(0xFF222222),
+          panelShape: PanelShape.rounded,
+          borderRadius: BorderRadius.circular(3.0),
+          dockType: DockType.outside,
+          panelButtonColor: Colors.blueGrey,
+          customButtonColor: Colors.grey,
+          buttons: const [
+            // Add Icons to the buttons list.
+            CupertinoIcons.news,
+            CupertinoIcons.person,
+            CupertinoIcons.settings,
+            CupertinoIcons.link,
+            CupertinoIcons.minus,
+            CupertinoIcons.xmark_circle
+          ],
+          onPressed: (index) {
+            switch (index) {
+              case 0:
+                controller.onToolButtonPressed(newChessGameLog);
+                break;
+              case 1:
+                controller.onToolButtonPressed('AI点击');
+                break;
+              case 2: //settings
+                getSettingSheet(context);
+                break;
+              case 3: //link
+                break;
+              case 4: //minimize window
+                windowManager.minimize();
+                break;
+              case 5: //exit app
+                showIosDialog(
+                  context,
+                  "提示",
+                  "是否退出程序？",
+                  onYesPressed: () => exit(0),
+                );
+                break;
+              default:
+                print("pressed default");
+            }
+          },
+        )
       ],
     );
 
@@ -123,7 +188,8 @@ class HomeView extends GetView<HomeController> {
         DockingTabs([
           DockingItem(name: '日志', widget: const LogTable()),
           DockingItem(name: '思考细节', widget: const Text("")),
-        ])
+        ]),
+        // DockingRow([c])
       ]),
     );
     Docking docking = Docking(layout: layout);

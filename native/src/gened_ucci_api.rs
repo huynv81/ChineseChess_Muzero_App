@@ -18,16 +18,16 @@ use flutter_rust_bridge::*;
 // Section: wire functions
 
 #[no_mangle]
-pub extern "C" fn wire_register_ucci_engine(port_: i64, _engine_path: *mut wire_uint_8_list) {
+pub extern "C" fn wire_subscribe_ucci_engine(port_: i64, engine_path: *mut wire_uint_8_list) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "register_ucci_engine",
+            debug_name: "subscribe_ucci_engine",
             port: Some(port_),
             mode: FfiCallMode::Stream,
         },
         move || {
-            let api__engine_path = _engine_path.wire2api();
-            move |task_callback| register_ucci_engine(api__engine_path, task_callback.stream_sink())
+            let api_engine_path = engine_path.wire2api();
+            move |task_callback| subscribe_ucci_engine(api_engine_path, task_callback.stream_sink())
         },
     )
 }
