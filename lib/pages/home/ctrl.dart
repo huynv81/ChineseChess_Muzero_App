@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-12 09:46:46
+ * @LastEditTime : 2022-07-13 10:19:56
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -68,6 +68,13 @@ class HomeController extends GetxController {
   var leftTopOffSet = const Offset(0.0, 0.0); //左上角棋子位置距离棋盘左上角的offset
   var pieceGap = 0.0; //相邻2个棋子中心位置的间距，x、y轴都一样
   var pieceSize = 0.0; //这个是调整过的棋子尺寸，宽高一致
+  final _panelWidth = 0.0.obs; //这个是调整过的浮动工具栏宽度
+  get panelWidth => _panelWidth.value;
+  set panelWidth(value) => _panelWidth.value = value;
+
+  final _borderRadius = 0.0.obs; //这个是调整过的浮动工具栏的圆角半径
+  get borderRadius => _borderRadius.value;
+  set borderRadius(value) => _borderRadius.value = value;
 
   Future<void> onToolButtonPressed(String logContent) async {
     addLog(logContent);

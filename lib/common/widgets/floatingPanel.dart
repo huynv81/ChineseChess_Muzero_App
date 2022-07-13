@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../global.dart';
 
 enum PanelShape { rectangle, rounded }
 
@@ -8,28 +11,30 @@ enum DockType { inside, outside }
 enum PanelState { open, closed }
 
 class FloatBoxPanel extends StatefulWidget {
-  final double positionTop;
-  final double positionLeft;
+  bool isFirstTime = true;
+
+  // final double positionTop;
+  // final double positionLeft;
   final Color borderColor;
-  final double borderWidth;
+  double borderWidth;
 
   /// Widget size if the width of the panel;
-  final double size;
-  final double iconSize;
-  IconData panelIcon;
+  double panelWidth;
+  double iconSize;
+  IconData initialPanelIcon;
   final BorderRadius borderRadius;
   final Color backgroundColor;
   final Color panelButtonColor;
   final Color customButtonColor;
   final PanelShape panelShape;
 
-  final double panelOpenOffset;
+  double panelOpenOffset;
   final int panelAnimDuration;
   final Curve panelAnimCurve;
   final DockType dockType;
 
   /// Dock offset creates the boundary for the page depending on the DockType;
-  final double dockOffset;
+  double dockOffset;
   final int dockAnimDuration;
   final Curve dockAnimCurve;
   final List<IconData> buttons;
@@ -38,33 +43,39 @@ class FloatBoxPanel extends StatefulWidget {
 
   final List<bool> isFocusColors = [];
 
-  FloatBoxPanel(
-      {Key? key,
-      this.buttons = const [],
-      this.positionTop = 0,
-      this.positionLeft = 0,
-      this.borderColor = const Color(0xFF333333),
-      this.borderWidth = 0,
-      this.iconSize = 24,
-      this.panelIcon = Icons.add,
-      this.size = 50,
-      BorderRadius? borderRadius,
-      this.panelOpenOffset = 5.0,
-      this.panelAnimDuration = 600,
-      this.panelAnimCurve = Curves.fastLinearToSlowEaseIn,
-      this.backgroundColor = const Color(0xFF333333),
-      this.panelButtonColor = Colors.white,
-      this.customButtonColor = Colors.white,
-      this.panelShape = PanelShape.rounded,
-      this.dockType = DockType.outside,
-      this.dockOffset = 20,
-      this.dockAnimCurve = Curves.fastLinearToSlowEaseIn,
-      this.dockAnimDuration = 300,
-      this.onPressed,
-      this.buttonFocusColor = Colors.red})
-      : this.borderRadius = borderRadius ?? BorderRadius.circular(0),
+  FloatBoxPanel({
+    Key? key,
+    this.buttons = const [],
+    this.borderColor = const Color(0xFF333333),
+    this.borderWidth = 0,
+    this.panelWidth = testPanelWidth,
+    this.iconSize = 24,
+    this.initialPanelIcon = Icons.add,
+    BorderRadius? borderRadius,
+    this.panelOpenOffset = 5.0,
+    this.panelAnimDuration = 600,
+    this.panelAnimCurve = Curves.fastLinearToSlowEaseIn,
+    this.backgroundColor = const Color(0xFF333333),
+    this.panelButtonColor = Colors.white,
+    this.customButtonColor = Colors.white,
+    this.panelShape = PanelShape.rounded,
+    this.dockType = DockType.outside,
+    this.dockOffset = 20,
+    this.dockAnimCurve = Curves.fastLinearToSlowEaseIn,
+    this.dockAnimDuration = 300,
+    this.onPressed,
+    this.buttonFocusColor = Colors.red,
+  })  : borderRadius = borderRadius ?? BorderRadius.circular(testBorderRadius),
         super(key: key) {
-    for (var i = 0; i < this.buttons.length; i++) {
+    //
+    final realTestRatio = panelWidth / testPanelWidth;
+    borderWidth = borderWidth * realTestRatio;
+    panelWidth = panelWidth * realTestRatio;
+    iconSize = iconSize * realTestRatio;
+    panelOpenOffset = panelOpenOffset * realTestRatio;
+    dockOffset = dockOffset * realTestRatio;
+    //
+    for (var i = 0; i < buttons.length; i++) {
       isFocusColors.add(false);
     }
   }
@@ -76,10 +87,9 @@ class FloatBoxPanel extends StatefulWidget {
 class _FloatBoxState extends State<FloatBoxPanel> {
   // Required to set the default state to closed when the widget gets initialized;
   PanelState _panelState = PanelState.closed;
-
-  // Default positions for the panel;
-  double _positionTop = 0.0;
-  double _positionLeft = 0.0;
+  // Default positions for the panel(0, 0]代表窗口的左上角);
+  double _yOffset = 0.0;
+  double _xOffset = 0.0;
 
   // ** PanOffset ** is used to calculate the distance from the edge of the panel
   // to the cursor, to calculate the position when being dragged;
@@ -92,22 +102,27 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   // speed than when the panel is being dragged;
   int _movementSpeed = 0;
 
+  double? _oldYOffset; //用以复原角落ui的字段
+
   // Width and height of page is required for the dragging the panel;
   double get _pageWidth => MediaQuery.of(context).size.width;
   double get _pageHeight => MediaQuery.of(context).size.height;
 
+  double _leftOffsetRatio = 1 / 2;
+  double _topOffsetRatio = 1 / 3;
+
+  late IconData _panelIcon;
+
   @override
   void initState() {
-    _positionTop = widget.positionTop;
-    _positionLeft = widget.positionLeft;
-
+    _panelIcon = widget.initialPanelIcon;
     super.initState();
   }
-
   //#region Methods
 
   // Dock boundary is calculated according to the dock offset and dock type.
   double _dockBoundary() {
+    debugPrint("dock boundary");
     if (widget.dockType == DockType.inside) {
       // If it's an 'inside' type dock, dock offset will remain the same;
       return widget.dockOffset;
@@ -129,41 +144,53 @@ class _FloatBoxState extends State<FloatBoxPanel> {
 
     // If panel shape is 'rounded', border radius will be the size of widget
     // to make it rounded;
-    return BorderRadius.circular(widget.size);
+    return BorderRadius.circular(widget.panelWidth);
   }
 
   // Height of the panel according to the panel state;
   double _panelHeight() {
     if (_panelState == PanelState.open) {
-      final buttonLength = widget.buttons.length;
-
-      // Panel height will be in multiple of total buttons, I have added "1"
-      // digit height for each button to fix the overflow issue. Don't know
-      // what's causing this, but adding "1" fixed the problem for now.
-      return (widget.size + (widget.size + 1) * buttonLength) +
-          (widget.borderWidth);
+      return widget.panelWidth * (widget.buttons.length + 1) +
+          widget.borderWidth;
     }
-
-    return widget.size + (widget.borderWidth) * 2;
+    return widget.panelWidth + (widget.borderWidth) * 2;
   }
 
   // Panel top needs to be recalculated while opening the panel, to make sure
   // the height doesn't exceed the bottom of the page;
-  void _calcPanelTop() {
-    if (_positionTop + _panelHeight() > _pageHeight + _dockBoundary()) {
-      _positionTop = _pageHeight - _panelHeight() + _dockBoundary();
+  void _calcPanelYOffsetWhenOpening() {
+    if (_yOffset < 0) {
+      //说明在顶端
+      // debugPrint("_positionTop:$_yOffset < $_pageHeight  !!!!!!!!!");
+      _oldYOffset = _yOffset;
+      // 根据_panelHeight()推演
+      _yOffset = 0.0 + widget.panelWidth + widget.borderWidth + _dockBoundary();
+    } else {
+      if (_yOffset + _panelHeight() > _pageHeight + _dockBoundary()) {
+        //说明拓展后的长度超出了底边界
+        final newYOffset = _pageHeight - _panelHeight() + _dockBoundary();
+        if (newYOffset != _yOffset) {
+          _oldYOffset = _yOffset;
+          _yOffset = newYOffset;
+        }
+      } else {
+        //说明在中端
+        _oldYOffset = null;
+      }
     }
   }
 
   // Dock Left position when open;
   double _openDockLeft() {
-    if (_positionLeft < (_pageWidth / 2)) {
+    if (_xOffset < (_pageWidth / 2)) {
       // If panel is docked to the left;
+      debugPrint("openDockLeft");
       return widget.panelOpenOffset;
     }
 
     // If panel is docked to the right;
-    return ((_pageWidth - widget.size)) - (widget.panelOpenOffset);
+    debugPrint("openDockRight");
+    return ((_pageWidth - widget.panelWidth)) - (widget.panelOpenOffset);
   }
 
   // Panel border is only enabled if the border width is greater than 0;
@@ -180,27 +207,43 @@ class _FloatBoxState extends State<FloatBoxPanel> {
 
   // Force dock will dock the panel to it's nearest edge of the screen;
   void _forceDock() {
-    // Calculate the center of the panel;
-    double center = _positionLeft + (widget.size / 2);
+    debugPrint("force dock, 111 _positionTop: $_yOffset");
 
-    // Set movement speed to the custom duration property or '300' default;
-    _movementSpeed = widget.dockAnimDuration;
+    if (_panelState == PanelState.closed) {
+      // 调整x偏移
+      double center = _xOffset + (widget.panelWidth / 2);
+      _movementSpeed = widget.dockAnimDuration;
+      final offsetOfLeftEdge = (center < _pageWidth / 2)
+          ? -widget.panelWidth // Dock to the left edge
+          : (_pageWidth - widget.panelWidth); // Dock to the right edge
+      _xOffset = offsetOfLeftEdge - _dockBoundary();
 
-    // Check if the position of center of the panel is less than half of the
-    // page;
-    final offsetOfLeftEdge = (center < _pageWidth / 2)
-        // Dock to the left edge
-        ? 0.0
-        // Dock to the right edge
-        : (_pageWidth - widget.size);
+      // （若原来在角落）调整y偏移
+      if (_oldYOffset != null && _yOffset != _oldYOffset!) {
+        _yOffset = _oldYOffset!;
+      }
+    } else {}
 
-    _positionLeft = offsetOfLeftEdge - _dockBoundary();
+    debugPrint("force dock, 222 _positionTop: $_yOffset");
   }
 
   //#endregion
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.isFirstTime) {
+      // update ratio for next update building
+      _topOffsetRatio = _yOffset / _pageHeight;
+      _leftOffsetRatio = _yOffset / _pageWidth;
+
+      debugPrint("not first time, _positionTop: $_yOffset");
+    } else {
+      onPanUpdateGesture(_pageWidth - (widget.panelWidth * _leftOffsetRatio),
+          _pageHeight * _topOffsetRatio);
+      debugPrint("first time, _positionTop: $_yOffset");
+      widget.isFirstTime = false;
+    }
+
     return _animatedPositioned(
       child: _animatedContainer(
         child: _panel(),
@@ -208,15 +251,14 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     );
   }
 
-  //#region panel body
-
+  // #region panel body
   Widget _animatedPositioned({required Widget child}) {
     // Animated positioned widget can be moved to any part of the screen with
     // animation;
     return AnimatedPositioned(
       duration: Duration(milliseconds: _movementSpeed),
-      top: _positionTop,
-      left: _positionLeft,
+      top: _yOffset,
+      left: _xOffset,
       curve: widget.dockAnimCurve,
       child: child,
     );
@@ -225,7 +267,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   Widget _animatedContainer({required Widget child}) {
     return AnimatedContainer(
       duration: Duration(milliseconds: widget.panelAnimDuration),
-      width: widget.size,
+      width: widget.panelWidth,
       height: _panelHeight(),
       decoration: BoxDecoration(
         color: widget.backgroundColor,
@@ -251,23 +293,27 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     // Gesture detector is required to detect the tap and drag on the panel;
     return GestureDetector(
       onPanEnd: (event) {
-        print("onPanEnd");
+        debugPrint("onPanEnd");
         setState(_forceDock);
       },
       onPanStart: (event) {
-        print("onPanStart");
-
+        debugPrint("onPanStart");
         // Detect the offset between the top and left side of the panel and
         // x and y position of the touch(click) event;
-        _panOffsetTop = event.globalPosition.dy - _positionTop;
-        _panOffsetLeft = event.globalPosition.dx - _positionLeft;
+        _panOffsetTop = event.globalPosition.dy - _yOffset;
+        _panOffsetLeft = event.globalPosition.dx - _xOffset;
       },
-      onPanUpdate: onPanUpdateGesture,
+      onPanUpdate: (event) {
+        setState(
+          () => onPanUpdateGesture(
+              event.globalPosition.dx, event.globalPosition.dy),
+        );
+      },
       onTap: _onTapGesture,
       child: _FloatButton(
         focusColor: widget.panelButtonColor,
-        size: widget.size,
-        icon: widget.panelIcon,
+        size: widget.panelWidth,
+        icon: _panelIcon,
         color: widget.panelButtonColor,
         iconSize: widget.iconSize,
       ),
@@ -276,74 +322,64 @@ class _FloatBoxState extends State<FloatBoxPanel> {
 
   //#region Gesture functions
 
-  void onPanUpdateGesture(event) {
-    setState(
-      () {
-        print("onPanUpdateGesture");
-        // Close Panel if opened;
-        _panelState = PanelState.closed;
-        widget.panelIcon = Icons.add;
+  void onPanUpdateGesture(
+    double globalPositionDx,
+    double globalPositionDy,
+  ) {
+    debugPrint("onPanUpdateGesture,$globalPositionDx,$globalPositionDy");
+    // Reset Movement Speed;
+    _movementSpeed = 0; //拖动时的速度需要最快，所以为0
+    // Calculate the top position of the panel according to pan;
+    _yOffset = globalPositionDy - _panOffsetTop;
 
-        // Reset Movement Speed;
-        _movementSpeed = 0;
+    // Check if the top position is exceeding the dock boundaries;
+    if (_yOffset < 0 + _dockBoundary()) {
+      _yOffset = 0 + _dockBoundary();
+    }
+    if (_yOffset > (_pageHeight - _panelHeight()) - _dockBoundary()) {
+      _yOffset = (_pageHeight - _panelHeight()) - _dockBoundary();
+    }
 
-        // Calculate the top position of the panel according to pan;
-        _positionTop = event.globalPosition.dy - _panOffsetTop;
+    // Calculate the Left position of the panel according to pan;
+    _xOffset = globalPositionDx - _panOffsetLeft;
 
-        // Check if the top position is exceeding the dock boundaries;
-        if (_positionTop < 0 + _dockBoundary()) {
-          _positionTop = 0 + _dockBoundary();
-        }
-        if (_positionTop > (_pageHeight - _panelHeight()) - _dockBoundary()) {
-          _positionTop = (_pageHeight - _panelHeight()) - _dockBoundary();
-        }
+    // Check if the left position is exceeding the dock boundaries;
+    if (_xOffset < 0 + _dockBoundary()) {
+      _xOffset = 0 + _dockBoundary();
+    }
+    if (_xOffset > (_pageWidth - widget.panelWidth) - _dockBoundary()) {
+      _xOffset = (_pageWidth - widget.panelWidth) - _dockBoundary();
+    }
 
-        // Calculate the Left position of the panel according to pan;
-        _positionLeft = event.globalPosition.dx - _panOffsetLeft;
-
-        // Check if the left position is exceeding the dock boundaries;
-        if (_positionLeft < 0 + _dockBoundary()) {
-          _positionLeft = 0 + _dockBoundary();
-        }
-        if (_positionLeft > (_pageWidth - widget.size) - _dockBoundary()) {
-          _positionLeft = (_pageWidth - widget.size) - _dockBoundary();
-        }
-      },
-    );
+    // 复原
+    _oldYOffset = null;
   }
 
   void _onTapGesture() {
     setState(
       () {
-        print("_onTapGesture");
+        debugPrint("_onTapGesture");
+
         // Set the animation speed to custom duration;
         _movementSpeed = widget.panelAnimDuration;
 
         if (_panelState == PanelState.open) {
-          // If panel state is "open", set it to "closed";
           _panelState = PanelState.closed;
-          widget.panelIcon = Icons.add;
-
-          // Reset panel position, dock it to nearest edge;
           _forceDock();
-
-          print("Float panel closed.");
+          _panelIcon = Icons.add;
+          debugPrint("Float panel closed.");
         } else {
-          // If panel state is "closed", set it to "open";
           _panelState = PanelState.open;
-          widget.panelIcon = CupertinoIcons.minus_circle_fill;
 
-          // Set the left side position;
-          _positionLeft = _openDockLeft();
+          _xOffset = _openDockLeft();
+          _calcPanelYOffsetWhenOpening();
 
-          _calcPanelTop();
-
-          print("Float Panel Open.");
+          _panelIcon = CupertinoIcons.minus_circle_fill;
+          debugPrint("Float Panel Open.");
         }
       },
     );
   }
-
   //#endregion
 
   Widget _buttons() {
@@ -381,7 +417,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
                   cursor: SystemMouseCursors.click, //Cursor type on hover
                   child: _FloatButton(
                     focusColor: widget.buttonFocusColor,
-                    size: widget.size,
+                    size: widget.panelWidth,
                     icon: widget.buttons[index],
                     color: widget.customButtonColor,
                     hightLight: widget.isFocusColors[index],
@@ -409,10 +445,10 @@ class _FloatButton extends StatelessWidget {
   final Color focusColor;
 
   _FloatButton({
+    required this.icon,
     required this.focusColor,
     this.size = 70,
     this.color = Colors.white,
-    this.icon = Icons.add,
     this.iconSize = 24,
     this.hightLight = false,
   });
@@ -433,7 +469,7 @@ class _FloatButton extends StatelessWidget {
 
     // return InkWell(
     //   onTap: () {
-    //     print("ink");
+    //     debugPrint("ink");
     //   },
     //   child: Ink(
     //     color: Colors.blue,

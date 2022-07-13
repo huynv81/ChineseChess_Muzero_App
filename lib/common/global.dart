@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 22:27:48
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-11 16:10:52
+ * @LastEditTime : 2022-07-13 10:12:38
  * @Description  : 全局属性
  */
 import 'dart:io';
@@ -52,6 +52,9 @@ const testLeftTop2edPos = Offset(564.47, 235); //捕获时左上角向右第二�
 const stateUiWidth = 250.0; //右侧状态ui的固定宽度
 const toobarHeight = 40.0;
 const hideToobarHeight = 20.0;
+
+const testPanelWidth = 50.0;
+const testBorderRadius = 10.0;
 
 // 常用函数
 String getCurrentTimeString() {

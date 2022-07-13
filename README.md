@@ -10,9 +10,10 @@
   - 可将三方的ucci引擎辅助内置引擎进行训练
 
 ## todo
--
+ - [] 浮动工具栏须在窗口放大缩小时 等比率调整位置和大小、透明acrylic
  - [] 绘制象棋界面--fluent ui  snack bar tabview  acrylic 鼠标侧边栏
  - [] 重启读取配置
+ - [] 启动阿童木ucci引擎
 
 ## ui issue
 可否内置divider\垂直按钮、tooltip\选中话框\下拉菜单会空？

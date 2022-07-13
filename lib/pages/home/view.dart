@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-12 18:53:19
+ * @LastEditTime : 2022-07-13 13:51:37
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 // import 'package:floatingpanel/floatingpanel.dart';
@@ -23,21 +23,16 @@ import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import 'widgets/command_bar.dart';
 import 'widgets/log_table.dart';
-import 'widgets/floatingPanel.dart';
+import '../../common/widgets/floatingPanel.dart';
 import 'widgets/setting_sheet.dart';
 
 class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
 
-  // final boardLeftTopDown2edPos = const Offset( 497,302);//左上角向下第二点
-
   late double _width;
   late double _height;
-  late double _chessUiWidth;
-  // late double _boardWidth; //这个是调整过的棋盘宽度
-  // late double _boardHeight; //这个是调整过的棋盘高度
   late double realTestRatio;
-  late double sizeRatio2;
+  // late double sizeRatio2;
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +41,11 @@ class HomeView extends GetView<HomeController> {
     // debugPrint('real w: ${_real_app_width}');
     // debugPrint('real h: ${_real_app_height}');
 
-    // _chessUiWidth = _width * chessUiWidthRatio;
-
     // 将自己测试的尺寸等比例转换到实际尺寸
     realTestRatio = _width / testWidth;
-    controller.pieceSize = testPieceSize * realTestRatio;
+    controller.panelWidth = realTestRatio * testPanelWidth;
+    controller.borderRadius = realTestRatio * testBorderRadius;
+    controller.pieceSize = realTestRatio * testPieceSize;
     controller.leftTopOffSet = Offset(
         realTestRatio * (testLeftTop1stPos.dx - testBoardLeftTopCornerPos.dx),
         realTestRatio * (testLeftTop1stPos.dy - testBoardLeftTopCornerPos.dy));
@@ -69,75 +64,53 @@ class HomeView extends GetView<HomeController> {
         ),
 
         // 工具栏
-        // Obx(
-        //   () => MouseRegion(
-        //     onEnter: (value) {
-        //       controller.animatedContainerHeight = toobarHeight;
-        //     },
-        //     onExit: (value) {
-        //       controller.animatedContainerHeight =
-        //           hideToobarHeight; //留一点空方便鼠标移上去时触发弹出
-        //     },
-        //     cursor: SystemMouseCursors.click, //Cursor type on hover
-        //     child: _getAnimatedCommandBar(),
-        //   ),
-        // ),
-        // Focus(
-        //   child: ,
-        //   onFocusChange: (hasFocus) {
-        //     if (hasFocus) {
-        //       print("got focus!");
-        //     } else {
-        //       print("not focused!");
-        //     }
-        //   },
-        // )
         FloatBoxPanel(
-          //Customize properties
-          backgroundColor: const Color(0xFF222222),
-          panelShape: PanelShape.rounded,
-          borderRadius: BorderRadius.circular(3.0),
-          dockType: DockType.outside,
-          panelButtonColor: Colors.blueGrey,
-          customButtonColor: Colors.grey,
-          buttons: const [
-            // Add Icons to the buttons list.
-            CupertinoIcons.news,
-            CupertinoIcons.person,
-            CupertinoIcons.settings,
-            CupertinoIcons.link,
-            CupertinoIcons.minus,
-            CupertinoIcons.xmark_circle
-          ],
-          onPressed: (index) {
-            switch (index) {
-              case 0:
-                controller.onToolButtonPressed(newChessGameLog);
-                break;
-              case 1:
-                controller.onToolButtonPressed('AI点击');
-                break;
-              case 2: //settings
-                getSettingSheet(context);
-                break;
-              case 3: //link
-                break;
-              case 4: //minimize window
-                windowManager.minimize();
-                break;
-              case 5: //exit app
-                showIosDialog(
-                  context,
-                  "提示",
-                  "是否退出程序？",
-                  onYesPressed: () => exit(0),
-                );
-                break;
-              default:
-                print("pressed default");
-            }
-          },
-        )
+            //Customize properties
+            // positionTop: _height,
+            // positionLeft: _width,
+            panelWidth: controller.panelWidth,
+            backgroundColor: const Color(0xFF222222),
+            panelShape: PanelShape.rectangle,
+            borderRadius: BorderRadius.circular(controller.borderRadius),
+            dockType: DockType.outside,
+            panelButtonColor: Colors.blueGrey,
+            customButtonColor: Colors.grey,
+            buttons: const [
+              CupertinoIcons.news,
+              CupertinoIcons.person,
+              CupertinoIcons.settings,
+              CupertinoIcons.link,
+              CupertinoIcons.minus,
+              CupertinoIcons.xmark_circle
+            ],
+            onPressed: (index) {
+              switch (index) {
+                case 0:
+                  controller.onToolButtonPressed(newChessGameLog);
+                  break;
+                case 1:
+                  controller.onToolButtonPressed('AI点击');
+                  break;
+                case 2: //settings
+                  getSettingSheet(context);
+                  break;
+                case 3: //link
+                  break;
+                case 4: //minimize window
+                  windowManager.minimize();
+                  break;
+                case 5: //exit app
+                  showIosDialog(
+                    context,
+                    "提示",
+                    "是否退出程序？",
+                    onYesPressed: () => exit(0),
+                  );
+                  break;
+                default:
+                  print("pressed default");
+              }
+            })
       ],
     );
 
@@ -152,27 +125,6 @@ class HomeView extends GetView<HomeController> {
           windowManager.startDragging();
         },
         child: mainUi,
-      ),
-    );
-  }
-
-  Widget _getAnimatedCommandBar() {
-    return RotatedBox(
-      quarterTurns: 1,
-      child: AnimatedContainer(
-        height: controller.animatedContainerHeight, //Animation height control
-        width: 400, //Animation width control
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.ease,
-        //
-        margin: const EdgeInsets.all(1.0),
-        //
-        // clipBehavior: Clip.antiAlias, //配合decoration圆角裁剪
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.transparent, width: 1), // added
-          borderRadius: BorderRadius.circular(50.0),
-        ),
-        child: const CommandBar(),
       ),
     );
   }
