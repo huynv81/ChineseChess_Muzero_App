@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-13 13:51:37
+ * @LastEditTime : 2022-07-13 21:24:58
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 // import 'package:floatingpanel/floatingpanel.dart';
@@ -62,55 +62,53 @@ class HomeView extends GetView<HomeController> {
             _getStateWidget(),
           ],
         ),
-
-        // 工具栏
+        // 浮动工具栏
         FloatBoxPanel(
-            //Customize properties
-            // positionTop: _height,
-            // positionLeft: _width,
-            panelWidth: controller.panelWidth,
-            backgroundColor: const Color(0xFF222222),
-            panelShape: PanelShape.rectangle,
-            borderRadius: BorderRadius.circular(controller.borderRadius),
-            dockType: DockType.outside,
-            panelButtonColor: Colors.blueGrey,
-            customButtonColor: Colors.grey,
-            buttons: const [
-              CupertinoIcons.news,
-              CupertinoIcons.person,
-              CupertinoIcons.settings,
-              CupertinoIcons.link,
-              CupertinoIcons.minus,
-              CupertinoIcons.xmark_circle
-            ],
-            onPressed: (index) {
-              switch (index) {
-                case 0:
-                  controller.onToolButtonPressed(newChessGameLog);
-                  break;
-                case 1:
-                  controller.onToolButtonPressed('AI点击');
-                  break;
-                case 2: //settings
-                  getSettingSheet(context);
-                  break;
-                case 3: //link
-                  break;
-                case 4: //minimize window
-                  windowManager.minimize();
-                  break;
-                case 5: //exit app
-                  showIosDialog(
-                    context,
-                    "提示",
-                    "是否退出程序？",
-                    onYesPressed: () => exit(0),
-                  );
-                  break;
-                default:
-                  print("pressed default");
-              }
-            })
+          panelWidth: controller.panelWidth,
+          backgroundColor: const Color(0xFF222222),
+          panelShape: PanelShape.rectangle,
+          borderRadius: BorderRadius.circular(controller.borderRadius),
+          dockType: DockType.outside,
+          panelButtonColor: Colors.blueGrey,
+          customButtonColor: Colors.grey,
+          dockActivate: controller.dockActivate,
+          buttons: const [
+            CupertinoIcons.news,
+            CupertinoIcons.person,
+            CupertinoIcons.settings,
+            CupertinoIcons.link,
+            CupertinoIcons.minus,
+            CupertinoIcons.xmark_circle
+          ],
+          onPressed: (index) {
+            switch (index) {
+              case 0:
+                controller.onToolButtonPressed(newChessGameLog);
+                break;
+              case 1:
+                controller.onToolButtonPressed('AI点击');
+                break;
+              case 2: //settings
+                getSettingSheet(context);
+                break;
+              case 3: //link
+                break;
+              case 4: //minimize window
+                windowManager.minimize();
+                break;
+              case 5: //exit app
+                showIosDialog(
+                  context,
+                  "提示",
+                  "是否退出程序？",
+                  onYesPressed: () => exit(0),
+                );
+                break;
+              default:
+                print("pressed default");
+            }
+          },
+        ),
       ],
     );
 

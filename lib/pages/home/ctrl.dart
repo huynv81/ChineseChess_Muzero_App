@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-13 10:19:56
+ * @LastEditTime : 2022-07-13 21:13:38
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -21,6 +21,10 @@ class HomeController extends GetxController {
       enginePath:
           r"D:\DATA\BaiduSyncdisk\project\personal\chinese_chess\ChineseChess_Muzero_App\assets\engine\XQAtom64 v1.0.6\XQAtom.exe");
   late final Worker worker;
+
+  final _dockActivate = false.obs;
+  get dockActivate => _dockActivate.value;
+  set dockActivate(value) => _dockActivate.value = value;
 
   HomeController() {
     for (var i = 0; i < boardRowCount * boardColCount; i++) {

@@ -34,14 +34,16 @@ class FloatBoxPanel extends StatefulWidget {
   final DockType dockType;
 
   /// Dock offset creates the boundary for the page depending on the DockType;
-  double dockOffset;
+  late double dockOffset;
+  bool dockActivate;
   final int dockAnimDuration;
   final Curve dockAnimCurve;
   final List<IconData> buttons;
   final void Function(int)? onPressed;
-  final Color buttonFocusColor;
+  final Color innerButtonFocusColor;
+  final Color customButtonFocusColor;
 
-  final List<bool> isFocusColors = [];
+  final List<bool> isFocusColors = []; //（包括内置按钮）
 
   FloatBoxPanel({
     Key? key,
@@ -60,11 +62,12 @@ class FloatBoxPanel extends StatefulWidget {
     this.customButtonColor = Colors.white,
     this.panelShape = PanelShape.rounded,
     this.dockType = DockType.outside,
-    this.dockOffset = 20,
     this.dockAnimCurve = Curves.fastLinearToSlowEaseIn,
     this.dockAnimDuration = 300,
     this.onPressed,
-    this.buttonFocusColor = Colors.red,
+    this.innerButtonFocusColor = Colors.blue,
+    this.customButtonFocusColor = Colors.red,
+    this.dockActivate = false,
   })  : borderRadius = borderRadius ?? BorderRadius.circular(testBorderRadius),
         super(key: key) {
     //
@@ -73,9 +76,10 @@ class FloatBoxPanel extends StatefulWidget {
     panelWidth = panelWidth * realTestRatio;
     iconSize = iconSize * realTestRatio;
     panelOpenOffset = panelOpenOffset * realTestRatio;
-    dockOffset = dockOffset * realTestRatio;
-    //
-    for (var i = 0; i < buttons.length; i++) {
+    dockOffset = panelWidth / 2;
+
+    // +1 是因为还有个内置按钮（第一个）
+    for (var i = 0; i < (buttons.length + 1); i++) {
       isFocusColors.add(false);
     }
   }
@@ -87,14 +91,13 @@ class FloatBoxPanel extends StatefulWidget {
 class _FloatBoxState extends State<FloatBoxPanel> {
   // Required to set the default state to closed when the widget gets initialized;
   PanelState _panelState = PanelState.closed;
-  // Default positions for the panel(0, 0]代表窗口的左上角);
-  double _yOffset = 0.0;
+  //panel的左上角相对偏移，为【0, 0]则代表其处于窗口的左上角;
   double _xOffset = 0.0;
+  double _yOffset = 0.0;
 
-  // ** PanOffset ** is used to calculate the distance from the edge of the panel
-  // to the cursor, to calculate the position when being dragged;
-  double _panOffsetTop = 0.0;
-  double _panOffsetLeft = 0.0;
+  // 拖动panel时为了让鼠标居中于panel中心而设置的临时变量
+  double _mouseOffsetX = 0.0;
+  double _mouseOffsetY = 0.0;
 
   // This is the animation duration for the panel movement, it's required to
   // dynamically change the speed depending on what the panel is being used for.
@@ -108,8 +111,8 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   double get _pageWidth => MediaQuery.of(context).size.width;
   double get _pageHeight => MediaQuery.of(context).size.height;
 
-  double _leftOffsetRatio = 1 / 2;
-  double _topOffsetRatio = 1 / 3;
+  double _xOffsetRatio = 1 / 2;
+  double _yOffsetRatio = 1 / 3;
 
   late IconData _panelIcon;
 
@@ -118,6 +121,30 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     _panelIcon = widget.initialPanelIcon;
     super.initState();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.isFirstTime) {
+      // 拖动后会触发这里（无论panel是否展开）
+      // update ratio for next update building
+      _yOffsetRatio = _yOffset / _pageHeight;
+      _xOffsetRatio = _xOffset / _pageWidth;
+      debugPrint("not first time, _xOffset: $_xOffset, _yOffset: $_yOffset");
+    } else {
+      // 首次更新或者窗口缩放大小时会触发这里，
+      onPanUpdateGesture(_pageWidth - (widget.panelWidth * _xOffsetRatio),
+          _pageHeight * _yOffsetRatio);
+      debugPrint("first time, _xOffset: $_xOffset, _yOffset: $_yOffset");
+      widget.isFirstTime = false;
+    }
+
+    return _animatedPositioned(
+      child: _animatedContainer(
+        child: _panel(),
+      ),
+    );
+  }
+
   //#region Methods
 
   // Dock boundary is calculated according to the dock offset and dock type.
@@ -161,7 +188,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   void _calcPanelYOffsetWhenOpening() {
     if (_yOffset < 0) {
       //说明在顶端
-      // debugPrint("_positionTop:$_yOffset < $_pageHeight  !!!!!!!!!");
+      // debugPrint("_yOffset:$_yOffset < $_pageHeight  !!!!!!!!!");
       _oldYOffset = _yOffset;
       // 根据_panelHeight()推演
       _yOffset = 0.0 + widget.panelWidth + widget.borderWidth + _dockBoundary();
@@ -207,7 +234,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
 
   // Force dock will dock the panel to it's nearest edge of the screen;
   void _forceDock() {
-    debugPrint("force dock, 111 _positionTop: $_yOffset");
+    debugPrint("force dock, 111 _yOffset: $_yOffset");
 
     if (_panelState == PanelState.closed) {
       // 调整x偏移
@@ -222,34 +249,12 @@ class _FloatBoxState extends State<FloatBoxPanel> {
       if (_oldYOffset != null && _yOffset != _oldYOffset!) {
         _yOffset = _oldYOffset!;
       }
-    } else {}
+    }
 
-    debugPrint("force dock, 222 _positionTop: $_yOffset");
+    debugPrint("force dock, 222 _yOffset: $_yOffset");
   }
 
   //#endregion
-
-  @override
-  Widget build(BuildContext context) {
-    if (!widget.isFirstTime) {
-      // update ratio for next update building
-      _topOffsetRatio = _yOffset / _pageHeight;
-      _leftOffsetRatio = _yOffset / _pageWidth;
-
-      debugPrint("not first time, _positionTop: $_yOffset");
-    } else {
-      onPanUpdateGesture(_pageWidth - (widget.panelWidth * _leftOffsetRatio),
-          _pageHeight * _topOffsetRatio);
-      debugPrint("first time, _positionTop: $_yOffset");
-      widget.isFirstTime = false;
-    }
-
-    return _animatedPositioned(
-      child: _animatedContainer(
-        child: _panel(),
-      ),
-    );
-  }
 
   // #region panel body
   Widget _animatedPositioned({required Widget child}) {
@@ -283,13 +288,13 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     return Wrap(
       direction: Axis.horizontal,
       children: [
-        _gestureDetector(),
-        _buttons(),
+        _innerButton(),
+        _customButtons(),
       ],
     );
   }
 
-  Widget _gestureDetector() {
+  Widget _innerButton() {
     // Gesture detector is required to detect the tap and drag on the panel;
     return GestureDetector(
       onPanEnd: (event) {
@@ -300,8 +305,10 @@ class _FloatBoxState extends State<FloatBoxPanel> {
         debugPrint("onPanStart");
         // Detect the offset between the top and left side of the panel and
         // x and y position of the touch(click) event;
-        _panOffsetTop = event.globalPosition.dy - _yOffset;
-        _panOffsetLeft = event.globalPosition.dx - _xOffset;
+        debugPrint(
+            "global x: ${event.globalPosition.dx}  y: ${event.globalPosition.dy}");
+        _mouseOffsetX = event.globalPosition.dx - _xOffset;
+        _mouseOffsetY = event.globalPosition.dy - _yOffset;
       },
       onPanUpdate: (event) {
         setState(
@@ -309,30 +316,101 @@ class _FloatBoxState extends State<FloatBoxPanel> {
               event.globalPosition.dx, event.globalPosition.dy),
         );
       },
-      onTap: _onTapGesture,
-      child: _FloatButton(
-        focusColor: widget.panelButtonColor,
-        size: widget.panelWidth,
-        icon: _panelIcon,
-        color: widget.panelButtonColor,
-        iconSize: widget.iconSize,
+      onTap: _onInnerButtonTapGesture,
+      // 顶部内置按钮部分
+      child: MouseRegion(
+        onEnter: (value) {
+          setState(() {
+            widget.isFocusColors[0] = true;
+          });
+        },
+        onExit: (value) {
+          setState(() {
+            widget.isFocusColors[0] = false;
+          });
+        },
+        cursor: SystemMouseCursors.click, //Cursor type on hover
+        child: _FloatButton(
+          focusColor: widget.innerButtonFocusColor,
+          size: widget.panelWidth,
+          icon: _panelIcon,
+          color: widget.panelButtonColor,
+          hightLight: widget.isFocusColors[0],
+          iconSize: widget.iconSize,
+        ),
       ),
     );
   }
 
-  //#region Gesture functions
+  Widget _customButtons() {
+    return Visibility(
+      visible: _panelState == PanelState.open,
+      child: Column(
+        children: List.generate(
+          widget.buttons.length,
+          (index) {
+            return GestureDetector(
+              onPanStart: (event) {
+                debugPrint("onPanStart customButton");
+                // Detect the offset between the top and left side of the panel and
+                // x and y position of the touch(click) event;
+                debugPrint(
+                    "global x: ${event.globalPosition.dx}  y: ${event.globalPosition.dy}");
+                _mouseOffsetX = event.globalPosition.dx - _xOffset;
+                _mouseOffsetY = event.globalPosition.dy - _yOffset;
+              },
+              onPanUpdate: (event) {
+                // // TODO:correctYOffset
+                // final correctYOffset = event.globalPosition.dy;
+                setState(
+                  () => onPanUpdateGesture(
+                      event.globalPosition.dx, event.globalPosition.dy),
+                );
+              },
+              onTap: () {
+                if (widget.onPressed != null) {
+                  widget.onPressed!(index);
+                }
+              },
+              // 自定义按钮部分
+              child: MouseRegion(
+                onEnter: (value) {
+                  setState(() {
+                    widget.isFocusColors[index + 1] = true;
+                    // Offset offset = _getActivatedOffset();
+                  });
+                },
+                onExit: (value) {
+                  setState(() {
+                    widget.isFocusColors[index + 1] = false;
+                  });
+                },
+                cursor: SystemMouseCursors.click, //Cursor type on hover
+                child: _FloatButton(
+                  focusColor: widget.customButtonFocusColor,
+                  size: widget.panelWidth,
+                  icon: widget.buttons[index],
+                  color: widget.customButtonColor,
+                  hightLight: widget.isFocusColors[index + 1],
+                  iconSize: widget.iconSize,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 
   void onPanUpdateGesture(
     double globalPositionDx,
     double globalPositionDy,
   ) {
     debugPrint("onPanUpdateGesture,$globalPositionDx,$globalPositionDy");
-    // Reset Movement Speed;
-    _movementSpeed = 0; //拖动时的速度需要最快，所以为0
-    // Calculate the top position of the panel according to pan;
-    _yOffset = globalPositionDy - _panOffsetTop;
+    _movementSpeed = 0; //拖动或初始化（窗口大小变化）时的速度需要最快，所以为0
 
-    // Check if the top position is exceeding the dock boundaries;
+    // Calculate the top position of the panel according to pan;
+    _yOffset = globalPositionDy - _mouseOffsetY;
     if (_yOffset < 0 + _dockBoundary()) {
       _yOffset = 0 + _dockBoundary();
     }
@@ -341,9 +419,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     }
 
     // Calculate the Left position of the panel according to pan;
-    _xOffset = globalPositionDx - _panOffsetLeft;
-
-    // Check if the left position is exceeding the dock boundaries;
+    _xOffset = globalPositionDx - _mouseOffsetX;
     if (_xOffset < 0 + _dockBoundary()) {
       _xOffset = 0 + _dockBoundary();
     }
@@ -355,7 +431,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     _oldYOffset = null;
   }
 
-  void _onTapGesture() {
+  void _onInnerButtonTapGesture() {
     setState(
       () {
         debugPrint("_onTapGesture");
@@ -380,60 +456,6 @@ class _FloatBoxState extends State<FloatBoxPanel> {
       },
     );
   }
-  //#endregion
-
-  Widget _buttons() {
-    return Visibility(
-      visible: _panelState == PanelState.open,
-      child: Container(
-        child: Column(
-          children: List.generate(
-            widget.buttons.length,
-            (index) {
-              return GestureDetector(
-                onTap: () {
-                  if (widget.onPressed != null) {
-                    widget.onPressed!(index);
-                  }
-                },
-                // child: _FloatButton(
-                //   size: widget.size,
-                //   icon: widget.buttons[index],
-                //   color: widget.customButtonColor,
-                //   iconSize: widget.iconSize,
-                // ),
-
-                child: MouseRegion(
-                  onEnter: (value) {
-                    setState(() {
-                      widget.isFocusColors[index] = true;
-                    });
-                  },
-                  onExit: (value) {
-                    setState(() {
-                      widget.isFocusColors[index] = false;
-                    });
-                  },
-                  cursor: SystemMouseCursors.click, //Cursor type on hover
-                  child: _FloatButton(
-                    focusColor: widget.buttonFocusColor,
-                    size: widget.panelWidth,
-                    icon: widget.buttons[index],
-                    color: widget.customButtonColor,
-                    hightLight: widget.isFocusColors[index],
-                    iconSize: widget.iconSize,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  //#endregion
-
 }
 
 class _FloatButton extends StatelessWidget {
@@ -446,9 +468,9 @@ class _FloatButton extends StatelessWidget {
 
   _FloatButton({
     required this.icon,
+    required this.color,
     required this.focusColor,
     this.size = 70,
-    this.color = Colors.white,
     this.iconSize = 24,
     this.hightLight = false,
   });
@@ -456,7 +478,7 @@ class _FloatButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // original
-    return Container(
+    return Ink(
       // color: Colors.transparent,
       width: size,
       height: size,
@@ -466,40 +488,5 @@ class _FloatButton extends StatelessWidget {
         size: iconSize,
       ),
     );
-
-    // return InkWell(
-    //   onTap: () {
-    //     debugPrint("ink");
-    //   },
-    //   child: Ink(
-    //     color: Colors.blue,
-    //     width: size,
-    //     height: size,
-    //     child: Icon(
-    //       icon,
-    //       color: color,
-    //       size: iconSize,
-    //     ),
-    //   ),
-    // );
-
-    // return Container(
-    //   color: Colors.transparent,
-    //   width: size,
-    //   height: size,
-    //   child: IconButton(
-    //     icon: Icon(
-    //       icon,
-    //       color: color,
-    //       size: iconSize,
-    //     ),
-    //     tooltip: 'Increase volume by 10',
-    //     onPressed: () {
-    //       // setState(() {
-    //       //   _volume += 10;
-    //       // });
-    //     },
-    //   ),
-    // );
   }
 }
