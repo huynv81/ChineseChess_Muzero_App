@@ -2,11 +2,9 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-13 21:13:38
+ * @LastEditTime : 2022-07-14 19:52:39
  * @Description  : 用以控制HomeView的control组件
  */
-
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,6 +21,17 @@ class HomeController extends GetxController {
   late final Worker worker;
 
   final _dockActivate = false.obs;
+
+  //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓红黑方是否被电脑托管↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+  final _isRedHosted = false.obs;
+  get isRedHosted => _isRedHosted;
+  set isRedHosted(value) => _isRedHosted.value = value;
+
+  final _isBlackHosted = false.obs;
+  get isBlackHosted => _isBlackHosted;
+  set isBlackHosted(value) => _isBlackHosted.value = value;
+  //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑红黑方是否被电脑托管↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+
   get dockActivate => _dockActivate.value;
   set dockActivate(value) => _dockActivate.value = value;
 

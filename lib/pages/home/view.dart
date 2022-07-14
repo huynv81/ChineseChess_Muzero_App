@@ -2,15 +2,15 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-13 21:24:58
+ * @LastEditTime : 2022-07-14 19:46:17
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 // import 'package:floatingpanel/floatingpanel.dart';
 
 import 'dart:io';
 
+import 'package:chinese_chess_alpha_zero/pages/home/widgets/engine_pull_down_button.dart';
 import 'package:dashed_rect/dashed_rect.dart';
-import 'package:docking/docking.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -21,10 +21,9 @@ import '../../common/global.dart';
 import '../../common/widgets/ios_dialog_widget.dart';
 import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
-import 'widgets/command_bar.dart';
-import 'widgets/log_table.dart';
-import '../../common/widgets/floatingPanel.dart';
+import '../../common/widgets/float_tool.dart';
 import 'widgets/setting_sheet.dart';
+import 'widgets/time_bar.dart';
 
 class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
@@ -58,8 +57,8 @@ class HomeView extends GetView<HomeController> {
       children: [
         Row(
           children: [
-            _getChessWidget(),
-            _getStateWidget(),
+            _getChessWidgets(),
+            _getStateWidgets(),
           ],
         ),
         // 浮动工具栏
@@ -127,28 +126,55 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _getStateWidget() {
+  Widget _getStateWidgets() {
+    final pullDownUi = EnginePulldownButton();
+    // final uy = DockingItem(widget: EnginePulldownButton());
+    // final da = DockingArea(EnginePulldownButton());
+    // final uy = DockingRow([EnginePulldownButton()]);
+
     // docking tab
-    DockingLayout layout = DockingLayout(
-      root: DockingColumn([
-        DockingTabs([
-          DockingItem(name: '棋谱', widget: const Text("")),
-          DockingItem(name: '局势', widget: const Text(""))
-        ]),
-        DockingTabs([
-          DockingItem(name: '日志', widget: const LogTable()),
-          DockingItem(name: '思考细节', widget: const Text("")),
-        ]),
-        // DockingRow([c])
-      ]),
-    );
-    Docking docking = Docking(layout: layout);
+    // DockingLayout layout = DockingLayout(
+    //   root: DockingColumn([
+    //     DockingTabs([
+    //       DockingItem(name: '棋谱', widget: const Text("")),
+    //       DockingItem(name: '局势', widget: const Text(""))
+    //     ]),
+    //     DockingTabs([
+    //       DockingItem(name: '日志', widget: const LogTable()),
+    //       DockingItem(name: '思考细节', widget: const Text("")),
+    //     ]),
+    //     // uy
+    //     // DockingRow([c])
+    //   ]),
+    // );
+    // Docking docking = Docking(layout: layout);
 
     // layout
+    // final xx = Image.asset("assets/icon/rk.png");
+    // final u = const Card(
+    //     child: ListTile(
+    //   leading: Icon(),
+    //   trailing: Text(
+    //     "GFG",
+    //     style: TextStyle(color: Colors.green, fontSize: 15),
+    //   ),
+    //   title: Text("List item index"),
+    // ));
+    final redCard = PlayerEngineTimeBar(
+      player: Player.red,
+      pullDownUi: pullDownUi,
+    );
+    final blackCard = PlayerEngineTimeBar(
+      player: Player.black,
+      pullDownUi: pullDownUi,
+    );
+
     return Expanded(
       child: Container(
         color: backgroundStartColor,
-        child: docking,
+        child: Column(
+          children: [redCard, blackCard],
+        ),
       ),
     );
   }
@@ -160,7 +186,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _getChessWidget() {
+  Widget _getChessWidgets() {
     final boardImage = SvgPicture.asset(boardPath,
         /* width: _chessUiWidth, */ height: _height);
     return Stack(

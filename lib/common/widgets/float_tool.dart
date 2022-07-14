@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../global.dart';
@@ -130,11 +129,10 @@ class _FloatBoxState extends State<FloatBoxPanel> {
       // update ratio for next update building
       _xOffsetRatio = _xOffset / _pageWidth;
       _yOffsetRatio = _yOffset / _pageHeight;
-      debugPrint(
-          "not first time, _xOffset: $_xOffset, _yOffset: $_yOffset，yRatio:$_yOffsetRatio");
+      //  debugPrint("not first time, _xOffset: $_xOffset, _yOffset: $_yOffset，yRatio:$_yOffsetRatio");
     } else {
       // 首次更新或者窗口缩放大小时会触发这里，
-      debugPrint("first time before, _xOffset: $_xOffset, _yOffset: $_yOffset");
+      //  debugPrint("first time before, _xOffset: $_xOffset, _yOffset: $_yOffset");
 
       if (_xOffsetRatio == null) {
         _xOffset = _pageWidth; //为让首次dock到右边，所以取≥_pageWidth的偏移
@@ -145,8 +143,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
       onPanUpdateGesture(
           _pageWidth * _xOffsetRatio!, _pageHeight * _yOffsetRatio,
           isReScale: true);
-      debugPrint(
-          "first time after, _xOffset: $_xOffset, _yOffset: $_yOffset，yRatio:$_yOffsetRatio");
+      //  debugPrint("first time after, _xOffset: $_xOffset, _yOffset: $_yOffset，yRatio:$_yOffsetRatio");
       widget.isFirstTime = false;
     }
 
@@ -159,7 +156,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
 
   // Dock boundary is calculated according to the dock offset and dock type.
   double _dockBoundary() {
-    debugPrint("dock boundary");
+    //  debugPrint("dock boundary");
     if (widget.dockType == DockType.inside) {
       // If it's an 'inside' type dock, dock offset will remain the same;
       return widget.dockOffset;
@@ -198,7 +195,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   void _calcPanelYOffsetWhenOpening() {
     if (_yOffset < 0) {
       //说明在顶端
-      // debugPrint("_yOffset:$_yOffset < $_pageHeight  !!!!!!!!!");
+      ////  debugPrint("_yOffset:$_yOffset < $_pageHeight  !!!!!!!!!");
       _updateOldYOffset();
 
       // 根据_panelHeight()推演
@@ -233,12 +230,12 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   double _openDockLeft() {
     if (_xOffset < (_pageWidth / 2)) {
       // If panel is docked to the left;
-      debugPrint("openDockLeft");
+      //  debugPrint("openDockLeft");
       return widget.panelOpenOffset;
     }
 
     // If panel is docked to the right;
-    debugPrint("openDockRight");
+    //  debugPrint("openDockRight");
     return ((_pageWidth - widget.panelWidth)) - (widget.panelOpenOffset);
   }
 
@@ -256,7 +253,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
 
   // Force dock will dock the panel to it's nearest edge of the screen;
   void _calcOffsetWhenForceDock() {
-    debugPrint("force dock, _yOffset: $_yOffset");
+    //  debugPrint("force dock, _yOffset: $_yOffset");
 
     if (_panelState == PanelState.closed) {
       _movementSpeed = widget.dockAnimDuration;
@@ -318,14 +315,14 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     // Gesture detector is required to detect the tap and drag on the panel;
     return GestureDetector(
       onPanEnd: (event) {
-        debugPrint("onPanEnd");
+        //  debugPrint("onPanEnd");
         setState(_calcOffsetWhenForceDock);
       },
       onPanStart: (event) {
-        debugPrint("onPanStart");
+        //  debugPrint("onPanStart");
         // Detect the offset between the top and left side of the panel and
         // x and y position of the touch(click) event;
-        // debugPrint(
+        ////  debugPrint(
         // "global x: ${event.globalPosition.dx}  y: ${event.globalPosition.dy}");
         _mouseOffsetX = event.globalPosition.dx - _xOffset;
         _mouseOffsetY = event.globalPosition.dy - _yOffset;
@@ -371,10 +368,10 @@ class _FloatBoxState extends State<FloatBoxPanel> {
           (index) {
             return GestureDetector(
               onPanStart: (event) {
-                debugPrint("onPanStart customButton");
+                //  debugPrint("onPanStart customButton");
                 // Detect the offset between the top and left side of the panel and
                 // x and y position of the touch(click) event;
-                // debugPrint(
+                ////  debugPrint(
                 // "global x: ${event.globalPosition.dx}  y: ${event.globalPosition.dy}");
                 _mouseOffsetX = event.globalPosition.dx - _xOffset;
                 _mouseOffsetY = event.globalPosition.dy - _yOffset;
@@ -423,7 +420,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   // 鼠标拖动或窗口缩放时会被调用
   void onPanUpdateGesture(double globalPositionDx, double globalPositionDy,
       {bool isReScale = false}) {
-    debugPrint("onPanUpdateGesture,$globalPositionDx,$globalPositionDy");
+    //  debugPrint("onPanUpdateGesture,$globalPositionDx,$globalPositionDy");
     _movementSpeed = 0; //拖动或初始化（窗口大小变化）时的速度需要最快，所以为0
 
     // Calculate the top position of the panel according to pan;
@@ -455,7 +452,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   void _onInnerButtonTapGesture() {
     setState(
       () {
-        debugPrint("_onTapGesture");
+        //  debugPrint("_onTapGesture");
 
         // Set the animation speed to custom duration;
         _movementSpeed = widget.panelAnimDuration;
@@ -464,12 +461,12 @@ class _FloatBoxState extends State<FloatBoxPanel> {
           _panelState = PanelState.closed;
           _calcOffsetWhenForceDock();
           _panelIcon = Icons.add;
-          debugPrint("Float panel closed.");
+          //  debugPrint("Float panel closed.");
         } else {
           _panelState = PanelState.expanded;
           _calcOffsetWhenExpand();
           _panelIcon = CupertinoIcons.minus_circle_fill;
-          debugPrint("Float Panel Expanded.");
+          //  debugPrint("Float Panel Expanded.");
         }
       },
     );
@@ -489,7 +486,7 @@ class _FloatButton extends StatelessWidget {
   final bool hightLight;
   final Color focusColor;
 
-  _FloatButton({
+  const _FloatButton({
     required this.icon,
     required this.color,
     required this.focusColor,

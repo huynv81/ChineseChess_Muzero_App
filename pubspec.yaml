@@ -44,8 +44,8 @@ dependencies:
   # floatingpanel:
   #   git: https://github.com/dbsxdbsx/floating_panel
 
-  docking: ^1.2.0+1
-  macos_ui: ^1.1.0+1
+  docking: ^1.3.0
+  macos_ui: ^1.7.0
   dashed_rect: ^0.0.4
   flutter_svg: ^1.1.0
 
