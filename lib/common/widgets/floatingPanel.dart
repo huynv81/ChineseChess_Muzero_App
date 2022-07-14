@@ -8,7 +8,7 @@ enum PanelShape { rectangle, rounded }
 
 enum DockType { inside, outside }
 
-enum PanelState { open, closed }
+enum PanelState { expanded, closed }
 
 class FloatBoxPanel extends StatefulWidget {
   bool isFirstTime = true;
@@ -91,7 +91,7 @@ class FloatBoxPanel extends StatefulWidget {
 class _FloatBoxState extends State<FloatBoxPanel> {
   // Required to set the default state to closed when the widget gets initialized;
   PanelState _panelState = PanelState.closed;
-  //panel的左上角相对偏移，为【0, 0]则代表其处于窗口的左上角;
+  //panel相对于窗口左上角的相对偏移，为[0, 0]则代表其处于窗口的左上角;
   double _xOffset = 0.0;
   double _yOffset = 0.0;
 
@@ -105,21 +105,22 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   // speed than when the panel is being dragged;
   int _movementSpeed = 0;
 
-  double? _oldYOffset; //用以复原角落ui的字段
+  double? _oldYOffset; //用以复原角落ui的y轴偏移字段
+  double? _oldYOffsetRatio; //用以复原角落ui比率字段
 
   // Width and height of page is required for the dragging the panel;
   double get _pageWidth => MediaQuery.of(context).size.width;
   double get _pageHeight => MediaQuery.of(context).size.height;
 
-  double _xOffsetRatio = 1 / 2;
+  double? _xOffsetRatio;
   double _yOffsetRatio = 1 / 3;
 
   late IconData _panelIcon;
 
   @override
   void initState() {
-    _panelIcon = widget.initialPanelIcon;
     super.initState();
+    _panelIcon = widget.initialPanelIcon;
   }
 
   @override
@@ -127,14 +128,25 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     if (!widget.isFirstTime) {
       // 拖动后会触发这里（无论panel是否展开）
       // update ratio for next update building
-      _yOffsetRatio = _yOffset / _pageHeight;
       _xOffsetRatio = _xOffset / _pageWidth;
-      debugPrint("not first time, _xOffset: $_xOffset, _yOffset: $_yOffset");
+      _yOffsetRatio = _yOffset / _pageHeight;
+      debugPrint(
+          "not first time, _xOffset: $_xOffset, _yOffset: $_yOffset，yRatio:$_yOffsetRatio");
     } else {
       // 首次更新或者窗口缩放大小时会触发这里，
-      onPanUpdateGesture(_pageWidth - (widget.panelWidth * _xOffsetRatio),
-          _pageHeight * _yOffsetRatio);
-      debugPrint("first time, _xOffset: $_xOffset, _yOffset: $_yOffset");
+      debugPrint("first time before, _xOffset: $_xOffset, _yOffset: $_yOffset");
+
+      if (_xOffsetRatio == null) {
+        _xOffset = _pageWidth; //为让首次dock到右边，所以取≥_pageWidth的偏移
+        _getPoperDockXOffset();
+        _xOffsetRatio = _xOffset / _pageWidth;
+      }
+
+      onPanUpdateGesture(
+          _pageWidth * _xOffsetRatio!, _pageHeight * _yOffsetRatio,
+          isReScale: true);
+      debugPrint(
+          "first time after, _xOffset: $_xOffset, _yOffset: $_yOffset，yRatio:$_yOffsetRatio");
       widget.isFirstTime = false;
     }
 
@@ -144,8 +156,6 @@ class _FloatBoxState extends State<FloatBoxPanel> {
       ),
     );
   }
-
-  //#region Methods
 
   // Dock boundary is calculated according to the dock offset and dock type.
   double _dockBoundary() {
@@ -176,7 +186,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
 
   // Height of the panel according to the panel state;
   double _panelHeight() {
-    if (_panelState == PanelState.open) {
+    if (_panelState == PanelState.expanded) {
       return widget.panelWidth * (widget.buttons.length + 1) +
           widget.borderWidth;
     }
@@ -189,7 +199,8 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     if (_yOffset < 0) {
       //说明在顶端
       // debugPrint("_yOffset:$_yOffset < $_pageHeight  !!!!!!!!!");
-      _oldYOffset = _yOffset;
+      _updateOldYOffset();
+
       // 根据_panelHeight()推演
       _yOffset = 0.0 + widget.panelWidth + widget.borderWidth + _dockBoundary();
     } else {
@@ -197,13 +208,24 @@ class _FloatBoxState extends State<FloatBoxPanel> {
         //说明拓展后的长度超出了底边界
         final newYOffset = _pageHeight - _panelHeight() + _dockBoundary();
         if (newYOffset != _yOffset) {
-          _oldYOffset = _yOffset;
+          _updateOldYOffset();
           _yOffset = newYOffset;
         }
       } else {
         //说明在中端
         _oldYOffset = null;
+        _updateOldYOffset();
       }
+    }
+  }
+
+  void _updateOldYOffset({setNull = false}) {
+    if (setNull) {
+      _oldYOffset = null;
+      _oldYOffsetRatio = null;
+    } else {
+      _oldYOffset = _yOffset;
+      _oldYOffsetRatio = _oldYOffset! / _pageHeight;
     }
   }
 
@@ -233,30 +255,28 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   }
 
   // Force dock will dock the panel to it's nearest edge of the screen;
-  void _forceDock() {
-    debugPrint("force dock, 111 _yOffset: $_yOffset");
+  void _calcOffsetWhenForceDock() {
+    debugPrint("force dock, _yOffset: $_yOffset");
 
     if (_panelState == PanelState.closed) {
-      // 调整x偏移
-      double center = _xOffset + (widget.panelWidth / 2);
       _movementSpeed = widget.dockAnimDuration;
-      final offsetOfLeftEdge = (center < _pageWidth / 2)
-          ? -widget.panelWidth // Dock to the left edge
-          : (_pageWidth - widget.panelWidth); // Dock to the right edge
-      _xOffset = offsetOfLeftEdge - _dockBoundary();
-
+      // 调整x偏移
+      _getPoperDockXOffset();
       // （若原来在角落）调整y偏移
       if (_oldYOffset != null && _yOffset != _oldYOffset!) {
         _yOffset = _oldYOffset!;
       }
     }
-
-    debugPrint("force dock, 222 _yOffset: $_yOffset");
   }
 
-  //#endregion
+  void _getPoperDockXOffset() {
+    double center = _xOffset + (widget.panelWidth / 2);
+    final dockEdgeOffset = (center < _pageWidth / 2)
+        ? -widget.panelWidth // Dock to the left edge
+        : (_pageWidth - widget.panelWidth); // Dock to the right edge
+    _xOffset = dockEdgeOffset - _dockBoundary();
+  }
 
-  // #region panel body
   Widget _animatedPositioned({required Widget child}) {
     // Animated positioned widget can be moved to any part of the screen with
     // animation;
@@ -299,14 +319,14 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     return GestureDetector(
       onPanEnd: (event) {
         debugPrint("onPanEnd");
-        setState(_forceDock);
+        setState(_calcOffsetWhenForceDock);
       },
       onPanStart: (event) {
         debugPrint("onPanStart");
         // Detect the offset between the top and left side of the panel and
         // x and y position of the touch(click) event;
-        debugPrint(
-            "global x: ${event.globalPosition.dx}  y: ${event.globalPosition.dy}");
+        // debugPrint(
+        // "global x: ${event.globalPosition.dx}  y: ${event.globalPosition.dy}");
         _mouseOffsetX = event.globalPosition.dx - _xOffset;
         _mouseOffsetY = event.globalPosition.dy - _yOffset;
       },
@@ -344,7 +364,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
 
   Widget _customButtons() {
     return Visibility(
-      visible: _panelState == PanelState.open,
+      visible: _panelState == PanelState.expanded,
       child: Column(
         children: List.generate(
           widget.buttons.length,
@@ -354,14 +374,12 @@ class _FloatBoxState extends State<FloatBoxPanel> {
                 debugPrint("onPanStart customButton");
                 // Detect the offset between the top and left side of the panel and
                 // x and y position of the touch(click) event;
-                debugPrint(
-                    "global x: ${event.globalPosition.dx}  y: ${event.globalPosition.dy}");
+                // debugPrint(
+                // "global x: ${event.globalPosition.dx}  y: ${event.globalPosition.dy}");
                 _mouseOffsetX = event.globalPosition.dx - _xOffset;
                 _mouseOffsetY = event.globalPosition.dy - _yOffset;
               },
               onPanUpdate: (event) {
-                // // TODO:correctYOffset
-                // final correctYOffset = event.globalPosition.dy;
                 setState(
                   () => onPanUpdateGesture(
                       event.globalPosition.dx, event.globalPosition.dy),
@@ -402,15 +420,14 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     );
   }
 
-  void onPanUpdateGesture(
-    double globalPositionDx,
-    double globalPositionDy,
-  ) {
+  // 鼠标拖动或窗口缩放时会被调用
+  void onPanUpdateGesture(double globalPositionDx, double globalPositionDy,
+      {bool isReScale = false}) {
     debugPrint("onPanUpdateGesture,$globalPositionDx,$globalPositionDy");
     _movementSpeed = 0; //拖动或初始化（窗口大小变化）时的速度需要最快，所以为0
 
     // Calculate the top position of the panel according to pan;
-    _yOffset = globalPositionDy - _mouseOffsetY;
+    _yOffset = isReScale ? globalPositionDy : globalPositionDy - _mouseOffsetY;
     if (_yOffset < 0 + _dockBoundary()) {
       _yOffset = 0 + _dockBoundary();
     }
@@ -419,7 +436,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     }
 
     // Calculate the Left position of the panel according to pan;
-    _xOffset = globalPositionDx - _mouseOffsetX;
+    _xOffset = isReScale ? globalPositionDx : globalPositionDx - _mouseOffsetX;
     if (_xOffset < 0 + _dockBoundary()) {
       _xOffset = 0 + _dockBoundary();
     }
@@ -427,8 +444,12 @@ class _FloatBoxState extends State<FloatBoxPanel> {
       _xOffset = (_pageWidth - widget.panelWidth) - _dockBoundary();
     }
 
-    // 复原
-    _oldYOffset = null;
+    // 复原 , TODO: isScale模式下最好重新计算_oldYOffset
+    if (!isReScale) {
+      _oldYOffset = null;
+    } else if (_oldYOffset != null) {
+      _oldYOffset = _oldYOffsetRatio! * _pageHeight;
+    }
   }
 
   void _onInnerButtonTapGesture() {
@@ -439,22 +460,24 @@ class _FloatBoxState extends State<FloatBoxPanel> {
         // Set the animation speed to custom duration;
         _movementSpeed = widget.panelAnimDuration;
 
-        if (_panelState == PanelState.open) {
+        if (_panelState == PanelState.expanded) {
           _panelState = PanelState.closed;
-          _forceDock();
+          _calcOffsetWhenForceDock();
           _panelIcon = Icons.add;
           debugPrint("Float panel closed.");
         } else {
-          _panelState = PanelState.open;
-
-          _xOffset = _openDockLeft();
-          _calcPanelYOffsetWhenOpening();
-
+          _panelState = PanelState.expanded;
+          _calcOffsetWhenExpand();
           _panelIcon = CupertinoIcons.minus_circle_fill;
-          debugPrint("Float Panel Open.");
+          debugPrint("Float Panel Expanded.");
         }
       },
     );
+  }
+
+  void _calcOffsetWhenExpand() {
+    _xOffset = _openDockLeft();
+    _calcPanelYOffsetWhenOpening();
   }
 }
 
