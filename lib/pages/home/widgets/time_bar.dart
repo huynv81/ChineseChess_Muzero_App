@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-30 11:10:14
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-14 19:53:31
+ * @LastEditTime : 2022-07-15 09:44:24
  * @Description  : 包含红黑方剩余时间、引擎名字的状态条（红黑方各需要一个）
  */
 
@@ -60,14 +60,29 @@ class PlayerEngineTimeBar extends GetView<HomeController> {
                 },
               ),
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [pullDownUi, const Text("已加载的引擎名字")],
-                ),
-                const Text("电子钟")
-              ],
+            Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Row(
+                      children: [
+                        pullDownUi,
+                        const Flexible(
+                          child: Text(
+                            "被fskdfsdjsdfdls引擎名字",
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const Text(
+                    "电子钟",
+                    overflow: TextOverflow.ellipsis,
+                  )
+                ],
+              ),
             ),
           ],
         ),
