@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:chinese_chess_alpha_zero/common/widgets/toast_message.dart';
 import 'package:docking/docking.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -18,7 +21,9 @@ class EnginePulldownButton extends GetView<HomeController> {
       items: [
         MacosPulldownMenuItem(
           title: const Text('加载ucci引擎'),
-          onTap: () => debugPrint("Opening Save As dialog..."),
+          onTap: () {
+            controller.onAddNewEngineClicked();
+          },
         ),
         const MacosPulldownMenuDivider(),
         MacosPulldownMenuItem(

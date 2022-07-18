@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-14 19:46:17
+ * @LastEditTime : 2022-07-18 12:17:48
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 // import 'package:floatingpanel/floatingpanel.dart';
@@ -23,7 +23,7 @@ import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import '../../common/widgets/float_tool.dart';
 import 'widgets/setting_sheet.dart';
-import 'widgets/time_bar.dart';
+import 'widgets/player_panel.dart';
 
 class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
@@ -160,11 +160,11 @@ class HomeView extends GetView<HomeController> {
     //   ),
     //   title: Text("List item index"),
     // ));
-    final redCard = PlayerEngineTimeBar(
+    final redCard = PlayerPanel(
       player: Player.red,
       pullDownUi: pullDownUi,
     );
-    final blackCard = PlayerEngineTimeBar(
+    final blackCard = PlayerPanel(
       player: Player.black,
       pullDownUi: pullDownUi,
     );
@@ -303,5 +303,17 @@ String getPieceImagePath(SidePieceType sidePieceType) {
       return "${skinPath}bp.svg";
     default:
       throw '错误：未知棋子类型';
+  }
+}
+
+String getPlayerIconImagePath(Player player) {
+  switch (player) {
+    case Player.red:
+      return "${playerIconPath}rk.svg";
+    // black
+    case Player.black:
+      return "${playerIconPath}bk.svg";
+    default:
+      throw '错误：非法的玩家类型';
   }
 }

@@ -369,23 +369,6 @@ class RuleApiWire implements FlutterRustBridgeWireBase {
           'store_dart_post_cobject');
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
-
-  void wire_register_ucci_engine(
-    int port_,
-    ffi.Pointer<wire_uint_8_list> engine_path,
-  ) {
-    return _wire_register_ucci_engine(
-      port_,
-      engine_path,
-    );
-  }
-
-  late final _wire_register_ucci_enginePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64,
-              ffi.Pointer<wire_uint_8_list>)>>('wire_register_ucci_engine');
-  late final _wire_register_ucci_engine = _wire_register_ucci_enginePtr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 }
 
 class wire_uint_8_list extends ffi.Struct {

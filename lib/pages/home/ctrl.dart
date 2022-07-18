@@ -2,25 +2,31 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-14 19:52:39
+ * @LastEditTime : 2022-07-15 17:25:34
  * @Description  : 用以控制HomeView的control组件
  */
+
+import 'dart:async';
+import 'dart:ffi';
+
+import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../common/global.dart';
+import '../../common/widgets/toast_message.dart';
 import '../../ffi.dart';
 
 class HomeController extends GetxController {
-  // test
+  final _dockActivate = false.obs;
+
+  //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ucci engine stream↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   // http://cjycode.com/flutter_rust_bridge/feature/stream.html
   var ucciEngineBinder = "".obs;
-  Stream<String> ucciEngineStream = ucciApi.subscribeUcciEngine(
-      enginePath:
-          r"D:\DATA\BaiduSyncdisk\project\personal\chinese_chess\ChineseChess_Muzero_App\assets\engine\XQAtom64 v1.0.6\XQAtom.exe");
+  Stream<String>? ucciEngineStream;
   late final Worker worker;
-
-  final _dockActivate = false.obs;
+  bool? _isFeedbackCorrect;
+  //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ucci engine stream↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
   //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓红黑方是否被电脑托管↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   final _isRedHosted = false.obs;
@@ -45,11 +51,15 @@ class HomeController extends GetxController {
         onReceiveUcciEngineMessage(value);
       },
     );
-
-    ucciEngineBinder.bindStream(ucciEngineStream);
   }
-
+// TODO：为何这个会被延迟接收？
   void onReceiveUcciEngineMessage(Object? value) {
+    final engineFeedback = value.toString();
+    final engineFeedbackLow = engineFeedback.toLowerCase();
+    if (engineFeedbackLow == "hookok") {
+    // if (engineFeedbackLow == "ucciok" || engineFeedback == "uciok") {
+      _isFeedbackCorrect = true;
+    }
     addLog(value.toString());
   }
 
@@ -346,5 +356,92 @@ class HomeController extends GetxController {
       }
     }
     return null;
+  }
+
+  Future<void> initAndBindUcciEngine(String path) async {
+    ucciEngineStream = ucciApi.subscribeUcciEngine(enginePath: path);
+    ucciEngineBinder.bindStream(ucciEngineStream!);
+
+    final s = Stopwatch();
+    s.start();
+    const waitMSec = 5000;
+
+    await Future.doWhile(() async {
+      if (s.elapsedMilliseconds >= waitMSec) {
+        return false; //停止循环
+      }
+      if (_isFeedbackCorrect != null) {
+        return false; //停止循环
+      }
+      return true; //继续循环
+    });
+
+    // // await waitEngineCallBack();
+  }
+
+  // refer:https://stackoverflow.com/questions/69910901/add-wait-time-in-dart
+//   Future<Bool> waitEngineCallBack({int waitMSec = 5000}) async {
+//     Future.delayed(const Duration(seconds: 1, milliseconds: 600), () {
+// // Here you can write your code
+//     });
+//     // final s = Stopwatch();
+//     // s.start();
+//     // while (s.elapsedMilliseconds < waitMSec) {
+//     //   if (_isFeedbackCorrect != null) {
+//     //     return _isFeedbackCorrect!;
+//     //   }
+//     // }
+//     // return false;
+//   }
+
+  Future<bool> sendCommandToUcciEngine(String command,
+      {int waitMSec = 5000}) async {
+    await ucciApi.writeToProcess(command: command);
+
+    // ignore: prefer_function_declarations_over_variables
+    // final waitFunc = () async {
+    //   while (s.elapsedMilliseconds < waitMSec) {
+    //     if (_isFeedbackCorrect != null) {
+    //       return _isFeedbackCorrect!;
+    //     }
+    //   }
+    //   return false;
+    // };
+
+    // // recover
+    // _isFeedbackCorrect = null;
+
+    // //
+    // return await waitFunc();
+    return true;
+  }
+
+  Future<void> onAddNewEngineClicked() async {
+    //pick engine
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['exe'],
+    );
+    if (result == null) {
+      debugPrint("文件读取错误");
+      return;
+    }
+
+    // launch engine process
+    await initAndBindUcciEngine(result.files.single.path!);
+    if (_isFeedbackCorrect == null || _isFeedbackCorrect == false) {
+      debugPrint("引擎加载失败");
+      return;
+    }
+
+    // 用“ucci”、”uci“指令测试引擎是否收发正常
+    // await ucciApi.writeToProcess(command: "ucci");
+    if (!await sendCommandToUcciEngine("ucci")) {
+      if (!await sendCommandToUcciEngine("uci")) {
+        debugPrint("引擎反馈失败");
+        return;
+      }
+    }
+    debugPrint("引擎加载/试运行成功");
   }
 }

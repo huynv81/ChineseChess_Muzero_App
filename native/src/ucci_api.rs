@@ -2,7 +2,7 @@ use flutter_rust_bridge::StreamSink;
 
 use futures_util::stream::StreamExt;
 
-use log::{debug, info};
+use log::{debug, error, info, warn};
 use once_cell::sync::Lazy;
 use process_stream::{Process, ProcessExt};
 
@@ -26,13 +26,11 @@ pub async fn subscribe_ucci_engine(
     listener: StreamSink<String>,
 ) -> anyhow::Result<()> {
     (*LISTENER.lock().unwrap()) = Some(listener);
-    info!("已启动ucci监听");
-    // let p = r"D:\DATA\BaiduSyncdisk\project\personal\chinese_chess\ChineseChess_Muzero_App\assets\engine\XQAtom64 v1.0.6\XQAtom.exe";
-    // // let p = r"D:\DATA\BaiduSyncdisk\project\personal\rust_cmd\target\debug\rust_cmd.exe";
+    warn!("已捕获监听程序");
 
     let mut process = Process::new(engine_path);
     process.stdin(Stdio::piped());
-    info!("已捕获引擎process");
+    warn!("已打开引擎进程");
 
     let (reader_thread, writer_thread) = if let Some(ref mut listener) = *LISTENER.lock().unwrap() {
         let cloned_listener = listener.clone(); // 必须clone,否则无法在async move中使用
@@ -40,12 +38,12 @@ pub async fn subscribe_ucci_engine(
         let reader_thread = tokio::spawn(async move {
             loop {
                 while let Some(value) = stream.next().await {
-                    debug!("收到： {}", value);
+                    info!("收到反馈： {}", value);
                     cloned_listener.add((*value).into());
                 }
             }
         });
-        info!("已监听process输出");
+        warn!("已监听ucci进程输出");
 
         //
         let mut writer = process.take_stdin().unwrap();
@@ -55,16 +53,21 @@ pub async fn subscribe_ucci_engine(
                     let cmd_str = format!("{}\r\n", (*COMMAND.lock().unwrap()));
                     let cmd = cmd_str.as_bytes();
                     writer.write(cmd).await.unwrap();
-                    debug!("执行了{cmd_str}");
+                    info!("执行命令：{cmd_str}");
                     (*FLAG.lock().unwrap()) = false;
                 }
             }
         });
-        info!("已监听process输入");
+        warn!("已监听ucci进程输入");
+
+        listener.add("hookOk".into());
+        warn!("已发回hookOk");
+
 
         (reader_thread, writer_thread)
     } else {
-        panic!("listener读取出错！");
+        error!("监听程序读取出错！");
+        panic!("监听程序读取出错！");
     };
 
     reader_thread.await.unwrap();

@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 22:27:48
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-13 10:12:38
+ * @LastEditTime : 2022-07-18 12:02:03
  * @Description  : 全局属性
  */
 import 'dart:io';
@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 
 // 一些默认参数
 const skinPath = "./assets/skins/";
+const playerIconPath = "./assets/icon/"; //帅 将 图标
 const boardPath = "./assets/skins/board.svg";
 const samplePiecePath = "./assets/skins/bb.svg";
 const selected1Path = "./assets/skins/mask.svg";
