@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-30 11:10:14
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-12 18:52:21
+ * @LastEditTime : 2022-07-19 10:28:30
  * @Description  : ios风格的工具栏
  */
 
@@ -17,22 +17,6 @@ import '../../../common/global.dart';
 import '../../../common/widgets/ios_dialog_widget.dart';
 import '../ctrl.dart';
 import 'setting_sheet.dart';
-
-// class CommandBar extends StatefulWidget {
-//   const CommandBar({Key? key}) : super(key: key);
-
-//   @override
-//   _CommandBarState createState() => _CommandBarState();
-// }
-
-// class _CommandBarState extends State<CommandBar> {
-// vertical version
-// late final int _rotateQuarter;
-// final bool vertical;
-// CommandBars({Key? key, required this.vertical}) : super(key: key) {
-// _rotateQuarter = vertical ? -1 : 0;
-// }
-//
 
 class CommandBar extends GetView<HomeController> {
   const CommandBar({Key? key}) : super(key: key);
@@ -53,7 +37,7 @@ class CommandBar extends GetView<HomeController> {
               CupertinoIcons.add_circled,
             ),
           ),
-          onPressed: () => controller.onToolButtonPressed(newChessGameLog),
+          onPressed: () => controller.onToolButtonPressed(newGameBtnLog),
           showLabel: false,
         ),
         ToolBarIconButton(

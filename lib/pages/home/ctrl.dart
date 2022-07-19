@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-15 17:25:34
+ * @LastEditTime : 2022-07-19 18:09:28
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -17,8 +17,46 @@ import '../../common/global.dart';
 import '../../common/widgets/toast_message.dart';
 import '../../ffi.dart';
 
+enum TimerControlType {
+  start,
+  stop,
+  pause,
+}
+
+class DigitTimeController {
+  final _timerState = TimerControlType.stop.obs;
+  get timerStarted => _timerState;
+  set timerStarted(value) => _timerState.value = value;
+
+  final _duration = Duration.zero.obs;
+  get duration => _duration;
+  get inSeconds => _duration.value.inSeconds;
+  get inMinutes => _duration.value.inMinutes;
+  get inHours => _duration.value.inHours;
+
+  startTimer() {
+    _timerState.value = TimerControlType.start;
+  }
+
+  stopTimer() {
+    _timerState.value = TimerControlType.stop;
+  }
+
+  pauseTimer() {
+    _timerState.value = TimerControlType.pause;
+  }
+
+  setTimeElapsed(mSeconds) {
+    _duration.value = Duration(milliseconds: mSeconds);
+  }
+}
+
 class HomeController extends GetxController {
   final _dockActivate = false.obs;
+
+  final _redTimeController = DigitTimeController().obs;
+  get redTimeController => _redTimeController.value;
+  set redTimeController(value) => _redTimeController.value = value;
 
   //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ucci engine stream↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   // http://cjycode.com/flutter_rust_bridge/feature/stream.html
@@ -57,7 +95,7 @@ class HomeController extends GetxController {
     final engineFeedback = value.toString();
     final engineFeedbackLow = engineFeedback.toLowerCase();
     if (engineFeedbackLow == "hookok") {
-    // if (engineFeedbackLow == "ucciok" || engineFeedback == "uciok") {
+      // if (engineFeedbackLow == "ucciok" || engineFeedback == "uciok") {
       _isFeedbackCorrect = true;
     }
     addLog(value.toString());
@@ -104,7 +142,7 @@ class HomeController extends GetxController {
     final indexes = <int>[];
 
     switch (logContent) {
-      case newChessGameLog:
+      case newGameBtnLog:
         var correctRow = 0;
         var correctCol = 0;
         final origBoardArray = await ruleApi.getOrigBoard();
@@ -148,6 +186,13 @@ class HomeController extends GetxController {
         update(indexes);
         break;
 
+      case newAIBtnLog:
+        _redTimeController.value.startTimer();
+        break;
+      case newSettingBtnLog:
+        _redTimeController.value.pauseTimer();
+        // getSettingSheet(context);
+        break;
       default: //测试用
         // String enginePath = Directory.current.path + '/assets/engines/$engine';
         // final engine = "eleeye.exe";
@@ -157,7 +202,10 @@ class HomeController extends GetxController {
         // await ucciApi.test(x: 5);
         // await ruleApi.testConflict1(s: "hi");
 
-        await ruleApi.testLog1(log: "你好1");
+        // TODO: test
+        // _redTimeController.value.pauseTimer();
+        _redTimeController.value.stopTimer();
+        // await ruleApi.testLog1(log: "已被");
         await ucciApi.writeToProcess(command: "ucci");
     }
   }
@@ -227,17 +275,6 @@ class HomeController extends GetxController {
         masks.clear();
         masks.add(_focusedPieceRef!);
         masks.add(validClickedPieceRef);
-
-        // // TODO: 生成刚刚走的棋子的招法，测试箭头
-        // arrowMoves.clear();
-        // final newMove = ChessMove(
-        //   srcRow: _focusedPieceRef!.row,
-        //   srcCol: _focusedPieceRef!.col,
-        //   dstRow: validClickedPieceRef.row,
-        //   dstCol: validClickedPieceRef.col,
-        //   player: _player,
-        // );
-        // arrowMoves.add(newMove);
 
         // 必要更新（注意顺序）
         update([

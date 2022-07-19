@@ -1,26 +1,84 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../../lib.dart';
 import 'digital_font/digital_colon.dart';
 import 'digital_font/digital_number.dart';
+import 'package:pausable_timer/pausable_timer.dart';
 
-class NeuDigitalClock extends StatelessWidget {
+class NeuDigitalClock extends GetView<HomeController> {
   double outerRoundRadius;
   late double innerRoundRadius;
   final _innerOuterRadiusRatio = 10 / 15;
 
+  int _elapsedMSecs = 0;
+  late final PausableTimer _timer;
+  late final Worker worker;
+
   NeuDigitalClock(this.outerRoundRadius, {Key? key}) : super(key: key) {
     innerRoundRadius = _innerOuterRadiusRatio * outerRoundRadius;
+    // Timer
+    _timer = PausableTimer(
+      const Duration(milliseconds: 1000),
+      () {
+        _elapsedMSecs += 1000;
+        controller.redTimeController.setTimeElapsed(_elapsedMSecs);
+        // debugPrint("time 111");
+
+        _timer
+          ..reset()
+          ..start();
+      },
+    );
+
+    //
+    worker = ever(
+      controller.redTimeController.timerStarted,
+      (value) {
+        switch (value) {
+          case TimerControlType.start:
+            if (!_timer.isActive) {
+              startTimer();
+            }
+            break;
+          case TimerControlType.stop:
+            if (_timer.isActive || _timer.isPaused) {
+              stopTimer();
+            }
+            break;
+          case TimerControlType.pause:
+            if (_timer.isActive) {
+              pauseTimer();
+            }
+            break;
+        }
+      },
+    );
+    // only for test
+    // launchTimer();
+  }
+
+  startTimer() {
+    // _elapsedMSecs = 0;
+    // _timer
+    //   ..reset()
+    //   ..start();
+    _timer.start();
+  }
+
+  stopTimer() {
+     _timer.pause();
+    _timer.reset();
+    _elapsedMSecs = 0;
+  }
+
+  pauseTimer() {
+    _timer.pause();
   }
 
   @override
   Widget build(BuildContext context) {
-    // final currentDuration = Provider.of<TimerService>(context).currentDuration;
-    // final currentDuration = Provider.of<TimerService>(context).currentDuration;
-    final currentDuration = Duration();
-
-    final seconds = currentDuration.inSeconds;
-    final minutes = currentDuration.inMinutes;
-    final hours = currentDuration.inHours;
     return Container(
       height: 145,
       // Outer white container
@@ -57,12 +115,14 @@ class NeuDigitalClock extends StatelessWidget {
                 width: 2,
               ),
             ),
-            child: DigitalClock(
-              height: constraints.maxHeight,
-              width: constraints.maxWidth,
-              seconds: seconds,
-              minutes: minutes,
-              hours: hours,
+            child: Obx(
+              () => DigitalClock(
+                height: constraints.maxHeight,
+                width: constraints.maxWidth,
+                seconds: controller.redTimeController.inSeconds,
+                minutes: controller.redTimeController.inMinutes,
+                hours: controller.redTimeController.inHours,
+              ),
             ),
           ),
         ),

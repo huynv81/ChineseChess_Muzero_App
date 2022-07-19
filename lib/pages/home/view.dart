@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-18 12:17:48
+ * @LastEditTime : 2022-07-19 18:10:14
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 // import 'package:floatingpanel/floatingpanel.dart';
@@ -82,15 +82,16 @@ class HomeView extends GetView<HomeController> {
           onPressed: (index) {
             switch (index) {
               case 0:
-                controller.onToolButtonPressed(newChessGameLog);
+                controller.onToolButtonPressed(newGameBtnLog);
                 break;
               case 1:
-                controller.onToolButtonPressed('AI点击');
+                controller.onToolButtonPressed(newAIBtnLog);
                 break;
               case 2: //settings
-                getSettingSheet(context);
+                controller.onToolButtonPressed(newSettingBtnLog);
                 break;
               case 3: //link
+                controller.onToolButtonPressed(newLinkBtnLog);
                 break;
               case 4: //minimize window
                 windowManager.minimize();
@@ -160,6 +161,7 @@ class HomeView extends GetView<HomeController> {
     //   ),
     //   title: Text("List item index"),
     // ));
+
     final redCard = PlayerPanel(
       player: Player.red,
       pullDownUi: pullDownUi,

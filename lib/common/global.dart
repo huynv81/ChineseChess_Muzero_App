@@ -2,10 +2,9 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 22:27:48
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-18 12:02:03
+ * @LastEditTime : 2022-07-19 18:16:08
  * @Description  : 全局属性
  */
-import 'dart:io';
 import 'dart:ui';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -241,7 +240,10 @@ const pieceReverseMap = {
   SidePieceType.blackPawn: 22,
 };
 
-const newChessGameLog = "新建棋局";
+const newGameBtnLog = "新建棋局";
+const newAIBtnLog = "AI点击";
+const newSettingBtnLog = "SETTING";
+const newLinkBtnLog = "LINK";
 
 const boardRowCount = 10;
 const boardColCount = 9;

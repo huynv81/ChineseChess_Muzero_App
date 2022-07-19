@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-30 11:10:14
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-18 19:42:04
+ * @LastEditTime : 2022-07-19 10:39:44
  * @Description  : 包含红黑方剩余时间、引擎名字的状态条（红黑方各需要一个）
  */
 
@@ -44,91 +44,93 @@ class PlayerPanel extends GetView<HomeController> {
     final iconSize = barHeight * 0.4;
     const roundRadius = 20.0;
 
-    return Obx(() => Card(
-          shadowColor: getPlayerColor(),
-          elevation: 15,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(roundRadius)),
-          clipBehavior: Clip.antiAlias,
-          // margin: EdgeInsetsGeometry.infinity,
-          child: Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [getPlayerColor(), Colors.blueGrey],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight)),
-            height: barHeight,
-            padding: const EdgeInsets.only(
-                top: padSize, right: padSize, bottom: padSize),
-            // padding: const EdgeInsets.all(padSize),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                    child: SvgPicture.asset(
-                      getPlayerIconImagePath(player),
-                      width: controller.pieceSize,
-                      height: controller.pieceSize,
-                    ),
+    return Obx(
+      () => Card(
+        shadowColor: getPlayerColor(),
+        elevation: 15,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(roundRadius)),
+        clipBehavior: Clip.antiAlias,
+        // margin: EdgeInsetsGeometry.infinity,
+        child: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [getPlayerColor(), Colors.blueGrey],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight)),
+          height: barHeight,
+          padding: const EdgeInsets.only(
+              top: padSize, right: padSize, bottom: padSize),
+          // padding: const EdgeInsets.all(padSize),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Container(
+                  child: SvgPicture.asset(
+                    getPlayerIconImagePath(player),
+                    width: controller.pieceSize,
+                    height: controller.pieceSize,
                   ),
                 ),
-                Expanded(
-                  flex: 7,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 4,
-                        child: Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                  decoration: _isHosted.value
-                                      ? BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.blueGrey, width: 1),
-                                          color: Colors.transparent,
-                                          shape: BoxShape.rectangle,
-                                        )
-                                      : null,
-                                  child: IconButton(
-                                    onPressed: () {
-                                      _isHosted.value = !_isHosted.value;
-                                    },
-                                    icon: Icon(
-                                      Icons.computer_sharp,
-                                      color: getPlayerColor(),
-                                    ),
-                                  )),
-                              //
-                              // 分割
-                              SizedBox(width: iconSize / 2),
-                              //
-                              const Flexible(
-                                child: Text(
-                                  "被fskdfsdjsdfdls引擎名字",
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              )
-                            ],
-                          ),
+              ),
+              Expanded(
+                flex: 7,
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                                decoration: _isHosted.value
+                                    ? BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.blueGrey, width: 1),
+                                        color: Colors.transparent,
+                                        shape: BoxShape.rectangle,
+                                      )
+                                    : null,
+                                child: IconButton(
+                                  onPressed: () {
+                                    _isHosted.value = !_isHosted.value;
+                                  },
+                                  icon: Icon(
+                                    Icons.computer_sharp,
+                                    color: getPlayerColor(),
+                                  ),
+                                )),
+                            //
+                            // 分割
+                            SizedBox(width: iconSize / 2),
+                            //
+                            const Flexible(
+                              child: Text(
+                                "被fskdfsdjsdfdls引擎名字",
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            )
+                          ],
                         ),
                       ),
-                      Expanded(
-                        flex: 6,
-                        child: Container(
-                          child: NeuDigitalClock(roundRadius),
-                        ),
-                      )
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      flex: 6,
+                      child: Container(
+                        child: NeuDigitalClock(roundRadius),
+                      ),
+                    )
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   getPlayerColor() {
