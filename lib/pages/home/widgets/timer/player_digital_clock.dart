@@ -4,21 +4,19 @@ import 'package:flutter/material.dart';
 import '../../lib.dart';
 import 'digital_font/digital_colon.dart';
 import 'digital_font/digital_number.dart';
-import 'package:pausable_timer/pausable_timer.dart';
 
-class NeuDigitalClock extends GetView<HomeController> {
+class PlayerDigitalClock extends GetView<HomeController> {
   double outerRoundRadius;
   late double innerRoundRadius;
   final _innerOuterRadiusRatio = 10 / 15;
 
-  int _elapsedMSecs = 0;
-  late final PausableTimer _timer;
-  late final DigitTimeController _timeController;
-  late final Worker worker;
+  late final Rx<DigitTimeController> _timeController;
 
-  NeuDigitalClock(Player player, this.outerRoundRadius, {Key? key})
+  PlayerDigitalClock(Player player, this.outerRoundRadius, {Key? key})
       : super(key: key) {
-    //
+    // ui radius
+    innerRoundRadius = _innerOuterRadiusRatio * outerRoundRadius;
+
     switch (player) {
       case Player.red:
         _timeController = controller.redTimeController;
@@ -29,61 +27,6 @@ class NeuDigitalClock extends GetView<HomeController> {
       default:
         throw "初始化电子表时出现未知的玩家";
     }
-    // ui radius
-    innerRoundRadius = _innerOuterRadiusRatio * outerRoundRadius;
-
-    // Timer
-    _timer = PausableTimer(
-      const Duration(milliseconds: 1000),
-      () {
-        _elapsedMSecs += 1000;
-        _timeController.setTimeElapsed(_elapsedMSecs);
-        // debugPrint("time 111");
-
-        _timer
-          ..reset()
-          ..start();
-      },
-    );
-
-    //work
-    worker = ever(
-      _timeController.timerState,
-      (value) {
-        switch (value) {
-          case TimerControlType.start:
-            if (!_timer.isActive) {
-              startTimer();
-            }
-            break;
-          case TimerControlType.stop:
-            if (_timer.isActive || _timer.isPaused) {
-              stopTimer();
-            }
-            break;
-          case TimerControlType.pause:
-            if (_timer.isActive) {
-              pauseTimer();
-            }
-            break;
-        }
-      },
-    );
-  }
-
-  startTimer() {
-    _timer.start();
-  }
-
-  stopTimer() {
-    _timer.pause();
-    _timer.reset();
-    _elapsedMSecs = 0;
-    _timeController.setTimeElapsed(_elapsedMSecs); //更新ui显示
-  }
-
-  pauseTimer() {
-    _timer.pause();
   }
 
   @override
@@ -128,9 +71,9 @@ class NeuDigitalClock extends GetView<HomeController> {
               () => DigitalClock(
                 height: constraints.maxHeight,
                 width: constraints.maxWidth,
-                seconds: _timeController.inSeconds,
-                minutes: _timeController.inMinutes,
-                hours: _timeController.inHours,
+                seconds: _timeController.value.inSeconds,
+                minutes: _timeController.value.inMinutes,
+                hours: _timeController.value.inHours,
               ),
             ),
           ),

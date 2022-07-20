@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-20 10:41:25
+ * @LastEditTime : 2022-07-20 12:49:20
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -12,6 +12,7 @@ import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pausable_timer/pausable_timer.dart';
 import '../../common/global.dart';
 import '../../ffi.dart';
 
@@ -22,45 +23,69 @@ enum TimerControlType {
 }
 
 class DigitTimeController {
-  // _timerState配合“NeuDigitalClock”类中的work流使用，每当timerState发生变化时，
-  // NeuDigitalClock就会得到及时更新。
-  final _timerState = TimerControlType.stop.obs;
-  get timerState => _timerState;
-  set timerState(value) => _timerState.value = value;
-
   final _duration = Duration.zero.obs;
+
   get duration => _duration;
   get inSeconds => _duration.value.inSeconds;
   get inMinutes => _duration.value.inMinutes;
   get inHours => _duration.value.inHours;
 
+  late final PausableTimer _timer;
+  int _elapsedMSecs = 0;
+
+  _setTimeElapsed(mSeconds) {
+    _duration.value = Duration(milliseconds: mSeconds);
+  }
+
   runTimer() {
-    _timerState.value = TimerControlType.start;
+    if (!_timer.isActive) {
+      _timer.start();
+    }
   }
 
   stopTimer() {
-    _timerState.value = TimerControlType.stop;
+    if (_timer.isActive || _timer.isPaused) {
+      _timer.pause();
+      _timer.reset();
+      _elapsedMSecs = 0;
+      _setTimeElapsed(_elapsedMSecs); //更新ui显示
+    }
   }
 
   pauseTimer() {
-    _timerState.value = TimerControlType.pause;
+    if (_timer.isActive) {
+      _timer.pause();
+    }
   }
 
-  setTimeElapsed(mSeconds) {
-    _duration.value = Duration(milliseconds: mSeconds);
+  DigitTimeController() {
+    // Timer
+    _timer = PausableTimer(
+      const Duration(milliseconds: 1000),
+      () {
+        _elapsedMSecs += 1000;
+        _setTimeElapsed(_elapsedMSecs);
+        // debugPrint("time 111");
+        _timer
+          ..reset()
+          ..start();
+      },
+    );
   }
 }
 
 class HomeController extends GetxController {
   final _dockActivate = false.obs;
 
+  //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓PlayerDigitalClock状态控制器↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   final _redTimeController = DigitTimeController().obs;
-  get redTimeController => _redTimeController.value;
+  get redTimeController => _redTimeController; //故意不写value
   set redTimeController(value) => _redTimeController.value = value;
 
   final _blackTimeController = DigitTimeController().obs;
-  get blackTimeController => _blackTimeController.value;
+  get blackTimeController => _blackTimeController; //故意不写value
   set blackTimeController(value) => _blackTimeController.value = value;
+  //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑PlayerDigitalClock状态控制器↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
   //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ucci engine stream↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   // http://cjycode.com/flutter_rust_bridge/feature/stream.html
