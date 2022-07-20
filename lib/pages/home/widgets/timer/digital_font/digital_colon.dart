@@ -4,9 +4,7 @@ class DigitalColon extends StatelessWidget {
   final double height;
   final Color color;
 
-  DigitalColon({required this.height, required this.color})
-      : assert(height != null),
-        assert(color != null);
+  const DigitalColon({required this.height, required this.color});
 
   @override
   Widget build(BuildContext context) {

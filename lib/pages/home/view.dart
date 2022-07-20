@@ -22,7 +22,6 @@ import '../../common/widgets/ios_dialog_widget.dart';
 import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import '../../common/widgets/float_tool.dart';
-import 'widgets/setting_sheet.dart';
 import 'widgets/player_panel.dart';
 
 class HomeView extends GetView<HomeController> {

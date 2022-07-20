@@ -6,8 +6,6 @@
  * @Description  : 基于get的路由
  */
 
-import 'package:get/get.dart';
-
 // import '../../pages/home/lib.dart';
 import '../../pages/home/lib.dart';
 import '../../pages/train/lib.dart';

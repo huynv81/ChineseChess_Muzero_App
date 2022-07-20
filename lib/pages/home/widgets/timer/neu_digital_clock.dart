@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:chinese_chess_alpha_zero/common/global.dart';
 import 'package:flutter/material.dart';
 
 import '../../lib.dart';
@@ -14,16 +13,30 @@ class NeuDigitalClock extends GetView<HomeController> {
 
   int _elapsedMSecs = 0;
   late final PausableTimer _timer;
+  late final _timeController;
   late final Worker worker;
 
-  NeuDigitalClock(this.outerRoundRadius, {Key? key}) : super(key: key) {
+  NeuDigitalClock(Player player, this.outerRoundRadius, {Key? key})
+      : super(key: key) {
+    //
+    switch (player) {
+      case Player.red:
+        _timeController = controller.redTimeController;
+        break;
+      case Player.black:
+        _timeController = controller.blackTimeController;
+        break;
+      default:
+        throw "初始化电子表时出现未知的玩家";
+    }
+    // ui radius
     innerRoundRadius = _innerOuterRadiusRatio * outerRoundRadius;
     // Timer
     _timer = PausableTimer(
       const Duration(milliseconds: 1000),
       () {
         _elapsedMSecs += 1000;
-        controller.redTimeController.setTimeElapsed(_elapsedMSecs);
+        _timeController.setTimeElapsed(_elapsedMSecs);
         // debugPrint("time 111");
 
         _timer
@@ -34,7 +47,7 @@ class NeuDigitalClock extends GetView<HomeController> {
 
     //
     worker = ever(
-      controller.redTimeController.timerStarted,
+      _timeController.timerStarted,
       (value) {
         switch (value) {
           case TimerControlType.start:
@@ -55,22 +68,17 @@ class NeuDigitalClock extends GetView<HomeController> {
         }
       },
     );
-    // only for test
-    // launchTimer();
   }
 
   startTimer() {
-    // _elapsedMSecs = 0;
-    // _timer
-    //   ..reset()
-    //   ..start();
     _timer.start();
   }
 
   stopTimer() {
-     _timer.pause();
+    _timer.pause();
     _timer.reset();
     _elapsedMSecs = 0;
+    _timeController.setTimeElapsed(_elapsedMSecs); //更新ui显示
   }
 
   pauseTimer() {
@@ -105,13 +113,13 @@ class NeuDigitalClock extends GetView<HomeController> {
             height: constraints.maxHeight * 0.87,
             width: constraints.maxWidth * 0.95,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
+              gradient: const LinearGradient(colors: [
                 Color.fromRGBO(203, 211, 196, 1),
                 Color.fromRGBO(176, 188, 163, 1)
               ]),
               borderRadius: BorderRadius.circular(innerRoundRadius),
               border: Border.all(
-                color: Color.fromRGBO(168, 168, 168, 1),
+                color: const Color.fromRGBO(168, 168, 168, 1),
                 width: 2,
               ),
             ),
@@ -119,9 +127,9 @@ class NeuDigitalClock extends GetView<HomeController> {
               () => DigitalClock(
                 height: constraints.maxHeight,
                 width: constraints.maxWidth,
-                seconds: controller.redTimeController.inSeconds,
-                minutes: controller.redTimeController.inMinutes,
-                hours: controller.redTimeController.inHours,
+                seconds: _timeController.inSeconds,
+                minutes: _timeController.inMinutes,
+                hours: _timeController.inHours,
               ),
             ),
           ),
@@ -152,17 +160,17 @@ class DigitalClock extends StatelessWidget {
     List<DigitalNumberWithBG> minuteNumber = createNumberTime(minutes);
     List<DigitalNumberWithBG> secondNumber = createNumberTime(seconds);
     return Center(
-      child: Container(
-        // color: Colors.green,
-        height: height * 0.47,
-        width: width * 0.70,
+      child: SizedBox(
+        // color: Colors.green, //数字的颜色
+        height: height * 1.0, // 0.47,
+        width: width * 0.6,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             ...hourNumber,
-            DigitalColon(height: height * 0.30, color: Colors.black87),
+            DigitalColon(height: height * 0.50, color: Colors.black87),
             ...minuteNumber,
-            DigitalColon(height: height * 0.30, color: Colors.black87),
+            DigitalColon(height: height * 0.50, color: Colors.black87),
             ...secondNumber,
           ],
         ),
@@ -207,22 +215,24 @@ class DigitalNumberWithBG extends StatelessWidget {
   final double height;
   // final Color color;
 
+  final numberScaleRatio = 1.4;
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        //Foreground
+        //Foreground(数字本身的颜色)
         DigitalNumber(
           value: value,
           color: Colors.black,
-          height: height,
+          height: height * numberScaleRatio,
         ),
 
         // Background
         DigitalNumber(
           value: backgroundValue,
           color: Colors.black12,
-          height: height,
+          height: height * numberScaleRatio,
         ),
       ],
     );

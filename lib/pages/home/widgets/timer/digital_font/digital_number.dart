@@ -6,25 +6,23 @@ class DigitalNumber extends StatelessWidget {
   final double height;
   final Color color;
 
-  DigitalNumber({
+  const DigitalNumber({
     required this.value,
     required this.height,
     required this.color,
     this.padLeft = 0,
-  })  : assert(value != null),
-        assert(height != null),
-        assert(color != null);
+  });
 
   @override
   Widget build(BuildContext context) {
     Widget digitPainter(int digit) {
-      return new CustomPaint(
-        size: new Size(height / 2.0, height),
-        painter: new _DigitalDigitPainter(digit, height, color),
+      return CustomPaint(
+        size: Size(height / 2.0, height),
+        painter: _DigitalDigitPainter(digit, height, color),
       );
     }
 
-    final Widget digitPadding = new SizedBox(width: height / 10.0);
+    final Widget digitPadding = SizedBox(width: height / 10.0);
 
     List<Widget> children = [];
 
@@ -49,9 +47,9 @@ class DigitalNumber extends StatelessWidget {
       digits++;
     }
 
-    return new Row(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: new List.from(children.reversed),
+      children: List.from(children.reversed),
     );
   }
 }
@@ -91,47 +89,47 @@ class _DigitalDigitPainter extends CustomPainter {
     final double bottom = size.height;
     final double middle = size.height - width;
 
-    final Paint paint = new Paint()
+    final Paint paint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
 
     /// Build a polygon for the left side of the digit
     List<Offset> leftPolygon(top, bottom) {
       return [
-        new Offset(left + smallGap, top),
-        new Offset(left, top + smallGap),
-        new Offset(left, bottom - smallGap),
-        new Offset(left + smallGap, bottom),
-        new Offset(left + thickness, bottom - bigGap),
-        new Offset(left + thickness, top + bigGap),
+        Offset(left + smallGap, top),
+        Offset(left, top + smallGap),
+        Offset(left, bottom - smallGap),
+        Offset(left + smallGap, bottom),
+        Offset(left + thickness, bottom - bigGap),
+        Offset(left + thickness, top + bigGap),
       ];
     }
 
     /// Build a polygon for the right side of the digit
     List<Offset> rightPolygon(top, bottom) {
       return [
-        new Offset(right - smallGap, top),
-        new Offset(right - thickness, top + bigGap),
-        new Offset(right - thickness, bottom - bigGap),
-        new Offset(right - smallGap, bottom),
-        new Offset(right, bottom - smallGap),
-        new Offset(right, top + smallGap),
-        new Offset(right - smallGap, top),
+        Offset(right - smallGap, top),
+        Offset(right - thickness, top + bigGap),
+        Offset(right - thickness, bottom - bigGap),
+        Offset(right - smallGap, bottom),
+        Offset(right, bottom - smallGap),
+        Offset(right, top + smallGap),
+        Offset(right - smallGap, top),
       ];
     }
 
-    Path p = new Path();
+    Path p = Path();
     // Top
     if (value != 1 && value != 4) {
       final tleft = left + bigPad;
       final tright = right - bigPad;
       p.addPolygon([
-        new Offset(tleft, top + smallGap),
-        new Offset(tleft + smallGap, top),
-        new Offset(tright - smallGap, top),
-        new Offset(tright, top + smallGap),
-        new Offset(tright - bigGap, top + thickness),
-        new Offset(tleft + bigGap, top + thickness),
+        Offset(tleft, top + smallGap),
+        Offset(tleft + smallGap, top),
+        Offset(tright - smallGap, top),
+        Offset(tright, top + smallGap),
+        Offset(tright - bigGap, top + thickness),
+        Offset(tleft + bigGap, top + thickness),
       ], true);
     }
     // Left Top
@@ -148,13 +146,13 @@ class _DigitalDigitPainter extends CustomPainter {
       final mright = right - bigPad;
       final halfThick = thickness / 2;
       p.addPolygon([
-        new Offset(mleft, middle),
-        new Offset(mleft + midGap, middle - halfThick),
-        new Offset(mright - midGap, middle - halfThick),
-        new Offset(mright, middle),
-        new Offset(mright - midGap, middle + halfThick),
-        new Offset(mleft + midGap, middle + halfThick),
-        new Offset(mleft, middle),
+        Offset(mleft, middle),
+        Offset(mleft + midGap, middle - halfThick),
+        Offset(mright - midGap, middle - halfThick),
+        Offset(mright, middle),
+        Offset(mright - midGap, middle + halfThick),
+        Offset(mleft + midGap, middle + halfThick),
+        Offset(mleft, middle),
       ], false);
     }
     // Left Bottom
@@ -170,13 +168,13 @@ class _DigitalDigitPainter extends CustomPainter {
       final bleft = left + bigPad;
       final bright = right - bigPad;
       p.addPolygon([
-        new Offset(bleft, bottom - smallGap),
-        new Offset(bleft + bigGap, bottom - thickness),
-        new Offset(bright - bigGap, bottom - thickness),
-        new Offset(bright, bottom - smallGap),
-        new Offset(bright - smallGap, bottom),
-        new Offset(bleft + smallGap, bottom),
-        new Offset(bleft, bottom - smallGap),
+        Offset(bleft, bottom - smallGap),
+        Offset(bleft + bigGap, bottom - thickness),
+        Offset(bright - bigGap, bottom - thickness),
+        Offset(bright, bottom - smallGap),
+        Offset(bright - smallGap, bottom),
+        Offset(bleft + smallGap, bottom),
+        Offset(bleft, bottom - smallGap),
       ], false);
     }
 

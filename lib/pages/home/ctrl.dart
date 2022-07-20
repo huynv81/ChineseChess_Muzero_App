@@ -2,19 +2,17 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-19 18:09:28
+ * @LastEditTime : 2022-07-20 09:38:49
  * @Description  : 用以控制HomeView的control组件
  */
 
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../common/global.dart';
-import '../../common/widgets/toast_message.dart';
 import '../../ffi.dart';
 
 enum TimerControlType {
@@ -34,7 +32,7 @@ class DigitTimeController {
   get inMinutes => _duration.value.inMinutes;
   get inHours => _duration.value.inHours;
 
-  startTimer() {
+  runTimer() {
     _timerState.value = TimerControlType.start;
   }
 
@@ -57,6 +55,10 @@ class HomeController extends GetxController {
   final _redTimeController = DigitTimeController().obs;
   get redTimeController => _redTimeController.value;
   set redTimeController(value) => _redTimeController.value = value;
+
+  final _blackTimeController = DigitTimeController().obs;
+  get blackTimeController => _blackTimeController.value;
+  set blackTimeController(value) => _blackTimeController.value = value;
 
   //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ucci engine stream↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   // http://cjycode.com/flutter_rust_bridge/feature/stream.html
@@ -174,7 +176,7 @@ class HomeController extends GetxController {
         }
 
         // 必要的初始化
-        _player = Player.red;
+        _initialPlayerAndTimer();
         _focusedPieceRef = null;
         masks.clear();
         arrowMoves.clear();
@@ -184,10 +186,11 @@ class HomeController extends GetxController {
         //
         gameStarted = true;
         update(indexes);
+
         break;
 
       case newAIBtnLog:
-        _redTimeController.value.startTimer();
+        _redTimeController.value.runTimer();
         break;
       case newSettingBtnLog:
         _redTimeController.value.pauseTimer();
@@ -210,15 +213,31 @@ class HomeController extends GetxController {
     }
   }
 
-  void _switchPlayer() async {
+  void _initialPlayerAndTimer() {
+    _player = Player.red;
+
+    _redTimeController.value.stopTimer();
+    _blackTimeController.value.stopTimer();
+
+    _redTimeController.value.stopTimer();
+    _blackTimeController.value.stopTimer();
+
+    _redTimeController.value.runTimer();
+  }
+
+  void _switchPlayerAndTimer() {
     switch (_player) {
       case Player.none:
         throw '切换玩家时发现None';
       case Player.red:
+        _redTimeController.value.pauseTimer();
         _player = Player.black;
+        _blackTimeController.value.runTimer();
         break;
       case Player.black:
+        _blackTimeController.value.pauseTimer();
         _player = Player.red;
+        _redTimeController.value.runTimer();
         break;
     }
   }
@@ -282,7 +301,8 @@ class HomeController extends GetxController {
           _focusedPieceRef!.index,
           validClickedPieceRef.index,
         ]);
-        _switchPlayer();
+        _switchPlayerAndTimer();
+
         await _updateBackData(); //更新后台数据
         _focusedPieceRef = null;
       }

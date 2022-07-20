@@ -2,18 +2,14 @@
  * @Author       : 老董
  * @Date         : 2022-04-30 11:10:14
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-19 10:39:44
+ * @LastEditTime : 2022-07-19 21:53:56
  * @Description  : 包含红黑方剩余时间、引擎名字的状态条（红黑方各需要一个）
  */
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import 'package:macos_ui/macos_ui.dart';
 
 import '../../../common/global.dart';
-import '../ctrl.dart';
 import '../lib.dart';
 import 'engine_pull_down_button.dart';
 import 'timer/neu_digital_clock.dart';
@@ -86,23 +82,24 @@ class PlayerPanel extends GetView<HomeController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
-                                decoration: _isHosted.value
-                                    ? BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.blueGrey, width: 1),
-                                        color: Colors.transparent,
-                                        shape: BoxShape.rectangle,
-                                      )
-                                    : null,
-                                child: IconButton(
-                                  onPressed: () {
-                                    _isHosted.value = !_isHosted.value;
-                                  },
-                                  icon: Icon(
-                                    Icons.computer_sharp,
-                                    color: getPlayerColor(),
-                                  ),
-                                )),
+                              decoration: _isHosted.value
+                                  ? BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.blueGrey, width: 1),
+                                      color: Colors.transparent,
+                                      shape: BoxShape.rectangle,
+                                    )
+                                  : null,
+                              child: IconButton(
+                                onPressed: () {
+                                  _isHosted.value = !_isHosted.value;
+                                },
+                                icon: Icon(
+                                  Icons.computer_sharp,
+                                  color: getPlayerColor(),
+                                ),
+                              ),
+                            ),
                             //
                             // 分割
                             SizedBox(width: iconSize / 2),
@@ -120,7 +117,7 @@ class PlayerPanel extends GetView<HomeController> {
                     Expanded(
                       flex: 6,
                       child: Container(
-                        child: NeuDigitalClock(roundRadius),
+                        child: NeuDigitalClock(player, roundRadius),
                       ),
                     )
                   ],
