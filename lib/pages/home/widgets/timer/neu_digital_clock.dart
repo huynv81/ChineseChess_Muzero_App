@@ -13,7 +13,7 @@ class NeuDigitalClock extends GetView<HomeController> {
 
   int _elapsedMSecs = 0;
   late final PausableTimer _timer;
-  late final _timeController;
+  late final DigitTimeController _timeController;
   late final Worker worker;
 
   NeuDigitalClock(Player player, this.outerRoundRadius, {Key? key})
@@ -31,6 +31,7 @@ class NeuDigitalClock extends GetView<HomeController> {
     }
     // ui radius
     innerRoundRadius = _innerOuterRadiusRatio * outerRoundRadius;
+
     // Timer
     _timer = PausableTimer(
       const Duration(milliseconds: 1000),
@@ -45,9 +46,9 @@ class NeuDigitalClock extends GetView<HomeController> {
       },
     );
 
-    //
+    //work
     worker = ever(
-      _timeController.timerStarted,
+      _timeController.timerState,
       (value) {
         switch (value) {
           case TimerControlType.start:

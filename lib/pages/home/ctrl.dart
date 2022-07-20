@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-20 09:38:49
+ * @LastEditTime : 2022-07-20 10:41:25
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -22,9 +22,11 @@ enum TimerControlType {
 }
 
 class DigitTimeController {
+  // _timerState配合“NeuDigitalClock”类中的work流使用，每当timerState发生变化时，
+  // NeuDigitalClock就会得到及时更新。
   final _timerState = TimerControlType.stop.obs;
-  get timerStarted => _timerState;
-  set timerStarted(value) => _timerState.value = value;
+  get timerState => _timerState;
+  set timerState(value) => _timerState.value = value;
 
   final _duration = Duration.zero.obs;
   get duration => _duration;
@@ -231,13 +233,13 @@ class HomeController extends GetxController {
         throw '切换玩家时发现None';
       case Player.red:
         _redTimeController.value.pauseTimer();
-        _player = Player.black;
         _blackTimeController.value.runTimer();
+        _player = Player.black;
         break;
       case Player.black:
         _blackTimeController.value.pauseTimer();
-        _player = Player.red;
         _redTimeController.value.runTimer();
+        _player = Player.red;
         break;
     }
   }
