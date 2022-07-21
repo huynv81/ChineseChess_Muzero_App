@@ -19,7 +19,7 @@ class EnginePulldownButton extends GetView<HomeController> {
         MacosPulldownMenuItem(
           title: const Text('加载ucci引擎'),
           onTap: () {
-            controller.onAddNewEngineClicked();
+            controller.onLoadEngine();
           },
         ),
         const MacosPulldownMenuDivider(),

@@ -2,23 +2,27 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-19 18:10:14
+ * @LastEditTime : 2022-07-21 16:27:44
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 // import 'package:floatingpanel/floatingpanel.dart';
 
 import 'dart:io';
 
+import 'package:chinese_chess_alpha_zero/common/widgets/toast/toast_style.dart';
 import 'package:chinese_chess_alpha_zero/pages/home/widgets/engine_pull_down_button.dart';
 import 'package:dashed_rect/dashed_rect.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../common/global.dart';
 import '../../common/widgets/ios_dialog_widget.dart';
+import '../../common/widgets/engine_load_button.dart';
+import '../../common/widgets/toast/toast_message.dart';
 import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import '../../common/widgets/float_tool.dart';
@@ -170,11 +174,16 @@ class HomeView extends GetView<HomeController> {
       pullDownUi: pullDownUi,
     );
 
+    var x = EngineLoadButton(
+      iconData: Icons.computer,
+      iconSize: 75,
+    );
+
     return Expanded(
       child: Container(
         color: backgroundStartColor,
         child: Column(
-          children: [redCard, blackCard],
+          children: [redCard, blackCard, x],
         ),
       ),
     );

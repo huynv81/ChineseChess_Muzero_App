@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 22:27:48
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-19 18:16:08
+ * @LastEditTime : 2022-07-21 13:36:25
  * @Description  : 全局属性
  */
 import 'dart:ui';
@@ -247,3 +247,9 @@ const newLinkBtnLog = "LINK";
 
 const boardRowCount = 10;
 const boardColCount = 9;
+
+enum NeumorphicButtonState {
+  deepPressed,
+  middlePressed,
+  noPressed,
+}

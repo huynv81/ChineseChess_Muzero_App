@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-20 12:49:20
+ * @LastEditTime : 2022-07-21 18:25:50
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -12,8 +12,11 @@ import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:pausable_timer/pausable_timer.dart';
 import '../../common/global.dart';
+import '../../common/widgets/toast/toast_message.dart';
+import '../../common/widgets/toast/toast_style.dart';
 import '../../ffi.dart';
 
 enum TimerControlType {
@@ -76,6 +79,17 @@ class DigitTimeController {
 
 class HomeController extends GetxController {
   final _dockActivate = false.obs;
+  final _toastMessage = "".obs;
+
+  String? _enginePath = null; //尚未添加任何引擎路径前，就为null
+
+  final _isEngineLoaded = false.obs;
+  get isEngineLoaded => _isEngineLoaded.value;
+  set isEngineLoaded(value) => _isEngineLoaded.value = value;
+
+  final _buttonState = NeumorphicButtonState.noPressed.obs;
+  get buttonState => _buttonState.value;
+  set buttonState(value) => _buttonState.value = value;
 
   //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓PlayerDigitalClock状态控制器↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   final _redTimeController = DigitTimeController().obs;
@@ -224,6 +238,8 @@ class HomeController extends GetxController {
         // getSettingSheet(context);
         break;
       default: //测试用
+        _toastMessage.value = "引擎加载成功";
+
         // String enginePath = Directory.current.path + '/assets/engines/$engine';
         // final engine = "eleeye.exe";
         // final result = await ruleApi.launchUcciEngine(enginePath: enginePath);
@@ -500,32 +516,48 @@ class HomeController extends GetxController {
     return true;
   }
 
-  Future<void> onAddNewEngineClicked() async {
+  Future<void> onUnLoadEngine() async {
+    // _enginePath = null;
+    if (isEngineLoaded) {
+      // TODO:如何卸载引擎进程
+    }
+    isEngineLoaded = false;
+    showToastMessage("引擎卸载成功");
+  }
+
+  Future<void> onLoadEngine() async {
     //pick engine
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['exe'],
-    );
-    if (result == null) {
-      debugPrint("文件读取错误");
-      return;
-    }
-
-    // launch engine process
-    await initAndBindUcciEngine(result.files.single.path!);
-    if (_isFeedbackCorrect == null || _isFeedbackCorrect == false) {
-      debugPrint("引擎加载失败");
-      return;
-    }
-
-    // 用“ucci”、”uci“指令测试引擎是否收发正常
-    // await ucciApi.writeToProcess(command: "ucci");
-    if (!await sendCommandToUcciEngine("ucci")) {
-      if (!await sendCommandToUcciEngine("uci")) {
-        debugPrint("引擎反馈失败");
+    if (_enginePath == null) {
+      isEngineLoaded = false;
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['exe'],
+      );
+      if (result == null) {
+        showToastMessage("引擎目录读取错误");
         return;
       }
+      _enginePath = result.files.single.path!;
     }
-    debugPrint("引擎加载/试运行成功");
+
+    isEngineLoaded = true; //TODO: only for test
+    showToastMessage("引擎加载成功");
+
+    // TODO: launch engine process
+    // await initAndBindUcciEngine(result.files.single.path!);
+    // if (_isFeedbackCorrect == null || _isFeedbackCorrect == false) {
+    //   debugPrint("引擎加载失败");
+    //   return;
+    // }
+
+    // // 用“ucci”、”uci“指令测试引擎是否收发正常
+    // // await ucciApi.writeToProcess(command: "ucci");
+    // if (!await sendCommandToUcciEngine("ucci")) {
+    //   if (!await sendCommandToUcciEngine("uci")) {
+    //     debugPrint("引擎反馈失败");
+    //     return;
+    //   }
+    // }
+    // debugPrint("引擎加载/试运行成功");
   }
 }

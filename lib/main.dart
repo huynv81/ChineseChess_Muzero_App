@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'common/global.dart';
 import 'common/route/route.dart';
 import '../../ffi.dart';
+import 'common/widgets/toast/toast_message.dart';
 
 void main() async {
   utilApi.activate();
@@ -37,8 +39,10 @@ void main() async {
     });
   }
 
-  runApp(GetMaterialApp(
-    getPages: AppPages.pages,
-    initialRoute: Routes.home,
+  runApp(OverlaySupport.global(
+    child: GetMaterialApp(
+      getPages: AppPages.pages,
+      initialRoute: Routes.home,
+    ),
   ));
 }
