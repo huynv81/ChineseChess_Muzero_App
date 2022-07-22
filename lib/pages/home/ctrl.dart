@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-21 18:25:50
+ * @LastEditTime : 2022-07-23 00:59:44
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -12,11 +12,9 @@ import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:pausable_timer/pausable_timer.dart';
 import '../../common/global.dart';
 import '../../common/widgets/toast/toast_message.dart';
-import '../../common/widgets/toast/toast_style.dart';
 import '../../ffi.dart';
 
 enum TimerControlType {
@@ -79,10 +77,10 @@ class DigitTimeController {
 
 class HomeController extends GetxController {
   final _dockActivate = false.obs;
-  final _toastMessage = "".obs;
 
-  String? _enginePath = null; //尚未添加任何引擎路径前，就为null
+  String? _enginePath; //尚未添加任何引擎路径前，就为null
 
+  // TODO: need obs?
   final _isEngineLoaded = false.obs;
   get isEngineLoaded => _isEngineLoaded.value;
   set isEngineLoaded(value) => _isEngineLoaded.value = value;
@@ -103,10 +101,9 @@ class HomeController extends GetxController {
 
   //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ucci engine stream↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   // http://cjycode.com/flutter_rust_bridge/feature/stream.html
-  var ucciEngineBinder = "".obs;
-  Stream<String>? ucciEngineStream;
-  late final Worker worker;
-  bool? _isFeedbackCorrect;
+  final _engineBinder = "".obs;
+  Stream<String>? _engineStream;
+  late final Worker _engineStreamWorker;
   //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ucci engine stream↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
   //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓红黑方是否被电脑托管↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
@@ -126,8 +123,10 @@ class HomeController extends GetxController {
     for (var i = 0; i < boardRowCount * boardColCount; i++) {
       pieces.add(Piece(SidePieceType.none, i));
     }
-    worker = ever(
-      ucciEngineBinder,
+
+    // engine stream worker
+    _engineStreamWorker = ever(
+      _engineBinder,
       (value) {
         onReceiveUcciEngineMessage(value);
       },
@@ -135,12 +134,12 @@ class HomeController extends GetxController {
   }
 // TODO：为何这个会被延迟接收？
   void onReceiveUcciEngineMessage(Object? value) {
-    final engineFeedback = value.toString();
-    final engineFeedbackLow = engineFeedback.toLowerCase();
-    if (engineFeedbackLow == "hookok") {
-      // if (engineFeedbackLow == "ucciok" || engineFeedback == "uciok") {
-      _isFeedbackCorrect = true;
-    }
+    // final engineFeedback = value.toString();
+    // final engineFeedbackLow = engineFeedback.toLowerCase();
+    // if (engineFeedbackLow == "hookok") {
+    //   // if (engineFeedbackLow == "ucciok" || engineFeedback == "uciok") {
+    //   _isFeedbackCorrect = true;
+    // }
     addLog(value.toString());
   }
 
@@ -238,21 +237,6 @@ class HomeController extends GetxController {
         // getSettingSheet(context);
         break;
       default: //测试用
-        _toastMessage.value = "引擎加载成功";
-
-        // String enginePath = Directory.current.path + '/assets/engines/$engine';
-        // final engine = "eleeye.exe";
-        // final result = await ruleApi.launchUcciEngine(enginePath: enginePath);
-        // var r = await ruleApi.testGetOutput();
-        // var r = await ruleApi.test2(s: "test");
-        // await ucciApi.test(x: 5);
-        // await ruleApi.testConflict1(s: "hi");
-
-        // TODO: test
-        // _redTimeController.value.pauseTimer();
-        _redTimeController.value.stopTimer();
-        // await ruleApi.testLog1(log: "已被");
-        await ucciApi.writeToProcess(command: "ucci");
     }
   }
 
@@ -458,62 +442,10 @@ class HomeController extends GetxController {
     return null;
   }
 
-  Future<void> initAndBindUcciEngine(String path) async {
-    ucciEngineStream = ucciApi.subscribeUcciEngine(enginePath: path);
-    ucciEngineBinder.bindStream(ucciEngineStream!);
-
-    final s = Stopwatch();
-    s.start();
-    const waitMSec = 5000;
-
-    await Future.doWhile(() async {
-      if (s.elapsedMilliseconds >= waitMSec) {
-        return false; //停止循环
-      }
-      if (_isFeedbackCorrect != null) {
-        return false; //停止循环
-      }
-      return true; //继续循环
-    });
-
-    // // await waitEngineCallBack();
-  }
-
-  // refer:https://stackoverflow.com/questions/69910901/add-wait-time-in-dart
-//   Future<Bool> waitEngineCallBack({int waitMSec = 5000}) async {
-//     Future.delayed(const Duration(seconds: 1, milliseconds: 600), () {
-// // Here you can write your code
-//     });
-//     // final s = Stopwatch();
-//     // s.start();
-//     // while (s.elapsedMilliseconds < waitMSec) {
-//     //   if (_isFeedbackCorrect != null) {
-//     //     return _isFeedbackCorrect!;
-//     //   }
-//     // }
-//     // return false;
-//   }
-
   Future<bool> sendCommandToUcciEngine(String command,
-      {int waitMSec = 5000}) async {
-    await ucciApi.writeToProcess(command: command);
-
-    // ignore: prefer_function_declarations_over_variables
-    // final waitFunc = () async {
-    //   while (s.elapsedMilliseconds < waitMSec) {
-    //     if (_isFeedbackCorrect != null) {
-    //       return _isFeedbackCorrect!;
-    //     }
-    //   }
-    //   return false;
-    // };
-
-    // // recover
-    // _isFeedbackCorrect = null;
-
-    // //
-    // return await waitFunc();
-    return true;
+      {int waitMSec = 1000, String? checkStr}) async {
+    return await ucciApi.writeToProcess(
+        command: command, msec: waitMSec, checkStrOption: checkStr);
   }
 
   Future<void> onUnLoadEngine() async {
@@ -522,11 +454,11 @@ class HomeController extends GetxController {
       // TODO:如何卸载引擎进程
     }
     isEngineLoaded = false;
-    showToastMessage("引擎卸载成功");
+    showToast("引擎卸载成功");
   }
 
   Future<void> onLoadEngine() async {
-    //pick engine
+    // 引擎路径加载
     if (_enginePath == null) {
       isEngineLoaded = false;
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -534,30 +466,33 @@ class HomeController extends GetxController {
         allowedExtensions: ['exe'],
       );
       if (result == null) {
-        showToastMessage("引擎目录读取错误");
+        showToast("引擎目录读取错误");
         return;
       }
       _enginePath = result.files.single.path!;
     }
 
-    isEngineLoaded = true; //TODO: only for test
-    showToastMessage("引擎加载成功");
+    // 引擎进程启动
+    if (!await _initUcciEngine(_enginePath!)) {
+      isEngineLoaded = false;
+      showToast("引擎加载失败");
+      return;
+    }
 
-    // TODO: launch engine process
-    // await initAndBindUcciEngine(result.files.single.path!);
-    // if (_isFeedbackCorrect == null || _isFeedbackCorrect == false) {
-    //   debugPrint("引擎加载失败");
-    //   return;
-    // }
+    // 用“ucci”、”uci“指令测试引擎是否收发正常
+    if (!await sendCommandToUcciEngine("ucci", checkStr: "ucciok")) {
+      if (!await sendCommandToUcciEngine("uci", checkStr: "ucciok")) {
+        debugPrint("引擎加载失败");
+        return;
+      }
+    }
+    isEngineLoaded = true;
+    showToast("引擎加载成功");
+  }
 
-    // // 用“ucci”、”uci“指令测试引擎是否收发正常
-    // // await ucciApi.writeToProcess(command: "ucci");
-    // if (!await sendCommandToUcciEngine("ucci")) {
-    //   if (!await sendCommandToUcciEngine("uci")) {
-    //     debugPrint("引擎反馈失败");
-    //     return;
-    //   }
-    // }
-    // debugPrint("引擎加载/试运行成功");
+  Future<bool> _initUcciEngine(String path) async {
+    _engineStream = ucciApi.subscribeUcciEngine(enginePath: path);
+    _engineBinder.bindStream(_engineStream!);
+    return await ucciApi.isProcesseLaunched(msec: 1500);
   }
 }

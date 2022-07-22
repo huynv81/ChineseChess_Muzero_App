@@ -9,7 +9,7 @@ class EngineLoadButton extends GetView<HomeController> {
   double _distance = 0.0;
   double _blur = 0.0;
   bool _isInSet = false;
-  double _containerSize = 104;
+  final double _containerSize = 104;
   late final double _iconSize;
   late final IconData _icon;
 
@@ -25,7 +25,7 @@ class EngineLoadButton extends GetView<HomeController> {
       onTapDown: (_) {
         controller.buttonState = NeumorphicButtonState.deepPressed;
       },
-      onTapUp: (_) async{
+      onTapUp: (_) async {
         controller.isEngineLoaded
             ? await controller.onUnLoadEngine()
             : await controller.onLoadEngine();
@@ -60,9 +60,9 @@ class EngineLoadButton extends GetView<HomeController> {
             width: _containerSize,
             height: _containerSize,
             decoration: BoxDecoration(
-              color: Color(0xff292d32),
+              color: const Color(0xff292d32),
               borderRadius: BorderRadius.circular(27),
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
@@ -72,14 +72,14 @@ class EngineLoadButton extends GetView<HomeController> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xff494d52),
+                  color: const Color(0xff494d52),
                   offset: Offset(-_distance * 0.5, -_distance * 0.5),
                   blurRadius: _blur,
                   spreadRadius: 0.0,
                   inset: _isInSet,
                 ),
                 BoxShadow(
-                  color: Color(0xff090d12),
+                  color: const Color(0xff090d12),
                   offset: Offset(_distance, _distance),
                   blurRadius: _blur,
                   spreadRadius: 0.0,

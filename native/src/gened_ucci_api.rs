@@ -33,7 +33,12 @@ pub extern "C" fn wire_subscribe_ucci_engine(port_: i64, engine_path: *mut wire_
 }
 
 #[no_mangle]
-pub extern "C" fn wire_write_to_process(port_: i64, command: *mut wire_uint_8_list) {
+pub extern "C" fn wire_write_to_process(
+    port_: i64,
+    command: *mut wire_uint_8_list,
+    msec: u32,
+    check_str_option: *mut wire_uint_8_list,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "write_to_process",
@@ -42,7 +47,30 @@ pub extern "C" fn wire_write_to_process(port_: i64, command: *mut wire_uint_8_li
         },
         move || {
             let api_command = command.wire2api();
-            move |task_callback| Ok(write_to_process(api_command))
+            let api_msec = msec.wire2api();
+            let api_check_str_option = check_str_option.wire2api();
+            move |task_callback| {
+                Ok(write_to_process(
+                    api_command,
+                    api_msec,
+                    api_check_str_option,
+                ))
+            }
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_is_processe_launched(port_: i64, msec: u32) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "is_processe_launched",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_msec = msec.wire2api();
+            move |task_callback| Ok(is_processe_launched(api_msec))
         },
     )
 }
@@ -94,6 +122,12 @@ impl Wire2Api<String> for *mut wire_uint_8_list {
     fn wire2api(self) -> String {
         let vec: Vec<u8> = self.wire2api();
         String::from_utf8_lossy(&vec).into_owned()
+    }
+}
+
+impl Wire2Api<u32> for u32 {
+    fn wire2api(self) -> u32 {
+        self
     }
 }
 

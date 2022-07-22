@@ -14,6 +14,9 @@ use tokio::io::AsyncWriteExt;
 static LISTENER: Lazy<Arc<Mutex<Option<StreamSink<String>>>>> = Lazy::new(Default::default);
 static COMMAND: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
 static FLAG: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
+static PROCESS_LAUNCHED: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
+// static COMMAND_FEEDBACK: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
+static FEEDBACK: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
 
 // crate::init_logger(&"./logs/").expect("日志模块初始化失败！");
 
@@ -38,8 +41,11 @@ pub async fn subscribe_ucci_engine(
         let reader_thread = tokio::spawn(async move {
             loop {
                 while let Some(value) = stream.next().await {
-                    info!("收到反馈： {}", value);
-                    cloned_listener.add((*value).into());
+                    let feedback_str = (*value).to_string();
+                    cloned_listener.add(feedback_str.clone());
+                    *FEEDBACK.lock().unwrap() = feedback_str;
+                    // *COMMAND_FEEDBACK.lock().unwrap() = true;
+                    info!("engine反馈： {}", value);
                 }
             }
         });
@@ -59,16 +65,14 @@ pub async fn subscribe_ucci_engine(
             }
         });
         warn!("已监听ucci进程输入");
-
-        listener.add("hookOk".into());
-        warn!("已发回hookOk");
-
-
         (reader_thread, writer_thread)
     } else {
+        *PROCESS_LAUNCHED.lock().unwrap() = false;
         error!("监听程序读取出错！");
         panic!("监听程序读取出错！");
     };
+
+    *PROCESS_LAUNCHED.lock().unwrap() = true;
 
     reader_thread.await.unwrap();
     writer_thread.await.unwrap();
@@ -76,10 +80,39 @@ pub async fn subscribe_ucci_engine(
     Ok(())
 }
 
-#[tokio::main(flavor = "current_thread")]
-pub async fn write_to_process(command: String) {
+// #[tokio::main(flavor = "current_thread")]
+// pub async fn write_to_process(command: String) {
+pub fn write_to_process(command: String, msec: u32, check_str_option: Option<String>) -> bool {
     if !command.is_empty() {
         *COMMAND.lock().unwrap() = command;
         *FLAG.lock().unwrap() = true;
+
+        // 反馈响应
+        (*FEEDBACK.lock().unwrap()).clear();
+        let now = std::time::SystemTime::now();
+        while now.elapsed().unwrap().as_millis() < msec as u128 {
+            if !(*FEEDBACK.lock().unwrap()).is_empty() {
+                debug!("不空哦");
+                if let Some(check_str) = &check_str_option {
+                    if check_str.contains(&(*FEEDBACK.lock().unwrap())) {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
+    true
+}
+
+pub fn is_processe_launched(msec: u32) -> bool {
+    let now = std::time::SystemTime::now();
+    while now.elapsed().unwrap().as_millis() < msec as u128 {
+        if *PROCESS_LAUNCHED.lock().unwrap() {
+            return true;
+        }
+    }
+    false
 }

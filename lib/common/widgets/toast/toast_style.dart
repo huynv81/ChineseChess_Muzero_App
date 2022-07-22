@@ -6,7 +6,7 @@ class CustomAnimationToast extends StatelessWidget {
   final String message;
 
   static final Tween<Offset> tweenOffset =
-      Tween<Offset>(begin: Offset(0, 40), end: Offset(0, 0));
+      Tween<Offset>(begin: const Offset(0, 40), end: const Offset(0, 0));
 
   static final Tween<double> tweenOpacity = Tween<double>(begin: 0, end: 1);
 

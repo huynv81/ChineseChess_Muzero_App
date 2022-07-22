@@ -17,9 +17,17 @@ abstract class UcciApi {
 
   FlutterRustBridgeTaskConstMeta get kSubscribeUcciEngineConstMeta;
 
-  Future<void> writeToProcess({required String command, dynamic hint});
+  Future<bool> writeToProcess(
+      {required String command,
+      required int msec,
+      String? checkStrOption,
+      dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kWriteToProcessConstMeta;
+
+  Future<bool> isProcesseLaunched({required int msec, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kIsProcesseLaunchedConstMeta;
 }
 
 class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
@@ -46,25 +54,56 @@ class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
         argNames: ["enginePath"],
       );
 
-  Future<void> writeToProcess({required String command, dynamic hint}) =>
+  Future<bool> writeToProcess(
+          {required String command,
+          required int msec,
+          String? checkStrOption,
+          dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_write_to_process(port_, _api2wire_String(command)),
-        parseSuccessData: _wire2api_unit,
+        callFfi: (port_) => inner.wire_write_to_process(
+            port_,
+            _api2wire_String(command),
+            _api2wire_u32(msec),
+            _api2wire_opt_String(checkStrOption)),
+        parseSuccessData: _wire2api_bool,
         constMeta: kWriteToProcessConstMeta,
-        argValues: [command],
+        argValues: [command, msec, checkStrOption],
         hint: hint,
       ));
 
   FlutterRustBridgeTaskConstMeta get kWriteToProcessConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "write_to_process",
-        argNames: ["command"],
+        argNames: ["command", "msec", "checkStrOption"],
+      );
+
+  Future<bool> isProcesseLaunched({required int msec, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_is_processe_launched(port_, _api2wire_u32(msec)),
+        parseSuccessData: _wire2api_bool,
+        constMeta: kIsProcesseLaunchedConstMeta,
+        argValues: [msec],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kIsProcesseLaunchedConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "is_processe_launched",
+        argNames: ["msec"],
       );
 
   // Section: api2wire
   ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
     return _api2wire_uint_8_list(utf8.encoder.convert(raw));
+  }
+
+  ffi.Pointer<wire_uint_8_list> _api2wire_opt_String(String? raw) {
+    return raw == null ? ffi.nullptr : _api2wire_String(raw);
+  }
+
+  int _api2wire_u32(int raw) {
+    return raw;
   }
 
   int _api2wire_u8(int raw) {
@@ -86,16 +125,16 @@ String _wire2api_String(dynamic raw) {
   return raw as String;
 }
 
+bool _wire2api_bool(dynamic raw) {
+  return raw as bool;
+}
+
 int _wire2api_u8(dynamic raw) {
   return raw as int;
 }
 
 Uint8List _wire2api_uint_8_list(dynamic raw) {
   return raw as Uint8List;
-}
-
-void _wire2api_unit(dynamic raw) {
-  return;
 }
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
@@ -154,19 +193,43 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
   void wire_write_to_process(
     int port_,
     ffi.Pointer<wire_uint_8_list> command,
+    int msec,
+    ffi.Pointer<wire_uint_8_list> check_str_option,
   ) {
     return _wire_write_to_process(
       port_,
       command,
+      msec,
+      check_str_option,
     );
   }
 
   late final _wire_write_to_processPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64,
+          ffi.Void Function(
+              ffi.Int64,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Uint32,
               ffi.Pointer<wire_uint_8_list>)>>('wire_write_to_process');
-  late final _wire_write_to_process = _wire_write_to_processPtr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+  late final _wire_write_to_process = _wire_write_to_processPtr.asFunction<
+      void Function(int, ffi.Pointer<wire_uint_8_list>, int,
+          ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_is_processe_launched(
+    int port_,
+    int msec,
+  ) {
+    return _wire_is_processe_launched(
+      port_,
+      msec,
+    );
+  }
+
+  late final _wire_is_processe_launchedPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint32)>>(
+          'wire_is_processe_launched');
+  late final _wire_is_processe_launched =
+      _wire_is_processe_launchedPtr.asFunction<void Function(int, int)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list_1(
     int len,

@@ -8,7 +8,6 @@ import 'package:window_manager/window_manager.dart';
 import 'common/global.dart';
 import 'common/route/route.dart';
 import '../../ffi.dart';
-import 'common/widgets/toast/toast_message.dart';
 
 void main() async {
   utilApi.activate();
