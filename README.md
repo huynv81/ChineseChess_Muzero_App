@@ -3,7 +3,7 @@
   因基于跨平台的flutter/dart（界面）+rust（算法后端）开发，所以理论上可用于任意平台，但由于测试平台在win10，且多数ucci引擎只有windows版本，所以目前适配最好的平台只有windows。
 
 ## 软件截图
-![image](https://github.com/dbsxdbsx/ChineseChess_Muzero_App/master/IMG/半成品截图.PNG)
+![image](https://github.com/dbsxdbsx/ChineseChess_Muzero_App/blob/main/img/%E5%8D%8A%E6%88%90%E5%93%81%E6%88%AA%E5%9B%BE.PNG)
 
 ## 功能
   - [x] 可加载基于ucci协议的中国象棋引擎
