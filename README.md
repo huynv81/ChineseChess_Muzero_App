@@ -2,7 +2,7 @@
   一款基于强化学习算法Muzero的中国象棋ui程序，取名《梦入零式》。
   因基于跨平台的flutter/dart（界面）+rust（算法后端）开发，所以理论上可用于任意平台，但由于测试平台在win10，且多数ucci引擎只有windows版本，所以目前适配最好的平台只有windows。
 
-## 软件截图
+## 软件截图（目前仍是半成品）
 ![image](https://github.com/dbsxdbsx/ChineseChess_Muzero_App/blob/main/img/%E5%8D%8A%E6%88%90%E5%93%81%E6%88%AA%E5%9B%BE.PNG)
 
 ## 功能
