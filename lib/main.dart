@@ -10,6 +10,8 @@ import 'common/route/route.dart';
 import '../../ffi.dart';
 
 void main() async {
+
+  
   utilApi.activate();
   WidgetsFlutterBinding.ensureInitialized();
 

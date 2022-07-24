@@ -31,6 +31,7 @@ pub async fn subscribe_ucci_engine(
     (*LISTENER.lock().unwrap()) = Some(listener);
     warn!("已捕获监听程序");
 
+    info!("将打开的引擎路径为：{engine_path}");
     let mut process = Process::new(engine_path);
     process.stdin(Stdio::piped());
     warn!("已打开引擎进程");
@@ -39,15 +40,14 @@ pub async fn subscribe_ucci_engine(
         let cloned_listener = listener.clone(); // 必须clone,否则无法在async move中使用
         let mut stream = process.spawn_and_stream().unwrap();
         let reader_thread = tokio::spawn(async move {
-            loop {
-                while let Some(value) = stream.next().await {
-                    let feedback_str = (*value).to_string();
-                    cloned_listener.add(feedback_str.clone());
-                    *FEEDBACK.lock().unwrap() = feedback_str;
-                    // *COMMAND_FEEDBACK.lock().unwrap() = true;
-                    info!("engine反馈： {}", value);
-                }
+            // loop {
+            while let Some(value) = stream.next().await {
+                let feedback_str = (*value).to_string();
+                info!("engine反馈： {}", feedback_str);
+                cloned_listener.add(feedback_str.clone());
+                *FEEDBACK.lock().unwrap() = feedback_str;
             }
+            // }
         });
         warn!("已监听ucci进程输出");
 
@@ -56,15 +56,17 @@ pub async fn subscribe_ucci_engine(
         let writer_thread = tokio::spawn(async move {
             loop {
                 if *FLAG.lock().unwrap() {
-                    let cmd_str = format!("{}\r\n", (*COMMAND.lock().unwrap()));
-                    let cmd = cmd_str.as_bytes();
-                    writer.write(cmd).await.unwrap();
-                    info!("执行命令：{cmd_str}");
+                    let v = (*COMMAND.lock().unwrap()).clone();
+                    let cmd_byte = v.as_bytes();
+                    // info!("执行命令：{cmd_byte:?}");
+                    writer.write(cmd_byte).await.unwrap();
                     (*FLAG.lock().unwrap()) = false;
                 }
             }
+
         });
         warn!("已监听ucci进程输入");
+
         (reader_thread, writer_thread)
     } else {
         *PROCESS_LAUNCHED.lock().unwrap() = false;
@@ -84,7 +86,7 @@ pub async fn subscribe_ucci_engine(
 // pub async fn write_to_process(command: String) {
 pub fn write_to_process(command: String, msec: u32, check_str_option: Option<String>) -> bool {
     if !command.is_empty() {
-        *COMMAND.lock().unwrap() = command;
+        *COMMAND.lock().unwrap() = format!("{command}\r\n");
         *FLAG.lock().unwrap() = true;
 
         // 反馈响应
@@ -92,7 +94,6 @@ pub fn write_to_process(command: String, msec: u32, check_str_option: Option<Str
         let now = std::time::SystemTime::now();
         while now.elapsed().unwrap().as_millis() < msec as u128 {
             if !(*FEEDBACK.lock().unwrap()).is_empty() {
-                debug!("不空哦");
                 if let Some(check_str) = &check_str_option {
                     if check_str.contains(&(*FEEDBACK.lock().unwrap())) {
                         return true;

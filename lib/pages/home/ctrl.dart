@@ -2,11 +2,12 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-23 00:59:44
+ * @LastEditTime : 2022-07-23 11:20:00
  * @Description  : 用以控制HomeView的control组件
  */
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 
@@ -475,19 +476,31 @@ class HomeController extends GetxController {
     // 引擎进程启动
     if (!await _initUcciEngine(_enginePath!)) {
       isEngineLoaded = false;
-      showToast("引擎加载失败");
+      showToast("引擎初始化失败");
       return;
     }
 
     // 用“ucci”、”uci“指令测试引擎是否收发正常
-    if (!await sendCommandToUcciEngine("ucci", checkStr: "ucciok")) {
-      if (!await sendCommandToUcciEngine("uci", checkStr: "ucciok")) {
-        debugPrint("引擎加载失败");
+    const maxFailedNum = 4;
+    var failedCnt = 0;
+    bool useUciCommand = false;
+    while (true) {
+      await Future.delayed(const Duration(milliseconds: 500)); //太快可能尝试几次都无法正确加载
+      final cmd = useUciCommand
+          ? sendCommandToUcciEngine("uci", checkStr: "uciok")
+          : sendCommandToUcciEngine("ucci", checkStr: "ucciok");
+      if (await cmd) {
+        isEngineLoaded = true;
+        showToast("引擎加载成功");
+        break; //成功
+      }
+      failedCnt++;
+      if (failedCnt >= maxFailedNum) {
+        showToast("尝试了$failedCnt次，仍无法收到引擎反馈");
         return;
       }
+      useUciCommand = !useUciCommand;
     }
-    isEngineLoaded = true;
-    showToast("引擎加载成功");
   }
 
   Future<bool> _initUcciEngine(String path) async {

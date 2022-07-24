@@ -2,15 +2,18 @@
   一款基于强化学习算法Muzero的中国象棋ui程序，取名《梦入零式》。
   因基于跨平台的flutter/dart（界面）+rust（算法后端）开发，所以理论上可用于任意平台，但由于测试平台在win10，且多数ucci引擎只有windows版本，所以目前适配最好的平台只有windows。
 
+## 软件截图
+![image](https://github.com/dbsxdbsx/ChineseChess_Muzero_App/master/IMG/半成品截图.PNG)
+
 ## 功能
-  - 可加载基于ucci协议的中国象棋引擎
-  - 可自定义连线方案，连线各象棋游戏平台进行自动下棋
-  - 带有一款内置的基于muzero算法的中国象棋引擎
-  - 可将三方的ucci引擎和内置引擎进行打擂比赛
-  - 可将三方的ucci引擎辅助内置引擎进行训练
+  - [x] 可加载基于ucci协议的中国象棋引擎
+  - []  可自定义连线方案，连线各象棋游戏平台进行自动下棋
+  - []  带有一款内置的基于muzero算法的中国象棋引擎
+  - []  可将三方的ucci引擎和内置引擎进行打擂比赛
+  - []  可将三方的ucci引擎辅助内置引擎进行训练
 
 ## todo
-- 是否应该用thread 代替 Tokio来降低内存占用？
+- 为何引擎加载了却没有反馈，是否应该用thread 代替 Tokio来降低内存占用？
 - 展开时并放大缩小时，1.距离边界的width会被重置到最边上，且border不固定。须修复；
  - [] 拓展时随便点击哪里都可以拖动（还有个yOffset问题）、 缩小dock时鼠标聚焦后可挪出一点点、
  - [] 浮动工具栏须在窗口放大缩小时 等比率调整位置和大小、透明acrylic
@@ -66,3 +69,20 @@ error: Recipe `clean` could not be run because just could not find the shell: pr
 
 ### **多rust模块生成？**
 https://github.com/fzyzcjy/flutter_rust_bridge/pull/481
+### **如何隐藏运行时加载的ucci引擎窗口？**
+将`windows/runner/main.cpp`中的
+```c++
+ if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent()) {
+    CreateAndAttachConsole();
+  }
+```
+替换为
+```c++
+if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent()) {
+  CreateAndAttachConsole();
+} else {
+  AllocConsole();
+  ShowWindow(GetConsoleWindow(), SW_HIDE);
+}
+```
+参考：https://stackoverflow.com/questions/67082272/dart-how-to-hide-cmd-when-using-process-run

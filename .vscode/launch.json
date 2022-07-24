@@ -10,13 +10,13 @@
             "type": "dart",
             "cwd": "${workspaceFolder}",
         },
-        {
-            "name": "ChineseChess_Muzero_App (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile",
-            "cwd": "${workspaceFolder}",
-        },
+        // {
+        //     "name": "ChineseChess_Muzero_App (profile mode)",
+        //     "request": "launch",
+        //     "type": "dart",
+        //     "flutterMode": "profile",
+        //     "cwd": "${workspaceFolder}",
+        // },
         {
             "name": "ChineseChess_Muzero_App (release mode)",
             "request": "launch",

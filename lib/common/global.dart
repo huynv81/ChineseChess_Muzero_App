@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 22:27:48
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-21 13:36:25
+ * @LastEditTime : 2022-07-23 08:29:59
  * @Description  : 全局属性
  */
 import 'dart:ui';
@@ -63,18 +63,6 @@ String getCurrentTimeString() {
   // String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
   return formattedDate;
 }
-
-// getImageSize(String imagePath) async {
-//   // board
-//   File image = File(imagePath); // Or any other way to get a File instance.
-//   var decodedImage1 = await decodeImageFromList(image.readAsBytesSync());
-//   return [decodedImage1.width, decodedImage1.height];
-//   // // piece
-//   // var decodedImage2 =
-//   //     await decodeImageFromList(File(boardPath).readAsBytesSync());
-//   // _pieceWidth = decodedImage2.width;
-//   // _pieceHeight = decodedImage2.height;
-// }
 
 // 表示每一步棋的结构体
 class ChessMove {

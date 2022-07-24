@@ -23,7 +23,7 @@ num-derive = "*"
 
 tokio = { version = "1", features = ["full"] }
 futures-util = "0.3"
-process-stream = "0.4.1"
+process-stream  = { git = "https://github.com/kkharji/process-stream"}
 
 log = "0.4"
 fern = { version = "0.6.0", features = ["date-based"] }
