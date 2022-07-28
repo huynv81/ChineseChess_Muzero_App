@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-23 11:20:00
+ * @LastEditTime : 2022-07-28 14:33:23
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -17,6 +17,7 @@ import 'package:pausable_timer/pausable_timer.dart';
 import '../../common/global.dart';
 import '../../common/widgets/toast/toast_message.dart';
 import '../../ffi.dart';
+import 'widgets/setting_sheet.dart';
 
 enum TimerControlType {
   start,
@@ -83,6 +84,8 @@ class HomeController extends GetxController {
 
   // TODO: need obs?
   final _isEngineLoaded = false.obs;
+
+  bool humanCanMove = true;
   get isEngineLoaded => _isEngineLoaded.value;
   set isEngineLoaded(value) => _isEngineLoaded.value = value;
 
@@ -102,8 +105,7 @@ class HomeController extends GetxController {
 
   //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ucci engine stream↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   // http://cjycode.com/flutter_rust_bridge/feature/stream.html
-  final _engineBinder = "".obs;
-  Stream<String>? _engineStream;
+  final _engineCallback = "".obs;
   late final Worker _engineStreamWorker;
   //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ucci engine stream↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
@@ -127,13 +129,13 @@ class HomeController extends GetxController {
 
     // engine stream worker
     _engineStreamWorker = ever(
-      _engineBinder,
+      _engineCallback,
       (value) {
         onReceiveUcciEngineMessage(value);
       },
     );
   }
-// TODO：为何这个会被延迟接收？
+
   void onReceiveUcciEngineMessage(Object? value) {
     // final engineFeedback = value.toString();
     // final engineFeedbackLow = engineFeedback.toLowerCase();
@@ -227,16 +229,14 @@ class HomeController extends GetxController {
         //
         gameStarted = true;
         update(indexes);
-
         break;
-
       case newAIBtnLog:
-        _redTimeController.value.runTimer();
+        // _redTimeController.value.runTimer();
         break;
-      case newSettingBtnLog:
-        _redTimeController.value.pauseTimer();
-        // getSettingSheet(context);
-        break;
+      // setting窗口因为需要context, 所以不要在这里构建
+      // case newSettingBtnLog:
+      //   // getSettingSheet(context);
+      //   break;
       default: //测试用
     }
   }
@@ -268,6 +268,9 @@ class HomeController extends GetxController {
         _player = Player.red;
         break;
     }
+
+    // TODO: test only
+    humanCanMove = !isEngineLoaded;
   }
 
   void addLog(String logContent) {
@@ -449,15 +452,6 @@ class HomeController extends GetxController {
         command: command, msec: waitMSec, checkStrOption: checkStr);
   }
 
-  Future<void> onUnLoadEngine() async {
-    // _enginePath = null;
-    if (isEngineLoaded) {
-      // TODO:如何卸载引擎进程
-    }
-    isEngineLoaded = false;
-    showToast("引擎卸载成功");
-  }
-
   Future<void> onLoadEngine() async {
     // 引擎路径加载
     if (_enginePath == null) {
@@ -467,45 +461,63 @@ class HomeController extends GetxController {
         allowedExtensions: ['exe'],
       );
       if (result == null) {
-        showToast("引擎目录读取错误");
+        toast("引擎目录读取错误");
         return;
       }
       _enginePath = result.files.single.path!;
     }
 
     // 引擎进程启动
-    if (!await _initUcciEngine(_enginePath!)) {
+    if (!await _loadUcciEngine(_enginePath!)) {
       isEngineLoaded = false;
-      showToast("引擎初始化失败");
+      toast("引擎初始化失败");
       return;
     }
 
     // 用“ucci”、”uci“指令测试引擎是否收发正常
-    const maxFailedNum = 4;
+    const maxFailedNum = 6;
     var failedCnt = 0;
     bool useUciCommand = false;
     while (true) {
-      await Future.delayed(const Duration(milliseconds: 500)); //太快可能尝试几次都无法正确加载
       final cmd = useUciCommand
           ? sendCommandToUcciEngine("uci", checkStr: "uciok")
           : sendCommandToUcciEngine("ucci", checkStr: "ucciok");
       if (await cmd) {
         isEngineLoaded = true;
-        showToast("引擎加载成功");
+        toast("引擎加载成功");
         break; //成功
       }
       failedCnt++;
       if (failedCnt >= maxFailedNum) {
-        showToast("尝试了$failedCnt次，仍无法收到引擎反馈");
+        toast("尝试了$failedCnt次，仍无法收到引擎反馈");
         return;
       }
       useUciCommand = !useUciCommand;
     }
   }
 
-  Future<bool> _initUcciEngine(String path) async {
-    _engineStream = ucciApi.subscribeUcciEngine(enginePath: path);
-    _engineBinder.bindStream(_engineStream!);
-    return await ucciApi.isProcesseLaunched(msec: 1500);
+  Future<void> onUnLoadEngine() async {
+    if (!isEngineLoaded) {
+      throw "逻辑错误，并未加载引擎，无需卸载";
+    }
+    if (!await _unloadUcciEngine()) {
+      toast("引擎卸载失败");
+      return;
+    }
+    isEngineLoaded = false;
+    toast("引擎卸载成功");
+  }
+
+  Future<bool> _loadUcciEngine(String path) async {
+    _engineCallback.bindStream(ucciApi.subscribeUcciEngine(enginePath: path));
+    return await ucciApi.isProcessLoaded(msec: 3000);
+  }
+
+  Future<bool> _unloadUcciEngine() async {
+    final r1 = await sendCommandToUcciEngine("quit" /* , checkStr: "bye" */);
+    final r2 = await ucciApi.isProcessUnloaded(msec: 2000); //TODO:false???
+    if (!r1 || !r2) return false;
+    _engineCallback.close();
+    return true;
   }
 }

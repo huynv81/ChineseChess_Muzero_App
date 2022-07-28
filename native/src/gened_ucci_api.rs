@@ -61,16 +61,31 @@ pub extern "C" fn wire_write_to_process(
 }
 
 #[no_mangle]
-pub extern "C" fn wire_is_processe_launched(port_: i64, msec: u32) {
+pub extern "C" fn wire_is_process_loaded(port_: i64, msec: u32) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "is_processe_launched",
+            debug_name: "is_process_loaded",
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
         move || {
             let api_msec = msec.wire2api();
-            move |task_callback| Ok(is_processe_launched(api_msec))
+            move |task_callback| Ok(is_process_loaded(api_msec))
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_is_process_unloaded(port_: i64, msec: u32) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "is_process_unloaded",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_msec = msec.wire2api();
+            move |task_callback| Ok(is_process_unloaded(api_msec))
         },
     )
 }

@@ -25,9 +25,13 @@ abstract class UcciApi {
 
   FlutterRustBridgeTaskConstMeta get kWriteToProcessConstMeta;
 
-  Future<bool> isProcesseLaunched({required int msec, dynamic hint});
+  Future<bool> isProcessLoaded({required int msec, dynamic hint});
 
-  FlutterRustBridgeTaskConstMeta get kIsProcesseLaunchedConstMeta;
+  FlutterRustBridgeTaskConstMeta get kIsProcessLoadedConstMeta;
+
+  Future<bool> isProcessUnloaded({required int msec, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kIsProcessUnloadedConstMeta;
 }
 
 class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
@@ -77,19 +81,35 @@ class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
         argNames: ["command", "msec", "checkStrOption"],
       );
 
-  Future<bool> isProcesseLaunched({required int msec, dynamic hint}) =>
+  Future<bool> isProcessLoaded({required int msec, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) =>
-            inner.wire_is_processe_launched(port_, _api2wire_u32(msec)),
+            inner.wire_is_process_loaded(port_, _api2wire_u32(msec)),
         parseSuccessData: _wire2api_bool,
-        constMeta: kIsProcesseLaunchedConstMeta,
+        constMeta: kIsProcessLoadedConstMeta,
         argValues: [msec],
         hint: hint,
       ));
 
-  FlutterRustBridgeTaskConstMeta get kIsProcesseLaunchedConstMeta =>
+  FlutterRustBridgeTaskConstMeta get kIsProcessLoadedConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
-        debugName: "is_processe_launched",
+        debugName: "is_process_loaded",
+        argNames: ["msec"],
+      );
+
+  Future<bool> isProcessUnloaded({required int msec, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_is_process_unloaded(port_, _api2wire_u32(msec)),
+        parseSuccessData: _wire2api_bool,
+        constMeta: kIsProcessUnloadedConstMeta,
+        argValues: [msec],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kIsProcessUnloadedConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "is_process_unloaded",
         argNames: ["msec"],
       );
 
@@ -215,21 +235,37 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
       void Function(int, ffi.Pointer<wire_uint_8_list>, int,
           ffi.Pointer<wire_uint_8_list>)>();
 
-  void wire_is_processe_launched(
+  void wire_is_process_loaded(
     int port_,
     int msec,
   ) {
-    return _wire_is_processe_launched(
+    return _wire_is_process_loaded(
       port_,
       msec,
     );
   }
 
-  late final _wire_is_processe_launchedPtr =
+  late final _wire_is_process_loadedPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint32)>>(
-          'wire_is_processe_launched');
-  late final _wire_is_processe_launched =
-      _wire_is_processe_launchedPtr.asFunction<void Function(int, int)>();
+          'wire_is_process_loaded');
+  late final _wire_is_process_loaded =
+      _wire_is_process_loadedPtr.asFunction<void Function(int, int)>();
+
+  void wire_is_process_unloaded(
+    int port_,
+    int msec,
+  ) {
+    return _wire_is_process_unloaded(
+      port_,
+      msec,
+    );
+  }
+
+  late final _wire_is_process_unloadedPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint32)>>(
+          'wire_is_process_unloaded');
+  late final _wire_is_process_unloaded =
+      _wire_is_process_unloadedPtr.asFunction<void Function(int, int)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list_1(
     int len,

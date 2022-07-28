@@ -15,6 +15,8 @@
   - []  可将三方的ucci引擎辅助内置引擎进行训练
 
 ## todo
+- process反馈：“ stream did not contain valid UTF-8？”
+- 若engine异常退出，程序不能关掉
 - 是否应该用thread 代替 Tokio来降低内存占用？
 - 展开时并放大缩小时，1.距离边界的width会被重置到最边上，且border不固定。须修复；
  - [] 拓展时随便点击哪里都可以拖动（还有个yOffset问题）、 缩小dock时鼠标聚焦后可挪出一点点、

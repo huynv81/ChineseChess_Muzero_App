@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-30 11:10:14
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-21 13:42:08
+ * @LastEditTime : 2022-07-28 10:38:35
  * @Description  : 包含红黑方剩余时间、引擎名字的状态条（红黑方各需要一个）
  */
 
@@ -82,11 +82,12 @@ class PlayerPanel extends GetView<HomeController> {
                       // mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
-                          flex: 1,
+                          flex: 3,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10.0),
                             // child: Icon(size: iconSize, Icons.computer),
                             child: EngineLoadButton(
+                              player:player,
                               iconData: Icons.computer,
                               iconSize: iconSize,
                             ),

@@ -3,7 +3,7 @@ import 'package:overlay_support/overlay_support.dart';
 
 import 'toast_style.dart';
 
-void showToast(String message) {
+void toast(String message) {
   debugPrint("toast: $message");
   showOverlay((context, t) {
     return CustomAnimationToast(message: message, value: t);

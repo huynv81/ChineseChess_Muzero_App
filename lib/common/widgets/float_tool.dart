@@ -133,7 +133,6 @@ class _FloatBoxState extends State<FloatBoxPanel> {
     } else {
       // 首次更新或者窗口缩放大小时会触发这里，
       //  debugPrint("first time before, _xOffset: $_xOffset, _yOffset: $_yOffset");
-
       if (_xOffsetRatio == null) {
         _xOffset = _pageWidth; //为让首次dock到右边，所以取≥_pageWidth的偏移
         _getPoperDockXOffset();
@@ -144,6 +143,8 @@ class _FloatBoxState extends State<FloatBoxPanel> {
           _pageWidth * _xOffsetRatio!, _pageHeight * _yOffsetRatio,
           isReScale: true);
       //  debugPrint("first time after, _xOffset: $_xOffset, _yOffset: $_yOffset，yRatio:$_yOffsetRatio");
+
+      _calcOffsetWhenForceDock();//这步一定要有，否则初始化时的按钮无法贴边一半
       widget.isFirstTime = false;
     }
 
@@ -259,7 +260,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
       _movementSpeed = widget.dockAnimDuration;
       // 调整x偏移
       _getPoperDockXOffset();
-      // （若原来在角落）调整y偏移
+      //（若原来在角落）调整y偏移
       if (_oldYOffset != null && _yOffset != _oldYOffset!) {
         _yOffset = _oldYOffset!;
       }
@@ -312,7 +313,6 @@ class _FloatBoxState extends State<FloatBoxPanel> {
   }
 
   Widget _innerButton() {
-    // Gesture detector is required to detect the tap and drag on the panel;
     return GestureDetector(
       onPanEnd: (event) {
         //  debugPrint("onPanEnd");

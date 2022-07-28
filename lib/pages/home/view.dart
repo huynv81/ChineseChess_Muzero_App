@@ -2,10 +2,9 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-21 16:27:44
+ * @LastEditTime : 2022-07-28 14:32:05
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
-// import 'package:floatingpanel/floatingpanel.dart';
 
 import 'dart:io';
 
@@ -24,6 +23,7 @@ import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import '../../common/widgets/float_tool.dart';
 import 'widgets/player_panel.dart';
+import 'widgets/setting_sheet.dart';
 
 class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
@@ -88,7 +88,7 @@ class HomeView extends GetView<HomeController> {
                 controller.onToolButtonPressed(newAIBtnLog);
                 break;
               case 2: //settings
-                controller.onToolButtonPressed(newSettingBtnLog);
+                getSettingSheet(context);
                 break;
               case 3: //link
                 controller.onToolButtonPressed(newLinkBtnLog);
@@ -162,25 +162,27 @@ class HomeView extends GetView<HomeController> {
     //   title: Text("List item index"),
     // ));
 
-    final redCard = PlayerPanel(
+    final redPanel = PlayerPanel(
       player: Player.red,
       pullDownUi: pullDownUi,
     );
-    final blackCard = PlayerPanel(
+    final blackPanel = PlayerPanel(
       player: Player.black,
       pullDownUi: pullDownUi,
     );
 
-    var x = EngineLoadButton(
-      iconData: Icons.computer,
-      iconSize: 75,
-    );
+    // // test only:那个大大的图标
+    // var x = EngineLoadButton(
+    //   player: Player.red,
+    //   iconData: Icons.computer,
+    //   iconSize: 75,
+    // );
 
     return Expanded(
       child: Container(
         color: backgroundStartColor,
         child: Column(
-          children: [redCard, blackCard, x],
+          children: [redPanel, blackPanel /* , x */],
         ),
       ),
     );
