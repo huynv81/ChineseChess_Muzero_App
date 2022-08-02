@@ -1,4 +1,4 @@
-import 'package:chinese_chess_alpha_zero/common/global.dart';
+import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
 import 'package:flutter/material.dart';
 
 import '../../lib.dart';
@@ -18,14 +18,12 @@ class PlayerDigitalClock extends GetView<HomeController> {
     innerRoundRadius = _innerOuterRadiusRatio * outerRoundRadius;
 
     switch (player) {
-      case Player.red:
+      case Player.Red:
         _timeController = controller.redTimeController;
         break;
-      case Player.black:
+      case Player.Black:
         _timeController = controller.blackTimeController;
         break;
-      default:
-        throw "初始化电子表时出现未知的玩家";
     }
   }
 

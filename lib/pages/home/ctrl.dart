@@ -2,13 +2,15 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-28 14:33:23
+ * @LastEditTime : 2022-08-02 14:45:46
  * @Description  : 用以控制HomeView的control组件
  */
 
 import 'dart:async';
 import 'dart:io';
 
+import 'package:chinese_chess_alpha_zero/common/widgets/ios_menu_widget.dart';
+import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
 import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/material.dart';
@@ -80,19 +82,16 @@ class DigitTimeController {
 class HomeController extends GetxController {
   final _dockActivate = false.obs;
 
-  String? _enginePath; //尚未添加任何引擎路径前，就为null
-
-  // TODO: need obs?
-  final _isEngineLoaded = false.obs;
+  final _enginePaths = <String>[]; //尚未添加任何引擎路径前，就为空list
 
   bool humanCanMove = true;
-  get isEngineLoaded => _isEngineLoaded.value;
-  set isEngineLoaded(value) => _isEngineLoaded.value = value;
 
-  final _buttonState = NeumorphicButtonState.noPressed.obs;
-  get buttonState => _buttonState.value;
-  set buttonState(value) => _buttonState.value = value;
-
+  final _isRedEngineLoaded = false.obs;
+  get isRedEngineLoaded => _isRedEngineLoaded.value;
+  set isRedEngineLoaded(value) => _isRedEngineLoaded.value = value;
+  final _isBlackEngineLoaded = false.obs;
+  get isBlackEngineLoaded => _isBlackEngineLoaded.value;
+  set isBlackEngineLoaded(value) => _isBlackEngineLoaded.value = value;
   //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓PlayerDigitalClock状态控制器↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   final _redTimeController = DigitTimeController().obs;
   get redTimeController => _redTimeController; //故意不写value
@@ -102,6 +101,16 @@ class HomeController extends GetxController {
   get blackTimeController => _blackTimeController; //故意不写value
   set blackTimeController(value) => _blackTimeController.value = value;
   //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑PlayerDigitalClock状态控制器↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+
+  //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓引擎名字↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+  final _redEngineName = "".obs;
+  get redEngineName => _redEngineName.value;
+  set redEngineName(value) => _redEngineName.value = value;
+
+  final _blackEngineName = "".obs;
+  get blackEngineName => _blackEngineName.value;
+  set blackEngineName(value) => _blackEngineName.value = value;
+  //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑引擎名字↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
   //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ucci engine stream↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
   // http://cjycode.com/flutter_rust_bridge/feature/stream.html
@@ -127,11 +136,10 @@ class HomeController extends GetxController {
       pieces.add(Piece(SidePieceType.none, i));
     }
 
-    // engine stream worker
     _engineStreamWorker = ever(
       _engineCallback,
-      (value) {
-        onReceiveUcciEngineMessage(value);
+      (receivedValue) {
+        onReceiveUcciEngineMessage(receivedValue);
       },
     );
   }
@@ -164,7 +172,7 @@ class HomeController extends GetxController {
   Piece? _focusedPieceRef; //被鼠标选中的棋子,指向_pieces中某piece元素的引用
 
   //
-  var _player = Player.none;
+  Player? _player;
   //
   final _animatedContainerHeight = toobarHeight.obs;
   get animatedContainerHeight => _animatedContainerHeight.value;
@@ -242,7 +250,7 @@ class HomeController extends GetxController {
   }
 
   void _initialPlayerAndTimer() {
-    _player = Player.red;
+    _player = Player.Red;
 
     _redTimeController.value.stopTimer();
     _blackTimeController.value.stopTimer();
@@ -254,23 +262,18 @@ class HomeController extends GetxController {
   }
 
   void _switchPlayerAndTimer() {
-    switch (_player) {
-      case Player.none:
-        throw '切换玩家时发现None';
-      case Player.red:
+    switch (_player!) {
+      case Player.Red:
         _redTimeController.value.pauseTimer();
         _blackTimeController.value.runTimer();
-        _player = Player.black;
+        _player = Player.Black;
         break;
-      case Player.black:
+      case Player.Black:
         _blackTimeController.value.pauseTimer();
         _redTimeController.value.runTimer();
-        _player = Player.red;
+        _player = Player.Red;
         break;
     }
-
-    // TODO: test only
-    humanCanMove = !isEngineLoaded;
   }
 
   void addLog(String logContent) {
@@ -357,26 +360,22 @@ class HomeController extends GetxController {
   }
 
   _updatePlayerData() async {
-    switch (_player) {
-      case Player.none:
-        throw '更新后台玩家时发现None';
-      case Player.red:
+    switch (_player!) {
+      case Player.Red:
         await ruleApi.updatePlayerData(player: 'r');
         break;
-      case Player.black:
+      case Player.Black:
         await ruleApi.updatePlayerData(player: 'b');
         break;
     }
   }
 
   Future<bool> isMoveOrEatable(Piece srcPiece, Piece dstPiece) async {
-    if (_player == Player.none) {
-      throw '错误：玩家不该是none';
-    }
-    if (srcPiece.player() != _player) {
+    if ((srcPiece.player()!) != _player!) {
       throw '错误：带检查的起始位置棋子非当前玩家';
     }
-    if (dstPiece.player() == _player) {
+    final distPiecePlayer = dstPiece.player();
+    if (distPiecePlayer != null && distPiecePlayer == _player!) {
       throw '错误：带检查的目标位置棋子是当前玩家';
     }
 
@@ -446,16 +445,23 @@ class HomeController extends GetxController {
     return null;
   }
 
-  Future<bool> sendCommandToUcciEngine(String command,
+  Future<bool> sendCommandToUcciEngine(String command, Player player,
       {int waitMSec = 1000, String? checkStr}) async {
     return await ucciApi.writeToProcess(
-        command: command, msec: waitMSec, checkStrOption: checkStr);
+        command: command,
+        msec: waitMSec,
+        player: player,
+        checkStrOption: checkStr);
   }
 
-  Future<void> onLoadEngine() async {
-    // 引擎路径加载
-    if (_enginePath == null) {
-      isEngineLoaded = false;
+  bool isEnginesEmpty() {
+    return _enginePaths.isEmpty;
+  }
+
+  Future<void> onLoadEngine(BuildContext context, Player player) async {
+    String enginePath = "";
+    if (isEnginesEmpty()) {
+      // 引擎路径加载
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['exe'],
@@ -464,12 +470,23 @@ class HomeController extends GetxController {
         toast("引擎目录读取错误");
         return;
       }
-      _enginePath = result.files.single.path!;
+      enginePath = result.files.single.path!;
+    } else {
+      // TODO:弹出右键菜单，让用户选择是加载新引擎路径还是选择已有的引擎（在菜单中显示）
+      getIosPopUpMenu(context);
+    }
+    if (enginePath.isEmpty) {
+      throw "错误：在加载引擎前，获取到了空引擎路径";
+    }
+
+    //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓正式加载引擎↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+    if (!_enginePaths.contains(enginePath)) {
+      _enginePaths.add(enginePath);
     }
 
     // 引擎进程启动
-    if (!await _loadUcciEngine(_enginePath!)) {
-      isEngineLoaded = false;
+    if (!await _loadUcciEngine(enginePath, player)) {
+      _setEngineLoaded(player, false);
       toast("引擎初始化失败");
       return;
     }
@@ -480,12 +497,13 @@ class HomeController extends GetxController {
     bool useUciCommand = false;
     while (true) {
       final cmd = useUciCommand
-          ? sendCommandToUcciEngine("uci", checkStr: "uciok")
-          : sendCommandToUcciEngine("ucci", checkStr: "ucciok");
+          ? sendCommandToUcciEngine("uci", player, checkStr: "uciok")
+          : sendCommandToUcciEngine("ucci", player, checkStr: "ucciok");
       if (await cmd) {
-        isEngineLoaded = true;
+        await setEngineName(player);
+        _setEngineLoaded(player, true);
         toast("引擎加载成功");
-        break; //成功
+        break;
       }
       failedCnt++;
       if (failedCnt >= maxFailedNum) {
@@ -494,30 +512,90 @@ class HomeController extends GetxController {
       }
       useUciCommand = !useUciCommand;
     }
+    //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑正式加载引擎↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
   }
 
-  Future<void> onUnLoadEngine() async {
-    if (!isEngineLoaded) {
+  Future<void> onUnLoadEngine(Player player) async {
+    if (!getEngineLoaded(player)) {
       throw "逻辑错误，并未加载引擎，无需卸载";
     }
-    if (!await _unloadUcciEngine()) {
+    if (!await _unloadUcciEngine(player)) {
       toast("引擎卸载失败");
       return;
     }
-    isEngineLoaded = false;
+
+    setEngineName(player);
+    _setEngineLoaded(player, false);
+
     toast("引擎卸载成功");
   }
 
-  Future<bool> _loadUcciEngine(String path) async {
-    _engineCallback.bindStream(ucciApi.subscribeUcciEngine(enginePath: path));
-    return await ucciApi.isProcessLoaded(msec: 3000);
+  bool getEngineLoaded(Player player) {
+    switch (player) {
+      case Player.Red:
+        return _isRedEngineLoaded.value;
+      case Player.Black:
+        return _isBlackEngineLoaded.value;
+    }
   }
 
-  Future<bool> _unloadUcciEngine() async {
-    final r1 = await sendCommandToUcciEngine("quit" /* , checkStr: "bye" */);
-    final r2 = await ucciApi.isProcessUnloaded(msec: 2000); //TODO:false???
+  _setEngineLoaded(Player player, bool LoadedOrNot) {
+    switch (player) {
+      case Player.Red:
+        _isRedEngineLoaded.value = LoadedOrNot;
+        break;
+      case Player.Black:
+        _isBlackEngineLoaded.value = LoadedOrNot;
+        break;
+    }
+  }
+
+  Future<bool> _loadUcciEngine(String path, Player player) async {
+    _engineCallback.bindStream(
+        ucciApi.subscribeUcciEngine(player: player, enginePath: path));
+    return await ucciApi.isProcessLoaded(msec: 3000, player: player);
+  }
+
+  Future<bool> _unloadUcciEngine(Player player) async {
+    final r1 = await sendCommandToUcciEngine(
+      "quit",
+      player, /* , checkStr: "bye" */
+    );
+    final r2 = await ucciApi.isProcessUnloaded(
+        player: player, msec: 2000); //TODO:false???
+
     if (!r1 || !r2) return false;
     _engineCallback.close();
     return true;
+  }
+
+  onEngineButtonPressed(BuildContext context, Player player) async {
+    getEngineLoaded(player)
+        ? await onUnLoadEngine(player)
+        : await onLoadEngine(context, player);
+  }
+
+  String getEngineName(Player player) {
+    switch (player) {
+      case Player.Red:
+        return _redEngineName.isEmpty ? "(人类)" : _redEngineName.value;
+      case Player.Black:
+        return _blackEngineName.isEmpty ? "(人类)" : _blackEngineName.value;
+    }
+  }
+
+  Future<void> setEngineName(Player player) async {
+    var tmpName = await ucciApi.getEngineName(player: player);
+    if (tmpName.isEmpty) {
+      tmpName = "(人类)";
+    }
+    switch (player) {
+      case Player.Red:
+        _redEngineName.value = tmpName;
+        break;
+      case Player.Black:
+        _blackEngineName.value = tmpName;
+        break;
+    }
   }
 }

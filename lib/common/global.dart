@@ -2,12 +2,14 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 22:27:48
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-23 08:29:59
+ * @LastEditTime : 2022-08-02 11:22:11
  * @Description  : 全局属性
  */
 import 'dart:ui';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+
+import '../gened_ucci_api.dart';
 
 // 一些默认参数
 const skinPath = "./assets/skins/";
@@ -63,6 +65,8 @@ String getCurrentTimeString() {
   // String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
   return formattedDate;
 }
+
+// enum Player { Red, Black }//TODO:为何dart和rust都定义完全一样的还是不能彼此传递呢
 
 // 表示每一步棋的结构体
 class ChessMove {
@@ -120,7 +124,7 @@ enum SidePieceType {
   blackPawn,
 }
 
-enum Player { none, red, black }
+// enum Player { red, black }
 
 class Piece {
   SidePieceType _pieceType;
@@ -154,40 +158,40 @@ class Piece {
     _maskType = maskType;
   }
 
-  Player player() {
+  Player? player() {
     switch (_pieceType) {
       case SidePieceType.none:
-        return Player.none;
+        return null;
       //
       case SidePieceType.redKing:
-        return Player.red;
+        return Player.Red;
       case SidePieceType.redAdvisor:
-        return Player.red;
+        return Player.Red;
       case SidePieceType.redBishop:
-        return Player.red;
+        return Player.Red;
       case SidePieceType.redKnight:
-        return Player.red;
+        return Player.Red;
       case SidePieceType.redRook:
-        return Player.red;
+        return Player.Red;
       case SidePieceType.redCannon:
-        return Player.red;
+        return Player.Red;
       case SidePieceType.redPawn:
-        return Player.red;
+        return Player.Red;
       //
       case SidePieceType.blackKing:
-        return Player.black;
+        return Player.Black;
       case SidePieceType.blackAdvisor:
-        return Player.black;
+        return Player.Black;
       case SidePieceType.blackBishop:
-        return Player.black;
+        return Player.Black;
       case SidePieceType.blackKnight:
-        return Player.black;
+        return Player.Black;
       case SidePieceType.blackRook:
-        return Player.black;
+        return Player.Black;
       case SidePieceType.blackCannon:
-        return Player.black;
+        return Player.Black;
       case SidePieceType.blackPawn:
-        return Player.black;
+        return Player.Black;
     }
   }
 }

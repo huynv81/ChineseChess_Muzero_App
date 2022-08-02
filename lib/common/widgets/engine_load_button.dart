@@ -1,8 +1,19 @@
+/*
+ * @Author       : 老董
+ * @Date         : 2022-07-21 09:49:11
+ * @LastEditors  : 老董
+ * @LastEditTime : 2022-08-02 11:27:46
+ * @Description  : player panel中那个“电脑图标”的按钮，用以加载引擎
+ */
+import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 
 import '../../pages/home/lib.dart';
 import '../global.dart';
+import 'ios_menu_widget.dart';
+import 'toast/toast_message.dart';
 
 class EngineLoadButton extends GetView<HomeController> {
   // MyButton({required this.player, required this.pullDownUi, Key? key})
@@ -19,9 +30,11 @@ class EngineLoadButton extends GetView<HomeController> {
   double _middlePressDistanceContianerRatio = 10.5 / 104;
   double _noPressDistanceContianerRatio = 11 / 104;
   late final Color _iconColor;
+  Player player;
+  final _buttonState = NeumorphicButtonState.noPressed.obs;
 
   EngineLoadButton(
-      {required Player player,
+      {required this.player,
       required IconData iconData,
       required double iconSize,
       Key? key})
@@ -32,14 +45,12 @@ class EngineLoadButton extends GetView<HomeController> {
     _radius = _radiusContainerRatio * _containerSize;
 
     switch (player) {
-      case Player.red:
+      case Player.Red:
         _iconColor = Colors.red;
         break;
-      case Player.black:
+      case Player.Black:
         _iconColor = Colors.black;
         break;
-      default:
-        throw "出现了未知的Player";
     }
   }
 
@@ -47,19 +58,17 @@ class EngineLoadButton extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown: (_) {
-        controller.buttonState = NeumorphicButtonState.deepPressed;
+        _buttonState.value = NeumorphicButtonState.deepPressed;
       },
       onTapUp: (_) async {
-        controller.isEngineLoaded
-            ? await controller.onUnLoadEngine()
-            : await controller.onLoadEngine();
-        controller.isEngineLoaded
-            ? controller.buttonState = NeumorphicButtonState.middlePressed
-            : controller.buttonState = NeumorphicButtonState.noPressed;
+        await controller.onEngineButtonPressed(context, player);
+        controller.getEngineLoaded(player)
+            ? _buttonState.value = NeumorphicButtonState.middlePressed
+            : _buttonState.value = NeumorphicButtonState.noPressed;
       },
       child: Obx(
         () {
-          switch (controller.buttonState) {
+          switch (_buttonState.value) {
             case NeumorphicButtonState.deepPressed:
               _distance = _deepPressDistanceContianerRatio * _containerSize;
               _blur = 3.0;

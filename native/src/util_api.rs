@@ -48,6 +48,12 @@ pub fn platform() -> Platform {
     }
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum Player {
+    Red,
+    Black,
+}
+
 // The convention for Rust identifiers is the snake_case,
 // and they are automatically converted to camelCase on the Dart side.
 pub fn rust_release_mode() -> bool {

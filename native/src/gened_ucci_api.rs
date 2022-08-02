@@ -15,10 +15,16 @@ use flutter_rust_bridge::*;
 
 // Section: imports
 
+use crate::util_api::Player;
+
 // Section: wire functions
 
 #[no_mangle]
-pub extern "C" fn wire_subscribe_ucci_engine(port_: i64, engine_path: *mut wire_uint_8_list) {
+pub extern "C" fn wire_subscribe_ucci_engine(
+    port_: i64,
+    player: i32,
+    engine_path: *mut wire_uint_8_list,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "subscribe_ucci_engine",
@@ -26,8 +32,11 @@ pub extern "C" fn wire_subscribe_ucci_engine(port_: i64, engine_path: *mut wire_
             mode: FfiCallMode::Stream,
         },
         move || {
+            let api_player = player.wire2api();
             let api_engine_path = engine_path.wire2api();
-            move |task_callback| subscribe_ucci_engine(api_engine_path, task_callback.stream_sink())
+            move |task_callback| {
+                subscribe_ucci_engine(api_player, api_engine_path, task_callback.stream_sink())
+            }
         },
     )
 }
@@ -37,6 +46,7 @@ pub extern "C" fn wire_write_to_process(
     port_: i64,
     command: *mut wire_uint_8_list,
     msec: u32,
+    player: i32,
     check_str_option: *mut wire_uint_8_list,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
@@ -48,11 +58,13 @@ pub extern "C" fn wire_write_to_process(
         move || {
             let api_command = command.wire2api();
             let api_msec = msec.wire2api();
+            let api_player = player.wire2api();
             let api_check_str_option = check_str_option.wire2api();
             move |task_callback| {
                 Ok(write_to_process(
                     api_command,
                     api_msec,
+                    api_player,
                     api_check_str_option,
                 ))
             }
@@ -61,7 +73,7 @@ pub extern "C" fn wire_write_to_process(
 }
 
 #[no_mangle]
-pub extern "C" fn wire_is_process_loaded(port_: i64, msec: u32) {
+pub extern "C" fn wire_is_process_loaded(port_: i64, msec: u32, player: i32) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "is_process_loaded",
@@ -70,13 +82,14 @@ pub extern "C" fn wire_is_process_loaded(port_: i64, msec: u32) {
         },
         move || {
             let api_msec = msec.wire2api();
-            move |task_callback| Ok(is_process_loaded(api_msec))
+            let api_player = player.wire2api();
+            move |task_callback| Ok(is_process_loaded(api_msec, api_player))
         },
     )
 }
 
 #[no_mangle]
-pub extern "C" fn wire_is_process_unloaded(port_: i64, msec: u32) {
+pub extern "C" fn wire_is_process_unloaded(port_: i64, msec: u32, player: i32) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "is_process_unloaded",
@@ -85,7 +98,23 @@ pub extern "C" fn wire_is_process_unloaded(port_: i64, msec: u32) {
         },
         move || {
             let api_msec = msec.wire2api();
-            move |task_callback| Ok(is_process_unloaded(api_msec))
+            let api_player = player.wire2api();
+            move |task_callback| Ok(is_process_unloaded(api_msec, api_player))
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_get_engine_name(port_: i64, player: i32) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "get_engine_name",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_player = player.wire2api();
+            move |task_callback| Ok(get_engine_name(api_player))
         },
     )
 }
@@ -137,6 +166,22 @@ impl Wire2Api<String> for *mut wire_uint_8_list {
     fn wire2api(self) -> String {
         let vec: Vec<u8> = self.wire2api();
         String::from_utf8_lossy(&vec).into_owned()
+    }
+}
+
+impl Wire2Api<i32> for i32 {
+    fn wire2api(self) -> i32 {
+        self
+    }
+}
+
+impl Wire2Api<Player> for i32 {
+    fn wire2api(self) -> Player {
+        match self {
+            0 => Player::Red,
+            1 => Player::Black,
+            _ => unreachable!("Invalid variant for Player: {}", self),
+        }
     }
 }
 

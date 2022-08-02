@@ -2,13 +2,13 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-28 14:32:05
+ * @LastEditTime : 2022-08-02 11:22:26
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 
 import 'dart:io';
 
-import 'package:chinese_chess_alpha_zero/pages/home/widgets/engine_pull_down_button.dart';
+import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
 import 'package:dashed_rect/dashed_rect.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -128,7 +128,6 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _getStateWidgets() {
-    final pullDownUi = EnginePulldownButton();
     // final uy = DockingItem(widget: EnginePulldownButton());
     // final da = DockingArea(EnginePulldownButton());
     // final uy = DockingRow([EnginePulldownButton()]);
@@ -163,12 +162,10 @@ class HomeView extends GetView<HomeController> {
     // ));
 
     final redPanel = PlayerPanel(
-      player: Player.red,
-      pullDownUi: pullDownUi,
+      player: Player.Red,
     );
     final blackPanel = PlayerPanel(
-      player: Player.black,
-      pullDownUi: pullDownUi,
+      player: Player.Black,
     );
 
     // // test only:那个大大的图标
@@ -317,12 +314,10 @@ String getPieceImagePath(SidePieceType sidePieceType) {
 
 String getPlayerIconImagePath(Player player) {
   switch (player) {
-    case Player.red:
+    case Player.Red:
       return "${playerIconPath}rk.svg";
     // black
-    case Player.black:
+    case Player.Black:
       return "${playerIconPath}bk.svg";
-    default:
-      throw '错误：非法的玩家类型';
   }
 }

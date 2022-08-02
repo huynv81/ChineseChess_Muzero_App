@@ -15,6 +15,7 @@
   - []  可将三方的ucci引擎辅助内置引擎进行训练
 
 ## todo
+- switch (player) str淘汰掉
 - process反馈：“ stream did not contain valid UTF-8？”
 - 若engine异常退出，程序不能关掉
 - 是否应该用thread 代替 Tokio来降低内存占用？

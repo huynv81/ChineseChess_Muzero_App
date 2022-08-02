@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-30 11:10:14
  * @LastEditors  : 老董
- * @LastEditTime : 2022-07-28 10:38:35
+ * @LastEditTime : 2022-08-02 14:43:55
  * @Description  : 包含红黑方剩余时间、引擎名字的状态条（红黑方各需要一个）
  */
 
@@ -11,31 +11,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../common/global.dart';
+import '../../../gened_ucci_api.dart';
 import '../lib.dart';
-import 'engine_pull_down_button.dart';
 import 'timer/player_digital_clock.dart';
 
 class PlayerPanel extends GetView<HomeController> {
   final Player player;
-  final EnginePulldownButton pullDownUi;
-  late final RxBool _isHosted;
   final _fontRatio = 16 / 58; //font: pieceSize
 
-  PlayerPanel({required this.player, required this.pullDownUi, Key? key})
-      : super(key: key) {
-    switch (player) {
-      case Player.red:
-        _isHosted = controller.isRedHosted;
-        break;
-      case Player.black:
-        _isHosted = controller.isBlackHosted;
-        break;
-      default:
-        throw '创建红黑方时间组件时错误：player类型为none';
-    }
-
-    // _iconRatio = /controller.;
-  }
+  PlayerPanel({required this.player, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +71,7 @@ class PlayerPanel extends GetView<HomeController> {
                             padding: const EdgeInsets.only(left: 10.0),
                             // child: Icon(size: iconSize, Icons.computer),
                             child: EngineLoadButton(
-                              player:player,
+                              player: player,
                               iconData: Icons.computer,
                               iconSize: iconSize,
                             ),
@@ -96,18 +80,20 @@ class PlayerPanel extends GetView<HomeController> {
                         Expanded(
                           flex: 9,
                           child: Container(
-                            padding: const EdgeInsets.only(left: 5.0),
-                            alignment: Alignment.topCenter,
-                            child: Text(
-                              '人类',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  color: Colors.grey,
-                                  decoration: TextDecoration.underline,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: _fontRatio * controller.pieceSize),
-                            ),
-                          ),
+                              padding: const EdgeInsets.only(left: 5.0),
+                              alignment: Alignment.topCenter,
+                              child: Obx(
+                                () => Text(
+                                  controller.getEngineName(player),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize:
+                                          _fontRatio * controller.pieceSize),
+                                ),
+                              )),
                         )
                       ],
                     ),
@@ -126,6 +112,6 @@ class PlayerPanel extends GetView<HomeController> {
   }
 
   getPlayerColor() {
-    return player == Player.red ? Colors.red : Colors.black;
+    return player == Player.Red ? Colors.red : Colors.black;
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:chinese_chess_alpha_zero/common/global.dart';
+import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
 import 'package:flutter/material.dart';
 
 class ArrowPainter extends CustomPainter {
@@ -60,14 +61,12 @@ class ArrowPainter extends CustomPainter {
       canvas.save();
       // 设置颜色
       switch (eachMove.player) {
-        case Player.red:
+        case Player.Red:
           pointPaint.color = Colors.red.withOpacity(_opacity);
           break;
-        case Player.black:
+        case Player.Black:
           pointPaint.color = Colors.black.withOpacity(_opacity);
           break;
-        case Player.none:
-          continue;
       }
       // 绘制形状的必要参数
       final offsets = getAbsOffsetFromChessPos(eachMove);

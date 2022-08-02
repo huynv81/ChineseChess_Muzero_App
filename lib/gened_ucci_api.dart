@@ -13,25 +13,37 @@ import 'dart:ffi' as ffi;
 
 abstract class UcciApi {
   Stream<String> subscribeUcciEngine(
-      {required String enginePath, dynamic hint});
+      {required Player player, required String enginePath, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kSubscribeUcciEngineConstMeta;
 
   Future<bool> writeToProcess(
       {required String command,
       required int msec,
+      required Player player,
       String? checkStrOption,
       dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kWriteToProcessConstMeta;
 
-  Future<bool> isProcessLoaded({required int msec, dynamic hint});
+  Future<bool> isProcessLoaded(
+      {required int msec, required Player player, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kIsProcessLoadedConstMeta;
 
-  Future<bool> isProcessUnloaded({required int msec, dynamic hint});
+  Future<bool> isProcessUnloaded(
+      {required int msec, required Player player, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kIsProcessUnloadedConstMeta;
+
+  Future<String> getEngineName({required Player player, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kGetEngineNameConstMeta;
+}
+
+enum Player {
+  Red,
+  Black,
 }
 
 class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
@@ -42,25 +54,26 @@ class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
   UcciApiImpl.raw(UcciApiWire inner) : super(inner);
 
   Stream<String> subscribeUcciEngine(
-          {required String enginePath, dynamic hint}) =>
+          {required Player player, required String enginePath, dynamic hint}) =>
       executeStream(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_subscribe_ucci_engine(
-            port_, _api2wire_String(enginePath)),
+            port_, _api2wire_player(player), _api2wire_String(enginePath)),
         parseSuccessData: _wire2api_String,
         constMeta: kSubscribeUcciEngineConstMeta,
-        argValues: [enginePath],
+        argValues: [player, enginePath],
         hint: hint,
       ));
 
   FlutterRustBridgeTaskConstMeta get kSubscribeUcciEngineConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "subscribe_ucci_engine",
-        argNames: ["enginePath"],
+        argNames: ["player", "enginePath"],
       );
 
   Future<bool> writeToProcess(
           {required String command,
           required int msec,
+          required Player player,
           String? checkStrOption,
           dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
@@ -68,49 +81,68 @@ class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
             port_,
             _api2wire_String(command),
             _api2wire_u32(msec),
+            _api2wire_player(player),
             _api2wire_opt_String(checkStrOption)),
         parseSuccessData: _wire2api_bool,
         constMeta: kWriteToProcessConstMeta,
-        argValues: [command, msec, checkStrOption],
+        argValues: [command, msec, player, checkStrOption],
         hint: hint,
       ));
 
   FlutterRustBridgeTaskConstMeta get kWriteToProcessConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "write_to_process",
-        argNames: ["command", "msec", "checkStrOption"],
+        argNames: ["command", "msec", "player", "checkStrOption"],
       );
 
-  Future<bool> isProcessLoaded({required int msec, dynamic hint}) =>
+  Future<bool> isProcessLoaded(
+          {required int msec, required Player player, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_is_process_loaded(port_, _api2wire_u32(msec)),
+        callFfi: (port_) => inner.wire_is_process_loaded(
+            port_, _api2wire_u32(msec), _api2wire_player(player)),
         parseSuccessData: _wire2api_bool,
         constMeta: kIsProcessLoadedConstMeta,
-        argValues: [msec],
+        argValues: [msec, player],
         hint: hint,
       ));
 
   FlutterRustBridgeTaskConstMeta get kIsProcessLoadedConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "is_process_loaded",
-        argNames: ["msec"],
+        argNames: ["msec", "player"],
       );
 
-  Future<bool> isProcessUnloaded({required int msec, dynamic hint}) =>
+  Future<bool> isProcessUnloaded(
+          {required int msec, required Player player, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_is_process_unloaded(port_, _api2wire_u32(msec)),
+        callFfi: (port_) => inner.wire_is_process_unloaded(
+            port_, _api2wire_u32(msec), _api2wire_player(player)),
         parseSuccessData: _wire2api_bool,
         constMeta: kIsProcessUnloadedConstMeta,
-        argValues: [msec],
+        argValues: [msec, player],
         hint: hint,
       ));
 
   FlutterRustBridgeTaskConstMeta get kIsProcessUnloadedConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "is_process_unloaded",
-        argNames: ["msec"],
+        argNames: ["msec", "player"],
+      );
+
+  Future<String> getEngineName({required Player player, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_get_engine_name(port_, _api2wire_player(player)),
+        parseSuccessData: _wire2api_String,
+        constMeta: kGetEngineNameConstMeta,
+        argValues: [player],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kGetEngineNameConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "get_engine_name",
+        argNames: ["player"],
       );
 
   // Section: api2wire
@@ -118,8 +150,16 @@ class UcciApiImpl extends FlutterRustBridgeBase<UcciApiWire>
     return _api2wire_uint_8_list(utf8.encoder.convert(raw));
   }
 
+  int _api2wire_i32(int raw) {
+    return raw;
+  }
+
   ffi.Pointer<wire_uint_8_list> _api2wire_opt_String(String? raw) {
     return raw == null ? ffi.nullptr : _api2wire_String(raw);
+  }
+
+  int _api2wire_player(Player raw) {
+    return _api2wire_i32(raw.index);
   }
 
   int _api2wire_u32(int raw) {
@@ -195,31 +235,35 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
 
   void wire_subscribe_ucci_engine(
     int port_,
+    int player,
     ffi.Pointer<wire_uint_8_list> engine_path,
   ) {
     return _wire_subscribe_ucci_engine(
       port_,
+      player,
       engine_path,
     );
   }
 
   late final _wire_subscribe_ucci_enginePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64,
+          ffi.Void Function(ffi.Int64, ffi.Int32,
               ffi.Pointer<wire_uint_8_list>)>>('wire_subscribe_ucci_engine');
   late final _wire_subscribe_ucci_engine = _wire_subscribe_ucci_enginePtr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+      .asFunction<void Function(int, int, ffi.Pointer<wire_uint_8_list>)>();
 
   void wire_write_to_process(
     int port_,
     ffi.Pointer<wire_uint_8_list> command,
     int msec,
+    int player,
     ffi.Pointer<wire_uint_8_list> check_str_option,
   ) {
     return _wire_write_to_process(
       port_,
       command,
       msec,
+      player,
       check_str_option,
     );
   }
@@ -230,42 +274,65 @@ class UcciApiWire implements FlutterRustBridgeWireBase {
               ffi.Int64,
               ffi.Pointer<wire_uint_8_list>,
               ffi.Uint32,
+              ffi.Int32,
               ffi.Pointer<wire_uint_8_list>)>>('wire_write_to_process');
   late final _wire_write_to_process = _wire_write_to_processPtr.asFunction<
-      void Function(int, ffi.Pointer<wire_uint_8_list>, int,
+      void Function(int, ffi.Pointer<wire_uint_8_list>, int, int,
           ffi.Pointer<wire_uint_8_list>)>();
 
   void wire_is_process_loaded(
     int port_,
     int msec,
+    int player,
   ) {
     return _wire_is_process_loaded(
       port_,
       msec,
+      player,
     );
   }
 
-  late final _wire_is_process_loadedPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint32)>>(
-          'wire_is_process_loaded');
+  late final _wire_is_process_loadedPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, ffi.Uint32, ffi.Int32)>>('wire_is_process_loaded');
   late final _wire_is_process_loaded =
-      _wire_is_process_loadedPtr.asFunction<void Function(int, int)>();
+      _wire_is_process_loadedPtr.asFunction<void Function(int, int, int)>();
 
   void wire_is_process_unloaded(
     int port_,
     int msec,
+    int player,
   ) {
     return _wire_is_process_unloaded(
       port_,
       msec,
+      player,
     );
   }
 
-  late final _wire_is_process_unloadedPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint32)>>(
-          'wire_is_process_unloaded');
+  late final _wire_is_process_unloadedPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, ffi.Uint32, ffi.Int32)>>('wire_is_process_unloaded');
   late final _wire_is_process_unloaded =
-      _wire_is_process_unloadedPtr.asFunction<void Function(int, int)>();
+      _wire_is_process_unloadedPtr.asFunction<void Function(int, int, int)>();
+
+  void wire_get_engine_name(
+    int port_,
+    int player,
+  ) {
+    return _wire_get_engine_name(
+      port_,
+      player,
+    );
+  }
+
+  late final _wire_get_engine_namePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+          'wire_get_engine_name');
+  late final _wire_get_engine_name =
+      _wire_get_engine_namePtr.asFunction<void Function(int, int)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list_1(
     int len,

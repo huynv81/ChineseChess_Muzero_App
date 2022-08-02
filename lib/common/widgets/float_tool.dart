@@ -144,7 +144,7 @@ class _FloatBoxState extends State<FloatBoxPanel> {
           isReScale: true);
       //  debugPrint("first time after, _xOffset: $_xOffset, _yOffset: $_yOffset，yRatio:$_yOffsetRatio");
 
-      _calcOffsetWhenForceDock();//这步一定要有，否则初始化时的按钮无法贴边一半
+      _calcOffsetWhenForceDock(); //这步一定要有，否则初始化时的按钮无法贴边一半
       widget.isFirstTime = false;
     }
 
