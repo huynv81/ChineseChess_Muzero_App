@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-07-21 09:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-08-04 20:01:12
+ * @LastEditTime : 2022-08-04 22:02:27
  * @Description  : player panel中那个“电脑图标”的按钮，用以加载引擎
  */
 import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
@@ -23,11 +23,11 @@ class EngineLoadButton extends GetView<HomeController> {
   late final double _radius;
   late final double _iconSize;
   late final IconData _icon;
-  double _containerIconRatio = 104 / 75;
-  double _radiusContainerRatio = 27 / 104;
-  double _deepPressDistanceContianerRatio = 17 / 104;
-  double _middlePressDistanceContianerRatio = 10.5 / 104;
-  double _noPressDistanceContianerRatio = 11 / 104;
+  final double _containerIconRatio = 104 / 75;
+  final double _radiusContainerRatio = 27 / 104;
+  final double _deepPressDistanceContianerRatio = 17 / 104;
+  final double _middlePressDistanceContianerRatio = 10.5 / 104;
+  final double _noPressDistanceContianerRatio = 11 / 104;
   late final Color _iconColor;
   Player player;
   final _buttonState = NeumorphicButtonState.noPressed.obs;
@@ -65,8 +65,7 @@ class EngineLoadButton extends GetView<HomeController> {
         debugPrint("触发onTapDown");
         _buttonState.value = NeumorphicButtonState.deepPressed;
       },
-      onTapUp: (PosDetails) async {
-        
+      onTapUp: (posDetails) async {
         debugPrint("触发onTapUp");
         if (controller.getEngineLoaded(player)) {
           await controller.onUnloadEngine(player);
@@ -86,7 +85,7 @@ class EngineLoadButton extends GetView<HomeController> {
             debugPrint("将打开右键菜单");
 
             var customAddEngineStr = "加载自定义引擎";
-            final choice = await showEngineMenu(context, PosDetails,
+            final choice = await showEngineMenu(context, posDetails,
                 <String>[customAddEngineStr, ...controller.enginePathMap.keys]);
             if (choice == null) {
               _buttonState.value = NeumorphicButtonState.noPressed;

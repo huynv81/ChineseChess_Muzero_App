@@ -1,21 +1,80 @@
-// // 参考：https://stackoverflow.com/questions/53477846/start-another-program-then-quit
-// // pub fn execute(exe: &str, args: &[&str]) -> Result<ExitStatus> {
-// pub fn execute(exe: &str) -> bool {
-//     println!("你好fangp");
-//     // Command::new(exe).spawn() /* .wait() */
-//     let mut process = Command::new(exe);
-//     let output = process.output().unwrap();
-//     if output.status.success() {
-//         let s = String::from_utf8_lossy(&output.stdout);
-//         print!("成功:\n{}", s);
+use crate::util_api::Player;
+use flutter_rust_bridge::StreamSink;
+use once_cell::sync::Lazy;
+use parking_lot::Mutex;
+use std::sync::Arc;
 
-//         println!("-------继续ucci---------");
-//         process.cwd("ucci".into()).output().unwrap();
-//         // process.stdin::<String>("ucci".into()).output().unwrap();
+pub static RED_LISTENER: Lazy<Arc<Mutex<Option<StreamSink<String>>>>> = Lazy::new(Default::default);
+pub static BLACK_LISTENER: Lazy<Arc<Mutex<Option<StreamSink<String>>>>> =
+    Lazy::new(Default::default);
+//
+pub static COMMAND: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
+pub static FEEDBACK: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
+//
+pub static RED_FLAG: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
+pub static BLACK_FLAG: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
+//
+pub static RED_PROCESS_LOADED: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
+pub static BLACK_PROCESS_LOADED: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
+//
+pub static RED_ENGINE_NAME: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
+pub static BLACK_ENGINE_NAME: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
+pub static RED_ENGINE_PATH: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
+pub static BLACK_ENGINE_PATH: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
 
-//         return true;
-//     } else {
-//         println!("引擎加载失败");
-//         return false;
-//     }
-// }
+// pub fn get_listener(player: Player) -> MutexGuard<Option<StreamSink<String>>> {
+pub fn get_cloned_listener(player: Player) -> Option<StreamSink<String>> {
+    match player {
+        Player::Red => (*RED_LISTENER.lock()).clone(),
+        Player::Black => (*BLACK_LISTENER.lock()).clone(),
+    }
+}
+
+pub fn set_listener(player: Player, listener: StreamSink<String>) {
+    match player {
+        Player::Red => (*RED_LISTENER.lock()) = Some(listener),
+        Player::Black => (*BLACK_LISTENER.lock()) = Some(listener),
+    }
+}
+
+pub fn set_engine_name(player: Player, name: &str) {
+    match player {
+        Player::Red => *RED_ENGINE_NAME.lock() = name.to_owned(),
+        Player::Black => *BLACK_ENGINE_NAME.lock() = name.to_owned(),
+    }
+}
+
+pub fn set_process_loaded(player: Player, is_loaded: bool) {
+    match player {
+        Player::Red => *RED_PROCESS_LOADED.lock() = is_loaded,
+        Player::Black => *BLACK_PROCESS_LOADED.lock() = is_loaded,
+    }
+}
+
+pub fn get_engine_path(player: Player) -> String {
+    match player {
+        Player::Red => (*RED_ENGINE_PATH.lock()).clone(),
+        Player::Black => (*BLACK_ENGINE_PATH.lock()).clone(),
+    }
+}
+
+pub fn set_engine_path(player: Player, engine_path: String) {
+    match player {
+        Player::Red => *RED_ENGINE_PATH.lock() = engine_path,
+        Player::Black => *BLACK_ENGINE_PATH.lock() = engine_path,
+    }
+}
+
+pub fn get_flag_lock(player: Player) -> bool {
+    match player {
+        Player::Red => *RED_FLAG.lock(),
+        Player::Black => *BLACK_FLAG.lock(),
+    }
+}
+
+pub fn set_flag_lock(player: Player, is_lock: bool) {
+    match player {
+        Player::Red => (*RED_FLAG.lock()) = is_lock,
+        Player::Black => (*BLACK_FLAG.lock()) = is_lock,
+    }
+}

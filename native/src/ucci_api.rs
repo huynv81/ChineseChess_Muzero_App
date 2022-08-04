@@ -1,48 +1,20 @@
+use core::time;
+use std::process::Stdio;
+use std::thread;
+
 use flutter_rust_bridge::StreamSink;
 
 use futures_util::stream::StreamExt;
-
 use log::{debug, error, info, warn};
-use once_cell::sync::Lazy;
 use process_stream::{Process, ProcessExt};
-
-use core::time;
-use parking_lot::Mutex;
-use std::process::Stdio;
-use std::sync::Arc;
-
-use std::thread;
-
 use tokio::io::AsyncWriteExt;
 
+use crate::ucci::{
+    get_cloned_listener, get_engine_path, get_flag_lock, set_engine_name, set_engine_path,
+    set_flag_lock, set_listener, set_process_loaded, BLACK_ENGINE_NAME, BLACK_PROCESS_LOADED,
+    COMMAND, FEEDBACK, RED_ENGINE_NAME, RED_PROCESS_LOADED,
+};
 use crate::util_api::Player;
-
-static RED_LISTENER: Lazy<Arc<Mutex<Option<StreamSink<String>>>>> = Lazy::new(Default::default);
-static BLACK_LISTENER: Lazy<Arc<Mutex<Option<StreamSink<String>>>>> = Lazy::new(Default::default);
-static COMMAND: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
-static RED_FLAG: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
-static BLACK_FLAG: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
-static RED_PROCESS_LOADED: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
-static BLACK_PROCESS_LOADED: Lazy<Arc<Mutex<bool>>> = Lazy::new(Default::default);
-static FEEDBACK: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
-//
-static RED_ENGINE_NAME: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
-static BLACK_ENGINE_NAME: Lazy<Arc<Mutex<String>>> = Lazy::new(Default::default);
-
-// fn get_listener(player: Player) -> MutexGuard<Option<StreamSink<String>>> {
-fn get_cloned_listener(player: Player) -> Option<StreamSink<String>> {
-    match player {
-        Player::Red => (*RED_LISTENER.lock()).clone(),
-        Player::Black => (*BLACK_LISTENER.lock()).clone(),
-    }
-}
-
-fn set_listener(player: Player, listener: StreamSink<String>) {
-    match player {
-        Player::Red => (*RED_LISTENER.lock()) = Some(listener),
-        Player::Black => (*BLACK_LISTENER.lock()) = Some(listener),
-    }
-}
 
 // refer:https://github.com/fzyzcjy/flutter_rust_bridge/issues/517
 // refer:http://cjycode.com/flutter_rust_bridge/feature/stream.html
@@ -58,9 +30,11 @@ pub async fn subscribe_ucci_engine(
     warn!("已捕获监听程序");
 
     info!("将打开的引擎路径为：{engine_path}");
-    let mut process = Process::new(engine_path);
+    let mut process = Process::new(&engine_path);
     process.stdin(Stdio::piped());
     warn!("已打开引擎进程");
+
+    set_engine_path(player, engine_path);
 
     let (reader_task, _writer_task) = if let Some(cloned_listener) = get_cloned_listener(player) {
         let mut stream = process.spawn_and_stream().unwrap();
@@ -147,20 +121,6 @@ pub async fn subscribe_ucci_engine(
     Ok(())
 }
 
-fn get_flag_lock(player: Player) -> bool {
-    match player {
-        Player::Red => *RED_FLAG.lock(),
-        Player::Black => *BLACK_FLAG.lock(),
-    }
-}
-
-fn set_flag_lock(player: Player, is_lock: bool) {
-    match player {
-        Player::Red => (*RED_FLAG.lock()) = is_lock,
-        Player::Black => (*BLACK_FLAG.lock()) = is_lock,
-    }
-}
-
 pub fn write_to_process(
     command: String,
     msec: u32,
@@ -237,23 +197,54 @@ pub fn is_process_unloaded(msec: u32, player: Player) -> bool {
     false
 }
 
-fn set_process_loaded(player: Player, is_loaded: bool) {
-    match player {
-        Player::Red => *RED_PROCESS_LOADED.lock() = is_loaded,
-        Player::Black => *BLACK_PROCESS_LOADED.lock() = is_loaded,
-    }
-}
-
 pub fn get_engine_name(player: Player) -> String {
-    match player {
-        Player::Red => (*RED_ENGINE_NAME.lock()).clone(),
-        Player::Black => (*BLACK_ENGINE_NAME.lock()).clone(),
-    }
-}
+    #[cfg(windows)]
+    let dilimiter = '\\';
+    #[cfg(not(windows))]
+    let dilimiter = '/';
 
-fn set_engine_name(player: Player, name: &str) {
     match player {
-        Player::Red => *RED_ENGINE_NAME.lock() = name.to_owned(),
-        Player::Black => *BLACK_ENGINE_NAME.lock() = name.to_owned(),
+        Player::Red => {
+            let engine_name = (*RED_ENGINE_NAME.lock()).clone();
+            if engine_name.trim().is_empty() && *RED_PROCESS_LOADED.lock() {
+                let engine_path = get_engine_path(player);
+                debug!("引擎目录是：{engine_path}");
+                let split_vec = engine_path
+                    .split(dilimiter)
+                    .filter(|&s| !s.is_empty())
+                    .map(|s| s.to_string())
+                    .collect::<Vec<_>>();
+                let engine_file_name = split_vec.last().unwrap();
+                let split_vec = engine_file_name
+                    .split('.')
+                    .filter(|&s| !s.is_empty())
+                    .map(|s| s.to_string())
+                    .collect::<Vec<_>>();
+                split_vec[0].to_string()
+            } else {
+                engine_name
+            }
+        }
+        Player::Black => {
+            let engine_name = (*BLACK_ENGINE_NAME.lock()).clone();
+            if engine_name.trim().is_empty() && *BLACK_PROCESS_LOADED.lock() {
+                let engine_path = get_engine_path(player);
+                debug!("引擎目录是：{engine_path}");
+                let split_vec = engine_path
+                    .split(dilimiter)
+                    .filter(|&s| !s.is_empty())
+                    .map(|s| s.to_string())
+                    .collect::<Vec<_>>();
+                let engine_file_name = split_vec.last().unwrap();
+                let split_vec = engine_file_name
+                    .split('.')
+                    .filter(|&s| !s.is_empty())
+                    .map(|s| s.to_string())
+                    .collect::<Vec<_>>();
+                split_vec[0].to_string()
+            } else {
+                engine_name
+            }
+        }
     }
 }
