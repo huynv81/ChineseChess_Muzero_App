@@ -10,7 +10,6 @@ import 'package:chinese_chess_alpha_zero/common/widgets/engine_load_button.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../common/global.dart';
 import '../../../gened_ucci_api.dart';
 import '../lib.dart';
 import 'timer/player_digital_clock.dart';
@@ -19,7 +18,7 @@ class PlayerPanel extends GetView<HomeController> {
   final Player player;
   final _fontRatio = 16 / 58; //font: pieceSize
 
-  PlayerPanel({required this.player, Key? key}) : super(key: key);
+  const PlayerPanel({required this.player, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

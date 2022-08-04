@@ -2,16 +2,13 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-08-02 14:45:46
+ * @LastEditTime : 2022-08-04 18:04:25
  * @Description  : 用以控制HomeView的control组件
  */
 
 import 'dart:async';
-import 'dart:io';
 
-import 'package:chinese_chess_alpha_zero/common/widgets/ios_menu_widget.dart';
 import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
-import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,7 +16,6 @@ import 'package:pausable_timer/pausable_timer.dart';
 import '../../common/global.dart';
 import '../../common/widgets/toast/toast_message.dart';
 import '../../ffi.dart';
-import 'widgets/setting_sheet.dart';
 
 enum TimerControlType {
   start,
@@ -82,9 +78,11 @@ class DigitTimeController {
 class HomeController extends GetxController {
   final _dockActivate = false.obs;
 
-  final _enginePaths = <String>[]; //尚未添加任何引擎路径前，就为空list
+  final enginePaths = <String>[]; //尚未添加任何引擎路径前，就为空list
 
   bool humanCanMove = true;
+
+  final enginePathMap = <String, String>{}; //key:引擎名字 value:引擎路径
 
   final _isRedEngineLoaded = false.obs;
   get isRedEngineLoaded => _isRedEngineLoaded.value;
@@ -455,33 +453,17 @@ class HomeController extends GetxController {
   }
 
   bool isEnginesEmpty() {
-    return _enginePaths.isEmpty;
+    return enginePaths.isEmpty;
   }
 
-  Future<void> onLoadEngine(BuildContext context, Player player) async {
-    String enginePath = "";
-    if (isEnginesEmpty()) {
-      // 引擎路径加载
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['exe'],
-      );
-      if (result == null) {
-        toast("引擎目录读取错误");
-        return;
-      }
-      enginePath = result.files.single.path!;
-    } else {
-      // TODO:弹出右键菜单，让用户选择是加载新引擎路径还是选择已有的引擎（在菜单中显示）
-      getIosPopUpMenu(context);
-    }
+  // Future<void> onLoadEngine(BuildContext context, Player player) async {
+  Future<void> onLoadEngine(String enginePath, Player player) async {
     if (enginePath.isEmpty) {
       throw "错误：在加载引擎前，获取到了空引擎路径";
     }
-
     //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓正式加载引擎↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-    if (!_enginePaths.contains(enginePath)) {
-      _enginePaths.add(enginePath);
+    if (!enginePaths.contains(enginePath)) {
+      enginePaths.add(enginePath);
     }
 
     // 引擎进程启动
@@ -501,6 +483,13 @@ class HomeController extends GetxController {
           : sendCommandToUcciEngine("ucci", player, checkStr: "ucciok");
       if (await cmd) {
         await setEngineName(player);
+
+        // 更新引擎字典
+        var tmpName = await ucciApi.getEngineName(player: player);
+        if (tmpName.isNotEmpty) {
+          enginePathMap[tmpName] = enginePath;
+        }
+
         _setEngineLoaded(player, true);
         toast("引擎加载成功");
         break;
@@ -515,7 +504,7 @@ class HomeController extends GetxController {
     //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑正式加载引擎↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
   }
 
-  Future<void> onUnLoadEngine(Player player) async {
+  Future<void> onUnloadEngine(Player player) async {
     if (!getEngineLoaded(player)) {
       throw "逻辑错误，并未加载引擎，无需卸载";
     }
@@ -557,22 +546,13 @@ class HomeController extends GetxController {
   }
 
   Future<bool> _unloadUcciEngine(Player player) async {
-    final r1 = await sendCommandToUcciEngine(
-      "quit",
-      player, /* , checkStr: "bye" */
-    );
-    final r2 = await ucciApi.isProcessUnloaded(
-        player: player, msec: 2000); //TODO:false???
+    final r1 =
+        await sendCommandToUcciEngine("quit", player /* , checkStr: "bye" */);
+    final r2 = await ucciApi.isProcessUnloaded(player: player, msec: 2000);
 
     if (!r1 || !r2) return false;
-    _engineCallback.close();
+    // _engineCallback.close();//TODO:在没有unbind方法前，还是什么都不做为秒
     return true;
-  }
-
-  onEngineButtonPressed(BuildContext context, Player player) async {
-    getEngineLoaded(player)
-        ? await onUnLoadEngine(player)
-        : await onLoadEngine(context, player);
   }
 
   String getEngineName(Player player) {

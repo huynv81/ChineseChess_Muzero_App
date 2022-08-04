@@ -7,7 +7,7 @@ use once_cell::sync::Lazy;
 use process_stream::{Process, ProcessExt};
 
 use core::time;
-use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
+use parking_lot::Mutex;
 use std::process::Stdio;
 use std::sync::Arc;
 
@@ -47,16 +47,13 @@ fn set_listener(player: Player, listener: StreamSink<String>) {
 // refer:https://github.com/fzyzcjy/flutter_rust_bridge/issues/517
 // refer:http://cjycode.com/flutter_rust_bridge/feature/stream.html
 // refer:http://cjycode.com/flutter_rust_bridge/feature/async_rust.html
-// #[tokio::main(flavor = "current_thread")]
+// #[tokio::main(flavor = "current_thread")]//别用这个，会阻塞reader_task输出的。
 #[tokio::main]
 pub async fn subscribe_ucci_engine(
     player: Player,
     engine_path: String,
     listener: StreamSink<String>,
 ) -> anyhow::Result<()> {
-    debug!("玩家：{:?}", player);
-    debug!("线程：{:?}", thread::current().id());
-
     set_listener(player, listener);
     warn!("已捕获监听程序");
 
@@ -65,26 +62,29 @@ pub async fn subscribe_ucci_engine(
     process.stdin(Stdio::piped());
     warn!("已打开引擎进程");
 
-    let (reader_thread, writer_thread) = if let Some(cloned_listener) = get_cloned_listener(player)
-    {
+    let (reader_task, _writer_task) = if let Some(cloned_listener) = get_cloned_listener(player) {
         let mut stream = process.spawn_and_stream().unwrap();
-        let reader_thread = tokio::spawn(async move {
+        // 用于接收消息的reader_task
+        let reader_task = tokio::spawn(async move {
             loop {
+                // debug!("reader线程：{:?}，玩家：{player:?}", thread::current().id());
                 match stream.next().await {
                     Some(value) => {
                         if value.is_exit() {
-                            warn!("检测到空输出");
+                            debug!("引擎进程退出");
                             break;
                         }
                         let feedback_str = (*value).to_string();
                         // TODO: "utf-8"以外的编码如何处理
                         if feedback_str.contains("id name ") {
                             let string_vec = feedback_str
-                                .split(" ")
+                                .split(' ')
                                 .filter(|&s| !s.is_empty())
                                 .map(|s| s.to_string())
                                 .collect::<Vec<_>>();
                             set_engine_name(player, &string_vec[2]);
+                        } else if feedback_str == "bye" {
+                            set_engine_name(player, "");
                         }
                         info!("engine反馈： {}", feedback_str);
                         *FEEDBACK.lock() = feedback_str.clone();
@@ -101,11 +101,12 @@ pub async fn subscribe_ucci_engine(
         });
         warn!("已监听ucci进程输出");
 
-        //
+        //用于向进程写入消息的writer_task
         let mut writer = process.take_stdin().unwrap();
-        let writer_thread = tokio::spawn(async move {
+        let writer_task = tokio::spawn(async move {
             loop {
                 if get_flag_lock(player) {
+                    // debug!("writer线程：{:?}，玩家：{player:?}", thread::current().id());
                     let cmd_str = (*COMMAND.lock()).clone();
                     let cmd_byte = cmd_str.as_bytes();
                     info!("执行命令：{cmd_str}");
@@ -119,7 +120,7 @@ pub async fn subscribe_ucci_engine(
         });
         warn!("已监听ucci进程输入");
 
-        (reader_thread, writer_thread)
+        (reader_task, writer_task)
     } else {
         set_process_loaded(player, false);
         error!("监听程序读取出错！");
@@ -129,11 +130,19 @@ pub async fn subscribe_ucci_engine(
     set_process_loaded(player, true);
     info!("引擎启动");
 
-    reader_thread.await.expect("read异常退出");
-    writer_thread.await.expect("write异常退出");
+    // 仅需等待read_task即可
+    debug!(
+        "引擎等待中,所属线程：{:?}，玩家：{player:?}",
+        thread::current().id()
+    );
+    reader_task.await.expect("read异常退出");
+    // writer_task.await.expect("write异常退出");
 
     set_process_loaded(player, false);
-    info!("引擎退出");
+    info!(
+        "引擎退出,所属线程：{:?}，玩家：{player:?}",
+        thread::current().id()
+    );
 
     Ok(())
 }
@@ -209,16 +218,16 @@ pub fn is_process_loaded(msec: u32, player: Player) -> bool {
 
 pub fn is_process_unloaded(msec: u32, player: Player) -> bool {
     let now = std::time::SystemTime::now();
-    let sleep_msec = time::Duration::from_millis(200);
+    let sleep_msec = time::Duration::from_millis(100);
     while now.elapsed().unwrap().as_millis() < msec as u128 {
         match player {
             Player::Red => {
-                if *RED_PROCESS_LOADED.lock() {
+                if !(*RED_PROCESS_LOADED.lock()) {
                     return true;
                 }
             }
             Player::Black => {
-                if *BLACK_PROCESS_LOADED.lock() {
+                if !(*BLACK_PROCESS_LOADED.lock()) {
                     return true;
                 }
             }

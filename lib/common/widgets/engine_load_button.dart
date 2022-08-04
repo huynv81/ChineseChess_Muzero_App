@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-07-21 09:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-08-02 11:27:46
+ * @LastEditTime : 2022-08-04 20:01:12
  * @Description  : player panel中那个“电脑图标”的按钮，用以加载引擎
  */
 import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
@@ -12,7 +12,6 @@ import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 
 import '../../pages/home/lib.dart';
 import '../global.dart';
-import 'ios_menu_widget.dart';
 import 'toast/toast_message.dart';
 
 class EngineLoadButton extends GetView<HomeController> {
@@ -57,11 +56,59 @@ class EngineLoadButton extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTapCancel: () {
+        // debugPrint("触发onTapCancel");
+        // 当触发onTapDown并拖动时，会触发此trigger
+        _buttonState.value = NeumorphicButtonState.noPressed;
+      },
       onTapDown: (_) {
+        debugPrint("触发onTapDown");
         _buttonState.value = NeumorphicButtonState.deepPressed;
       },
-      onTapUp: (_) async {
-        await controller.onEngineButtonPressed(context, player);
+      onTapUp: (PosDetails) async {
+        
+        debugPrint("触发onTapUp");
+        if (controller.getEngineLoaded(player)) {
+          await controller.onUnloadEngine(player);
+        } else {
+          //加载引擎流程
+          String? enginePath;
+          if (controller.isEnginesEmpty()) {
+            enginePath = await getPickedFile();
+            if (enginePath == null) {
+              toast("引擎目录读取错误");
+              _buttonState.value = NeumorphicButtonState.noPressed;
+              return;
+            }
+          } else {
+            // 2.有引擎情况下，弹出右键菜单，让用户选择是加载新引擎路径还是选择已有的引擎（在菜单中显示）
+            // showPopUpMenuAtPosition(context, details);
+            debugPrint("将打开右键菜单");
+
+            var customAddEngineStr = "加载自定义引擎";
+            final choice = await showEngineMenu(context, PosDetails,
+                <String>[customAddEngineStr, ...controller.enginePathMap.keys]);
+            if (choice == null) {
+              _buttonState.value = NeumorphicButtonState.noPressed;
+              return;
+            }
+            if (choice == customAddEngineStr) {
+              // 加载自定义引擎
+              enginePath = await getPickedFile();
+              if (enginePath == null) {
+                toast("引擎目录读取错误");
+                _buttonState.value = NeumorphicButtonState.noPressed;
+                return;
+              }
+            } else {
+              // 选择已有路径的引擎
+              enginePath = controller.enginePathMap[choice];
+            }
+          }
+          //根据路径加载引擎
+          await controller.onLoadEngine(enginePath!, player);
+        }
+        // 根据引擎的状态结果设置ui样式
         controller.getEngineLoaded(player)
             ? _buttonState.value = NeumorphicButtonState.middlePressed
             : _buttonState.value = NeumorphicButtonState.noPressed;
@@ -89,7 +136,7 @@ class EngineLoadButton extends GetView<HomeController> {
           }
 
           return AnimatedContainer(
-            duration: const Duration(milliseconds: 130),
+            duration: const Duration(milliseconds: 150),
             width: _containerSize,
             height: _containerSize,
             decoration: BoxDecoration(
@@ -137,5 +184,45 @@ class EngineLoadButton extends GetView<HomeController> {
         },
       ),
     );
+  }
+
+  //test
+  // https://stackoverflow.com/questions/63086049/display-pop-up-menu-when-icon-button-widget-is-clicked-flutter
+  Future<String?> showEngineMenu(BuildContext context, TapUpDetails details,
+      List<String> menuItems) async {
+    final items = [];
+    for (var i = 0; i < menuItems.length; i++) {
+      items.add(
+        PopupMenuItem<String>(value: menuItems[i], child: Text(menuItems[i])),
+      );
+    }
+    //
+    return await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        details.globalPosition.dx,
+        details.globalPosition.dy,
+        details.globalPosition.dx,
+        details.globalPosition.dy,
+      ),
+      items: [
+        ...items
+        // PopupMenuItem<String>(child: const Text('menu option 1'), value: '1'),
+        // PopupMenuItem<String>(child: const Text('menu option 2'), value: '2'),
+        // PopupMenuItem<String>(child: const Text('menu option 3'), value: '3'),
+      ],
+      elevation: 8.0,
+    );
+  }
+
+  Future<String?> getPickedFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['exe'],
+    );
+    if (result == null) {
+      return null;
+    }
+    return result.files.single.path!;
   }
 }

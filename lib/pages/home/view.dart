@@ -18,7 +18,6 @@ import 'package:window_manager/window_manager.dart';
 
 import '../../common/global.dart';
 import '../../common/widgets/ios_dialog_widget.dart';
-import '../../common/widgets/engine_load_button.dart';
 import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import '../../common/widgets/float_tool.dart';
@@ -161,10 +160,10 @@ class HomeView extends GetView<HomeController> {
     //   title: Text("List item index"),
     // ));
 
-    final redPanel = PlayerPanel(
+    const redPanel = PlayerPanel(
       player: Player.Red,
     );
-    final blackPanel = PlayerPanel(
+    const blackPanel = PlayerPanel(
       player: Player.Black,
     );
 
@@ -179,7 +178,7 @@ class HomeView extends GetView<HomeController> {
       child: Container(
         color: backgroundStartColor,
         child: Column(
-          children: [redPanel, blackPanel /* , x */],
+          children: const [redPanel, blackPanel /* , x */],
         ),
       ),
     );
