@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-07-21 09:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-08-04 22:02:27
+ * @LastEditTime : 2022-08-04 22:41:19
  * @Description  : player panel中那个“电脑图标”的按钮，用以加载引擎
  */
 import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
@@ -192,7 +192,19 @@ class EngineLoadButton extends GetView<HomeController> {
     final items = [];
     for (var i = 0; i < menuItems.length; i++) {
       items.add(
-        PopupMenuItem<String>(value: menuItems[i], child: Text(menuItems[i])),
+        PopupMenuItem<String>(
+          value: menuItems[i],
+          child: Row(
+            children: [
+              const Icon(Icons.star),
+              const SizedBox(
+                width: 25,
+              ),
+              Text(menuItems[i])
+            ],
+          ),
+        ),
+        // PopupMenuItem<String>(value: menuItems[i], child: Text(menuItems[i])),
       );
     }
     //
@@ -201,7 +213,7 @@ class EngineLoadButton extends GetView<HomeController> {
       position: RelativeRect.fromLTRB(
         details.globalPosition.dx,
         details.globalPosition.dy,
-        details.globalPosition.dx,
+        details.globalPosition.dx - 1000,
         details.globalPosition.dy,
       ),
       items: [
@@ -210,7 +222,8 @@ class EngineLoadButton extends GetView<HomeController> {
         // PopupMenuItem<String>(child: const Text('menu option 2'), value: '2'),
         // PopupMenuItem<String>(child: const Text('menu option 3'), value: '3'),
       ],
-      elevation: 8.0,
+      color: Colors.grey,
+      // elevation: 2,
     );
   }
 
