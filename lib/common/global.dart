@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 22:27:48
  * @LastEditors  : 老董
- * @LastEditTime : 2022-08-02 11:22:11
+ * @LastEditTime : 2022-09-15 09:14:51
  * @Description  : 全局属性
  */
 import 'dart:ui';
@@ -66,7 +66,7 @@ String getCurrentTimeString() {
   return formattedDate;
 }
 
-// enum Player { Red, Black }//TODO:为何dart和rust都定义完全一样的还是不能彼此传递呢
+enum Player { Red, Black } //TODO:为何dart和rust都定义完全一样的还是不能彼此传递呢
 
 // 表示每一步棋的结构体
 class ChessMove {

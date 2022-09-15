@@ -33,7 +33,8 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.4
-
+  ffi: ^2.0.1
+  meta: ^1.8.0
   flutter_rust_bridge: ^1.38.2
   freezed_annotation: ^2.0.3
   window_manager: ^0.2.3
@@ -65,6 +66,8 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
+  ffigen: ^6.0.1
+  meta: ^1.8.0
   flutter_lints: ^2.0.1
   build_runner: ^2.1.11
   freezed: ^2.0.3+1

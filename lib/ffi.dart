@@ -5,7 +5,6 @@ import 'dart:ffi';
 import 'dart:io' as io;
 
 import 'extend_util_api.dart';
-import 'gened_util_api.dart';
 import 'gened_rule_api.dart';
 import 'gened_ucci_api.dart';
 
