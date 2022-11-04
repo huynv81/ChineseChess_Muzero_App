@@ -13,6 +13,9 @@ lto = true
 codegen-units = 1
 strip = "debuginfo"
 
+[profile.dev.package."*"]
+opt-level = 3
+
 [dependencies]
 anyhow = "1"
 flutter_rust_bridge = "1.38.2"

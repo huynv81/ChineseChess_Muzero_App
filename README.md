@@ -55,7 +55,12 @@ flutter pub add freezed_annotation
 并运行`just`生成rust绑定代码（只有rust代码有变动才需要）
 7.flutter run （将生成flutter侧的绑定代码，并最总生成app）
 
-([官方参考](http://cjycode.com/flutter_rust_bridge/template/generate.html)、[flutter_rust_bridge官方模板](https://github.com/Desdaemon/flutter_rust_bridge_template)）
+([官方示例教程](http://cjycode.com/flutter_rust_bridge/template/generate.html)、[flutter_rust_bridge官方推荐模板](https://github.com/Desdaemon/flutter_rust_bridge_template)）
+
+## 其他平台的安装设置
+虽然本项目目标仅在windows下使用，但若对于其他平台感兴趣的，可参考：
+[安卓平台](https://cjycode.com/flutter_rust_bridge/template/setup_android.html)
+[web平台](https://cjycode.com/flutter_rust_bridge/template/setup_web.html)
 
 ## 常见问题
 ### **运行`just clean`出现错误**
