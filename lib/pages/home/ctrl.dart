@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-08-04 21:41:25
+ * @LastEditTime : 2022-11-09 21:50:59
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -176,15 +176,18 @@ class HomeController extends GetxController {
   get animatedContainerHeight => _animatedContainerHeight.value;
   set animatedContainerHeight(value) => _animatedContainerHeight.value = value;
 
-  // real chess size
+  // 棋子相关的尺寸
   var leftTopOffSet = const Offset(0.0, 0.0); //左上角棋子位置距离棋盘左上角的offset
   var pieceGap = 0.0; //相邻2个棋子中心位置的间距，x、y轴都一样
   var pieceSize = 0.0; //这个是调整过的棋子尺寸，宽高一致
-  final _panelWidth = 0.0.obs; //这个是调整过的浮动工具栏宽度
+
+  //这个是调整过的浮动工具栏宽度
+  final _panelWidth = 0.0.obs;
   get panelWidth => _panelWidth.value;
   set panelWidth(value) => _panelWidth.value = value;
 
-  final _borderRadius = 0.0.obs; //这个是调整过的浮动工具栏的圆角半径
+  //这个是调整过的浮动工具栏的圆角半径
+  final _borderRadius = 0.0.obs;
   get borderRadius => _borderRadius.value;
   set borderRadius(value) => _borderRadius.value = value;
 

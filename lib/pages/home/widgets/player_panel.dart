@@ -2,14 +2,13 @@
  * @Author       : 老董
  * @Date         : 2022-04-30 11:10:14
  * @LastEditors  : 老董
- * @LastEditTime : 2022-09-15 09:16:31
+ * @LastEditTime : 2022-11-09 21:31:44
  * @Description  : 包含红黑方剩余时间、引擎名字的状态条（红黑方各需要一个）
  */
 
 import 'package:chinese_chess_alpha_zero/common/widgets/engine_load_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '.././../../common/global.dart';
 import '../../../gened_ucci_api.dart';
 import '../lib.dart';
 import 'timer/player_digital_clock.dart';
@@ -79,20 +78,21 @@ class PlayerPanel extends GetView<HomeController> {
                         Expanded(
                           flex: 9,
                           child: Container(
-                              padding: const EdgeInsets.only(left: 5.0),
-                              alignment: Alignment.topCenter,
-                              child: Obx(
-                                () => Text(
-                                  controller.getEngineName(player),
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      color: Colors.grey,
-                                      decoration: TextDecoration.underline,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize:
-                                          _fontRatio * controller.pieceSize),
-                                ),
-                              )),
+                            padding: const EdgeInsets.only(left: 5.0),
+                            alignment: Alignment.topCenter,
+                            child: Obx(
+                              () => Text(
+                                controller.getEngineName(player),
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: Colors.grey,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize:
+                                        _fontRatio * controller.pieceSize),
+                              ),
+                            ),
+                          ),
                         )
                       ],
                     ),

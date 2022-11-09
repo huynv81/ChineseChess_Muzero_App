@@ -1,6 +1,6 @@
 ## 项目说明
   一款基于强化学习算法Muzero的中国象棋ui程序。
-因基于跨平台的flutter/dart（界面）+rust（算法后端）开发，所以理论上可用于任意平台，但由于测试平台在win10，且多数ucci引擎只有windows版本，所以目前适配最好的平台只有windows。 写这个是因为目前网上看到的所有中国象棋软件（包括引擎本身或者引擎加载软件）都是缺胳膊少腿的，用起来束手束脚，所以打算自己写一个。也正好看看flutter+rust能擦出什么样的火花。
+因基于跨平台的flutter/dart（界面）+rust（算法后端）开发，所以理论上可用于任意平台，但由于测试平台在win10，且多数ucci引擎只有windows版本，所以目前适配最好的平台只有windows（目前代码已改成只能在windows下运行）。 写这个是因为目前网上看到的所有中国象棋软件（包括引擎本身或者引擎加载软件）都是缺胳膊少腿的，用起来束手束脚，所以打算自己写一个。也正好看看flutter+rust能擦出什么样的火花。
 
 ## 软件截图（目前仍是半成品）
 ![image](https://github.com/dbsxdbsx/ChineseChess_Muzero_App/blob/main/img/%E5%8D%8A%E6%88%90%E5%93%81%E6%88%AA%E5%9B%BE.PNG)

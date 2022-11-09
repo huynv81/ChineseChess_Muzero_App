@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-08-02 11:22:26
+ * @LastEditTime : 2022-11-09 22:32:57
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 
@@ -14,6 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:macos_ui/macos_ui.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../common/global.dart';
@@ -36,8 +37,6 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     _width = MediaQuery.of(context).size.width;
     _height = MediaQuery.of(context).size.height;
-    // debugPrint('real w: ${_real_app_width}');
-    // debugPrint('real h: ${_real_app_height}');
 
     // 将自己测试的尺寸等比例转换到实际尺寸
     realTestRatio = _width / testWidth;
@@ -56,7 +55,9 @@ class HomeView extends GetView<HomeController> {
       children: [
         Row(
           children: [
+            // 左侧的棋盘及相应组件
             _getChessWidgets(),
+            // 右侧的（多个）状态组件
             _getStateWidgets(),
           ],
         ),
@@ -127,6 +128,13 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _getStateWidgets() {
+    const redPanel = PlayerPanel(
+      player: Player.Red,
+    );
+    const blackPanel = PlayerPanel(
+      player: Player.Black,
+    );
+
     // final uy = DockingItem(widget: EnginePulldownButton());
     // final da = DockingArea(EnginePulldownButton());
     // final uy = DockingRow([EnginePulldownButton()]);
@@ -160,25 +168,42 @@ class HomeView extends GetView<HomeController> {
     //   title: Text("List item index"),
     // ));
 
-    const redPanel = PlayerPanel(
-      player: Player.Red,
-    );
-    const blackPanel = PlayerPanel(
-      player: Player.Black,
+    final controller = MacosTabController(
+      initialIndex: 0,
+      length: 3,
     );
 
-    // // test only:那个大大的图标
-    // var x = EngineLoadButton(
-    //   player: Player.red,
-    //   iconData: Icons.computer,
-    //   iconSize: 75,
-    // );
+    final testTabview = MacosTabView(
+      controller: controller,
+      tabs: const [
+        MacosTab(
+          label: 'Tab 1',
+        ),
+        MacosTab(
+          label: 'Tab 2',
+        ),
+        MacosTab(
+          label: 'Tab 3',
+        ),
+      ],
+      children: const [
+        Center(
+          child: Text('Tab 1'),
+        ),
+        Center(
+          child: Text('Tab 2'),
+        ),
+        Center(
+          child: Text('Tab 3'),
+        ),
+      ],
+    );
 
     return Expanded(
       child: Container(
         color: backgroundStartColor,
         child: Column(
-          children: const [redPanel, blackPanel /* , x */],
+          children: [redPanel, blackPanel, testTabview],
         ),
       ),
     );

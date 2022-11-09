@@ -83,6 +83,7 @@ class PlayerDigitalClock extends GetView<HomeController> {
 
 class DigitalClock extends StatelessWidget {
   const DigitalClock({
+    super.key,
     required this.height,
     required this.width,
     this.hours = 0,
@@ -144,6 +145,7 @@ class DigitalClock extends StatelessWidget {
 
 class DigitalNumberWithBG extends StatelessWidget {
   const DigitalNumberWithBG({
+    super.key,
     this.value = 0,
     // required this.padLeft,
     required this.height,
