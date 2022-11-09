@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'common/global.dart';
@@ -12,7 +13,6 @@ void main() async {
   utilApi.activate();
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 只能在windows下运行
   if (Platform.isWindows) {
     await WindowManager.instance.ensureInitialized();
     windowManager.waitUntilReadyToShow().then((_) async {
@@ -36,10 +36,14 @@ void main() async {
       await windowManager.focus();
       await windowManager.show();
 
-      runApp(GetMaterialApp(
-        getPages: AppPages.pages,
-        initialRoute: Routes.home,
-      ));
+      runApp(
+        OverlaySupport.global(
+          child: GetMaterialApp(
+            getPages: AppPages.pages,
+            initialRoute: Routes.home,
+          ),
+        ),
+      );
     });
   }
 }
