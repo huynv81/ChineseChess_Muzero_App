@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-11-09 22:32:57
+ * @LastEditTime : 2022-11-10 09:11:08
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 
@@ -22,7 +22,7 @@ import '../../common/widgets/ios_dialog_widget.dart';
 import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import '../../common/widgets/float_tool.dart';
-import 'widgets/player_panel.dart';
+import 'widgets/player_ui/player_panel.dart';
 import 'widgets/setting_sheet.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -229,7 +229,7 @@ class HomeView extends GetView<HomeController> {
   }
 
   _getPieceWidgets() {
-    var pieceWidgets = [];
+    final pieceWidgets = [];
     final pieceRadius = (controller.pieceSize / 2);
     final pieceOffsetX = controller.leftTopOffSet.dx - pieceRadius;
     final pieceOffsetY = controller.leftTopOffSet.dy - pieceRadius;

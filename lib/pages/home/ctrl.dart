@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-11-09 21:50:59
+ * @LastEditTime : 2022-11-10 09:20:58
  * @Description  : 用以控制HomeView的control组件
  */
 
@@ -226,18 +226,24 @@ class HomeController extends GetxController {
             }
           }
         }
+        // 后台数据更新
+        _player = Player.Red;
+        await _updateBackData();
 
-        // 必要的初始化
-        _initialPlayerAndTimer();
+        // 呼叫棋子ui更新
+        update(indexes);
+
+        //初始化棋子ui相关内存变量
         _focusedPieceRef = null;
         masks.clear();
         arrowMoves.clear();
 
-        // 后台数据更新
-        await _updateBackData();
-        //
+        // 设置游戏开始
         gameStarted = true;
-        update(indexes);
+
+        // 呼叫计时，之后用户将能看到计时动画
+        _initialTimer();
+
         break;
       case newAIBtnLog:
         // _redTimeController.value.runTimer();
@@ -250,9 +256,7 @@ class HomeController extends GetxController {
     }
   }
 
-  void _initialPlayerAndTimer() {
-    _player = Player.Red;
-
+  void _initialTimer() {
     _redTimeController.value.stopTimer();
     _blackTimeController.value.stopTimer();
 

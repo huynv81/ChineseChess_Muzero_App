@@ -15,6 +15,9 @@
   - []  可将三方的ucci引擎辅助内置引擎进行训练
 
 ## todo
+- 初始化棋盘（debug模式下首次，较慢有这个现象），棋子还没全部摆好，就开始计时了？
+- 点击引擎按钮时，快速点击时按钮没动画
+- 打造可拖动的tabView组件
 - switch (player) str淘汰掉
 - process反馈：“ stream did not contain valid UTF-8？”
 - 若engine异常退出，程序不能关掉

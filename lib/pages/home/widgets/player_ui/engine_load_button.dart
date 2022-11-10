@@ -2,17 +2,17 @@
  * @Author       : 老董
  * @Date         : 2022-07-21 09:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-08-04 22:41:19
+ * @LastEditTime : 2022-11-10 08:59:58
  * @Description  : player panel中那个“电脑图标”的按钮，用以加载引擎
  */
+import 'package:chinese_chess_alpha_zero/common/global.dart';
+import 'package:chinese_chess_alpha_zero/common/widgets/toast/toast_message.dart';
 import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 
-import '../../pages/home/lib.dart';
-import '../global.dart';
-import 'toast/toast_message.dart';
+import '../../lib.dart';
 
 class EngineLoadButton extends GetView<HomeController> {
   // MyButton({required this.player, required this.pullDownUi, Key? key})
