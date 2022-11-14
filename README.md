@@ -15,9 +15,9 @@
   - []  可将三方的ucci引擎辅助内置引擎进行训练
 
 ## todo
-- 初始化棋盘（debug模式下首次，较慢有这个现象），棋子还没全部摆好，就开始计时了？
-- 点击引擎按钮时，快速点击时按钮没动画
 - 打造可拖动的tabView组件
+- 点击引擎按钮时，快速点击时按钮没动画
+- onLoadEngine以mixin的方式放到controller中，不要在EngineLoadButton中
 - switch (player) str淘汰掉
 - process反馈：“ stream did not contain valid UTF-8？”
 - 若engine异常退出，程序不能关掉
@@ -25,7 +25,6 @@
 - 展开时并放大缩小时，1.距离边界的width会被重置到最边上，且border不固定。须修复；
  - [] 拓展时随便点击哪里都可以拖动（还有个yOffset问题）、 缩小dock时鼠标聚焦后可挪出一点点、
  - [] 浮动工具栏须在窗口放大缩小时 等比率调整位置和大小、透明acrylic
- - [] 绘制象棋界面--fluent ui  snack bar tabview  acrylic 鼠标侧边栏
  - [] 重启读取配置
 
 ## ui issue

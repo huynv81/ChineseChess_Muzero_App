@@ -47,8 +47,6 @@ app.*.map.json
 native/target
 jniLibs
 
-Cargo.lock
-pubspec.lock
 README.md
 
 # engine

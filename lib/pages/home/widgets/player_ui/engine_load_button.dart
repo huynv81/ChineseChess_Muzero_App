@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-07-21 09:49:11
  * @LastEditors  : 老董
- * @LastEditTime : 2022-11-10 08:59:58
+ * @LastEditTime : 2022-11-10 09:50:09
  * @Description  : player panel中那个“电脑图标”的按钮，用以加载引擎
  */
 import 'package:chinese_chess_alpha_zero/common/global.dart';
@@ -68,11 +68,13 @@ class EngineLoadButton extends GetView<HomeController> {
       onTapUp: (posDetails) async {
         debugPrint("触发onTapUp");
         if (controller.getEngineLoaded(player)) {
+          //卸载引擎流程
           await controller.onUnloadEngine(player);
         } else {
           //加载引擎流程
           String? enginePath;
           if (controller.isEnginesEmpty()) {
+            // 1.无引擎加载情况下，弹出文件选择窗口
             enginePath = await getPickedFile();
             if (enginePath == null) {
               toast("引擎目录读取错误");

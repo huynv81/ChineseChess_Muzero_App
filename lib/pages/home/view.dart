@@ -2,7 +2,7 @@
  * @Author       : 老董
  * @Date         : 2022-04-29 10:33:23
  * @LastEditors  : 老董
- * @LastEditTime : 2022-11-10 09:11:08
+ * @LastEditTime : 2022-11-14 10:57:04
  * @Description  : 软件的主界面，左侧为棋盘ui，右侧为包括但不限于棋谱列表、局势曲线等窗口的状态ui
  */
 
@@ -10,6 +10,7 @@ import 'dart:io';
 
 import 'package:chinese_chess_alpha_zero/gened_ucci_api.dart';
 import 'package:dashed_rect/dashed_rect.dart';
+import 'package:docking/docking.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,6 +23,7 @@ import '../../common/widgets/ios_dialog_widget.dart';
 import 'ctrl.dart';
 import 'widgets/board_arrow.dart';
 import '../../common/widgets/float_tool.dart';
+import 'widgets/log_table.dart';
 import 'widgets/player_ui/player_panel.dart';
 import 'widgets/setting_sheet.dart';
 
@@ -135,11 +137,7 @@ class HomeView extends GetView<HomeController> {
       player: Player.Black,
     );
 
-    // final uy = DockingItem(widget: EnginePulldownButton());
-    // final da = DockingArea(EnginePulldownButton());
-    // final uy = DockingRow([EnginePulldownButton()]);
-
-    // docking tab
+    //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓dock测试代码↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
     // DockingLayout layout = DockingLayout(
     //   root: DockingColumn([
     //     DockingTabs([
@@ -148,26 +146,22 @@ class HomeView extends GetView<HomeController> {
     //     ]),
     //     DockingTabs([
     //       DockingItem(name: '日志', widget: const LogTable()),
-    //       DockingItem(name: '思考细节', widget: const Text("")),
+    //       // DockingItem(name: '思考细节', widget: const Text("")),
     //     ]),
     //     // uy
-    //     // DockingRow([c])
-    //   ]),
+        // DockingRow([c])
+      // ]),
     // );
-    // Docking docking = Docking(layout: layout);
+    // DockingLayout layout = DockingLayout(
+    //     root: DockingTabs([
+    //   // root: DockingColumn([
+    //   DockingItem(name: '1', widget: const Text("1"), keepAlive: true),
+    //   DockingItem(name: '2', widget: const Text("2"), keepAlive: true)
+    // ]));
+    // final dockTabView = Docking(layout: layout);
+    //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑dock测试代码↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
-    // layout
-    // final xx = Image.asset("assets/icon/rk.png");
-    // final u = const Card(
-    //     child: ListTile(
-    //   leading: Icon(),
-    //   trailing: Text(
-    //     "GFG",
-    //     style: TextStyle(color: Colors.green, fontSize: 15),
-    //   ),
-    //   title: Text("List item index"),
-    // ));
-
+//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓macos测试代码↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
     final controller = MacosTabController(
       initialIndex: 0,
       length: 3,
@@ -198,12 +192,13 @@ class HomeView extends GetView<HomeController> {
         ),
       ],
     );
-
+//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑macos测试代码↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+    // return dockTabView;
     return Expanded(
       child: Container(
         color: backgroundStartColor,
         child: Column(
-          children: [redPanel, blackPanel, testTabview],
+          children: [redPanel, blackPanel, /* dockTabView */],
         ),
       ),
     );
